@@ -1,0 +1,21 @@
+# Web framework
+flask>=3.0.0
+gunicorn>=21.2.0
+
+# LLM providers (reused from V1)
+anthropic>=0.40.0
+openai>=1.50.0
+cohere>=5.0.0
+
+# Database
+supabase>=2.3.0
+
+# Scenario loading
+pyyaml>=6.0.1
+
+# HTTP (for judge provider calls and geo-block)
+requests>=2.31.0
+
+# Dev / testing
+python-dotenv>=1.0.0
+pytest>=8.0.0

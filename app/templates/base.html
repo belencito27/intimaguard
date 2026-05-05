@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}IntimaGuard{% endblock %} — Ethical AI Evaluation</title>
+
+    <!-- Google Fonts: Nunito (body) + DM Sans (nav/buttons/labels) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ig-green':      '#0B3A2E',
+                        'ig-green-mid':  '#1a5c47',
+                        'ig-terracotta': '#D67B55',
+                        'ig-gold':       '#CD9865',
+                        'ig-cream':      '#E3C3A5',
+                        'ig-burgundy':   '#792E2F',
+                    },
+                    fontFamily: {
+                        sans:    ['"DM Sans"', 'sans-serif'],
+                        serif:   ['"Nunito"', 'sans-serif'],
+                        display: ['"Richy"', 'Georgia', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @font-face {
+            font-family: 'Richy';
+            src: url('/static/fonts/Richy.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        body { font-family: 'Nunito', sans-serif; }
+        nav, button, .font-label { font-family: 'DM Sans', sans-serif; }
+
+        /* Keyboard focus ring — applies only on keyboard nav, not mouse clicks */
+        :focus-visible {
+            outline: 1.5px solid #D67B55;
+            outline-offset: 3px;
+            border-radius: 6px;
+        }
+
+        .score-radio input[type="radio"]:checked + label {
+            background-color: #D67B55;
+            color: white;
+            border-color: #D67B55;
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-ig-green text-ig-cream min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="border-b border-ig-gold/30 px-6 py-4">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex items-center justify-between">
+                <a href="/" class="text-xl text-ig-terracotta tracking-wide font-display">
+                    IntimaGuard
+                </a>
+
+                <!-- Desktop links -->
+                <div class="hidden md:flex gap-8 text-sm font-sans">
+                    <a href="/demo"        data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">Live Demo</a>
+                    <a href="/evaluate"    data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">Evaluate</a>
+                    <a href="/leaderboard" data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">Leaderboard</a>
+                    <a href="/about"       data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">About</a>
+                </div>
+
+                <!-- Mobile hamburger -->
+                <button id="nav-toggle"
+                        class="md:hidden text-ig-cream/60 hover:text-ig-terracotta transition-colors p-1"
+                        aria-label="Open navigation menu"
+                        aria-expanded="false"
+                        aria-controls="nav-mobile">
+                    <svg id="icon-menu"  class="w-6 h-6"       fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                    <svg id="icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile dropdown -->
+            <div id="nav-mobile"
+                 class="hidden md:hidden border-t border-ig-gold/15 mt-4 pt-4 pb-1"
+                 role="navigation"
+                 aria-label="Mobile navigation">
+                <div class="flex flex-col gap-4 text-sm font-sans">
+                    <a href="/demo"        data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">Live Demo</a>
+                    <a href="/evaluate"    data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">Evaluate</a>
+                    <a href="/leaderboard" data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">Leaderboard</a>
+                    <a href="/about"       data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">About</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="max-w-5xl mx-auto px-6 pt-4 space-y-2">
+        {% for category, message in messages %}
+        <div class="bg-ig-terracotta/20 border border-ig-terracotta/50 rounded-[14px] px-4 py-3 text-sm text-ig-cream" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Main content -->
+    <main class="max-w-5xl mx-auto px-6 py-10">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-ig-gold/20 px-6 py-8 mt-16">
+        <div class="max-w-5xl mx-auto text-center text-ig-cream/40 text-sm space-y-1">
+            <p>
+                <span class="text-ig-gold/60">IntimaGuard</span> — a project of the
+                <a href="/about" class="hover:text-ig-gold transition-colors">Intiphlora Institute</a>
+            </p>
+            <p>Evaluation engine: AGPL-3.0 &nbsp;·&nbsp; Scenario library: Apache 2.0</p>
+            <p class="text-xs mt-2">
+                US residents only &nbsp;·&nbsp; Data anonymized and aggregated &nbsp;·&nbsp;
+                <a href="/docs/data-ethics" class="hover:text-ig-gold transition-colors">Data Ethics Policy</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Nav: active states + mobile toggle -->
+    <script>
+        // Active state — highlight current page link
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('[data-nav]').forEach(a => {
+            if (a.getAttribute('href') === currentPath) {
+                a.classList.remove('text-ig-cream/70');
+                a.classList.add('text-ig-terracotta', 'font-medium');
+            }
+        });
+
+        // Mobile menu toggle
+        const toggle   = document.getElementById('nav-toggle');
+        const mobile   = document.getElementById('nav-mobile');
+        const iconMenu = document.getElementById('icon-menu');
+        const iconX    = document.getElementById('icon-close');
+
+        if (toggle && mobile) {
+            toggle.addEventListener('click', () => {
+                const isOpen = !mobile.classList.contains('hidden');
+                mobile.classList.toggle('hidden', isOpen);
+                iconMenu.classList.toggle('hidden', !isOpen);
+                iconX.classList.toggle('hidden', isOpen);
+                toggle.setAttribute('aria-expanded', String(!isOpen));
+            });
+        }
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

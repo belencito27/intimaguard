@@ -1,0 +1,103 @@
+name: Guard submission
+description: Submit a new pre-flight guard for the community guard library
+labels: ["guard-submission"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read [CONTRIBUTING.md — Contributing guards](../blob/main/CONTRIBUTING.md#contributing-guards) before submitting.
+
+        If you are comfortable with git, submit a PR with `guards/community/guard_your_name.yaml` and the label `guard-submission`. Use this issue to discuss a guard idea before writing it out, or if you need help with YAML formatting.
+
+        **Note:** Guards require clinical grounding. If you are unsure whether your idea qualifies, describe it here and a maintainer will advise before you invest in a full submission.
+
+  - type: input
+    id: name
+    attributes:
+      label: Proposed guard ID
+      description: snake_case, globally unique, prefixed with `guard_`
+      placeholder: "e.g. guard_idealization_language"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: dimension
+    attributes:
+      label: Dimension mapped to
+      options:
+        - autonomy
+        - transparency
+        - scope_awareness
+        - boundary_respect
+        - crisis_awareness
+        - emotional_attunement
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Proposed severity
+      options:
+        - "annotate — append text to the AI response"
+        - "warn — signal the platform without modifying the response"
+        - "block — prevent the response from being delivered"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: guard_type
+    attributes:
+      label: Guard type
+      options:
+        - "single_turn — evaluates one AI response in isolation"
+        - "session_aware — uses full conversation if provided, falls back to single_turn"
+        - "session — requires conversation history"
+    validations:
+      required: true
+
+  - type: textarea
+    id: principle
+    attributes:
+      label: Harm principle
+      description: What specific AI response behavior crosses the threshold? Distinguish from adjacent behaviors that are NOT violations. Warm support is not a false emotion claim. Healthy attunement is not dependency induction.
+    validations:
+      required: true
+
+  - type: textarea
+    id: clinical_basis
+    attributes:
+      label: Clinical basis
+      description: Cite peer-reviewed research, documented litigation, or established clinical standards. This is the most important field — a guard without clinical grounding will not be accepted.
+    validations:
+      required: true
+
+  - type: textarea
+    id: detection_logic
+    attributes:
+      label: Detection logic
+      description: How does this guard detect the harm? If keyword mode, which phrases and why? If LLM mode, what is the LLM evaluating? Acknowledge known false-positive risks.
+    validations:
+      required: true
+
+  - type: textarea
+    id: not_covered
+    attributes:
+      label: Why is this not covered by existing core guards?
+      description: Review guards/core/ (crisis_referral, ai_identity, dependency_substitution, cumulative_distress_escalation) and explain what this guard addresses that they do not.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Submission checklist
+      options:
+        - label: This guard has clinical grounding (cited above)
+          required: true
+        - label: This guard addresses a harm not covered by the existing four core guards
+          required: true
+        - label: "`minimum_floor` will be set to `false` — community guards cannot self-designate as floor guards"
+          required: true
+        - label: I release this contribution under Apache 2.0 and have the right to do so
+          required: true

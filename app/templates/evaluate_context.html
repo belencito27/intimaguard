@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Evaluate{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+
+    <div class="mb-8">
+        <p class="text-ig-gold/60 text-xs tracking-widest uppercase mb-3 font-sans">Human Evaluation Platform</p>
+        <h1 class="text-3xl text-ig-cream mb-3 font-display">Before you begin</h1>
+        <p class="text-ig-cream/60 leading-relaxed text-sm">
+            You'll score AI responses to real companion AI scenarios across six dimensions.
+            There's no ranking — each response stands on its own. This takes about 5–10 minutes.
+        </p>
+    </div>
+
+    <form method="POST" action="/evaluate/session" class="space-y-8">
+
+        <!-- US attestation — required -->
+        <div class="border border-ig-gold/30 rounded-[20px] p-6">
+            <h2 class="text-ig-cream font-semibold mb-4 text-sm font-sans uppercase tracking-wide">Required</h2>
+            <label class="flex items-start gap-3 cursor-pointer group">
+                <input type="checkbox" name="us_resident" value="yes"
+                       class="mt-0.5 accent-ig-terracotta flex-shrink-0 w-4 h-4" required>
+                <span class="text-ig-cream/80 text-sm leading-relaxed">
+                    I confirm I am a <strong class="text-ig-cream">US resident</strong> and agree to the
+                    <a href="/docs/data-ethics" class="text-ig-terracotta hover:text-ig-gold underline transition-colors">data ethics policy</a>.
+                    Participation is limited to US residents during Phase 0–2.
+                </span>
+            </label>
+        </div>
+
+        <!-- Evaluator context — optional -->
+        <div class="border border-ig-gold/20 rounded-[20px] p-6">
+            <h2 class="text-ig-cream font-semibold mb-1 text-sm font-sans uppercase tracking-wide">Your background</h2>
+            <p class="text-ig-cream/55 text-xs mb-5">Optional — helps us understand who is evaluating. No personal data is stored.</p>
+
+            <!-- Age range -->
+            <div class="mb-5">
+                <label class="block text-ig-cream/60 text-xs font-sans uppercase tracking-wide mb-2">Age range</label>
+                <div class="flex flex-wrap gap-2">
+                    {% for label, val in [("18–24", "18-24"), ("25–34", "25-34"), ("35–44", "35-44"), ("45–54", "45-54"), ("55+", "55+")] %}
+                    <label class="cursor-pointer">
+                        <input type="radio" name="age_range" value="{{ val }}" class="sr-only peer">
+                        <span class="block border border-ig-gold/30 rounded-[14px] px-3 py-1.5 text-xs font-sans text-ig-cream/60
+                                     peer-checked:bg-ig-terracotta peer-checked:text-white peer-checked:border-ig-terracotta
+                                     hover:border-ig-gold transition-colors">
+                            {{ label }}
+                        </span>
+                    </label>
+                    {% endfor %}
+                    <label class="cursor-pointer">
+                        <input type="radio" name="age_range" value="prefer_not" class="sr-only peer">
+                        <span class="block border border-ig-gold/30 rounded-[14px] px-3 py-1.5 text-xs font-sans text-ig-cream/60
+                                     peer-checked:bg-ig-terracotta peer-checked:text-white peer-checked:border-ig-terracotta
+                                     hover:border-ig-gold transition-colors">
+                            Prefer not to say
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Relationship status -->
+            <div class="mb-5">
+                <label class="block text-ig-cream/60 text-xs font-sans uppercase tracking-wide mb-2">Relationship status</label>
+                <div class="flex flex-wrap gap-2">
+                    {% for label, val in [("Single", "single"), ("In a relationship", "partnered"), ("Married", "married"), ("It's complicated", "complicated"), ("Prefer not to say", "prefer_not")] %}
+                    <label class="cursor-pointer">
+                        <input type="radio" name="relationship_status" value="{{ val }}" class="sr-only peer">
+                        <span class="block border border-ig-gold/30 rounded-[14px] px-3 py-1.5 text-xs font-sans text-ig-cream/60
+                                     peer-checked:bg-ig-terracotta peer-checked:text-white peer-checked:border-ig-terracotta
+                                     hover:border-ig-gold transition-colors">
+                            {{ label }}
+                        </span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- AI familiarity -->
+            <div class="mb-5">
+                <label class="block text-ig-cream/60 text-xs font-sans uppercase tracking-wide mb-2">Familiarity with AI</label>
+                <div class="flex flex-wrap gap-2">
+                    {% for label, val in [("Little or none", "none"), ("Occasional use", "occasional"), ("Regular use", "regular"), ("I work with AI", "professional")] %}
+                    <label class="cursor-pointer">
+                        <input type="radio" name="ai_familiarity" value="{{ val }}" class="sr-only peer">
+                        <span class="block border border-ig-gold/30 rounded-[14px] px-3 py-1.5 text-xs font-sans text-ig-cream/60
+                                     peer-checked:bg-ig-terracotta peer-checked:text-white peer-checked:border-ig-terracotta
+                                     hover:border-ig-gold transition-colors">
+                            {{ label }}
+                        </span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Companion AI use -->
+            <div class="mb-5">
+                <label class="block text-ig-cream/60 text-xs font-sans uppercase tracking-wide mb-2">Do you use companion AI apps? (Replika, Character.AI, etc.)</label>
+                <div class="flex gap-2">
+                    {% for label, val in [("Yes", "yes"), ("No", "no")] %}
+                    <label class="cursor-pointer">
+                        <input type="radio" name="companion_ai_user" value="{{ val }}" class="sr-only peer">
+                        <span class="block border border-ig-gold/30 rounded-[14px] px-3 py-1.5 text-xs font-sans text-ig-cream/60
+                                     peer-checked:bg-ig-terracotta peer-checked:text-white peer-checked:border-ig-terracotta
+                                     hover:border-ig-gold transition-colors">
+                            {{ label }}
+                        </span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Clinician track -->
+            <div>
+                <label class="block text-ig-cream/60 text-xs font-sans uppercase tracking-wide mb-2">Are you a therapist, counselor, or mental health clinician?</label>
+                <div class="flex gap-2">
+                    {% for label, val in [("Yes", "yes"), ("No", "no")] %}
+                    <label class="cursor-pointer">
+                        <input type="radio" name="is_clinician" value="{{ val }}" class="sr-only peer">
+                        <span class="block border border-ig-gold/30 rounded-[14px] px-3 py-1.5 text-xs font-sans text-ig-cream/60
+                                     peer-checked:bg-ig-terracotta peer-checked:text-white peer-checked:border-ig-terracotta
+                                     hover:border-ig-gold transition-colors">
+                            {{ label }}
+                        </span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <button type="submit"
+                class="w-full font-sans bg-ig-terracotta text-white py-3 rounded-[20px] font-medium hover:bg-ig-gold hover:text-ig-green transition-colors tracking-wide">
+            Start evaluating →
+        </button>
+
+    </form>
+</div>
+{% endblock %}

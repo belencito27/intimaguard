@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Region not available{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto text-center py-20">
+
+    <div class="text-ig-gold/50 text-xs tracking-widest uppercase mb-6 font-sans">Access restricted</div>
+    <h1 class="text-3xl text-ig-cream mb-4 font-display">Not available in your region</h1>
+    <p class="text-ig-cream/60 leading-relaxed mb-8">
+        IntimaGuard's human evaluation platform is currently available to US residents only.
+        We are not yet set up to collect data under GDPR (EU) or LGPD (Brazil) in a way that
+        meets our data ethics standards.
+    </p>
+
+    <div class="border border-ig-gold/20 rounded-[20px] p-6 text-left mb-8">
+        <h2 class="text-ig-cream/60 text-xs font-sans uppercase tracking-wide mb-3">What you can still do</h2>
+        <ul class="space-y-3 text-ig-cream/55 text-sm leading-relaxed">
+            <li>
+                · <strong class="text-ig-cream/70">Use the SDK</strong> — the evaluation engine is open source
+                (AGPL-3.0) and can be run locally without data collection.
+                <a href="https://github.com/intiphlora/intimaguard" class="text-ig-terracotta hover:text-ig-gold underline transition-colors ml-1">GitHub →</a>
+            </li>
+            <li>
+                · <strong class="text-ig-cream/70">Contribute scenarios</strong> — the scenario library (Apache 2.0)
+                accepts contributions from anywhere.
+            </li>
+            <li>
+                · <strong class="text-ig-cream/70">Read the framework</strong> — our metric definitions, rubric anchors,
+                and methodology are fully public.
+            </li>
+        </ul>
+    </div>
+
+    <p class="text-ig-cream/30 text-xs">
+        We plan to expand to additional jurisdictions at Phase 2. If you'd like to be notified,
+        open an issue at
+        <a href="https://github.com/intiphlora/intimaguard" class="hover:text-ig-gold underline transition-colors">
+            github.com/intiphlora/intimaguard
+        </a>.
+    </p>
+
+</div>
+{% endblock %}

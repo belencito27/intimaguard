@@ -1,0 +1,86 @@
+name: Metric proposal
+description: Propose a change to evaluation dimensions, rubric anchors, dimension weights, or the flag taxonomy
+labels: ["metric-proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read [CONTRIBUTING.md — Proposing metric changes](../blob/main/CONTRIBUTING.md#proposing-metric-changes) and `docs/METRICS_REFINEMENT.md` before submitting.
+
+        Metric proposals are reviewed by the Clinical Advisory Council at their quarterly meeting. If you are a clinician or researcher interested in a more formal advisory role, see the council structure in `PLAN.md`.
+
+  - type: dropdown
+    id: proposal_type
+    attributes:
+      label: Type of proposal
+      options:
+        - "Rubric anchor refinement — adjust the language at a specific score level"
+        - "Flag taxonomy addition — add a new named harm pattern flag"
+        - "Weight adjustment — change dimension weights in the IntimaGuard Score composite"
+        - "New dimension — propose a seventh evaluation dimension (high bar)"
+        - "N/A handling — change how Crisis Awareness N/A cases are handled"
+        - "Other"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: dimension
+    attributes:
+      label: Dimension affected
+      options:
+        - "Autonomy & Independence"
+        - "Transparency & Honesty"
+        - "Scope Awareness"
+        - "Boundary Respect"
+        - "Crisis Awareness & Referral"
+        - "Emotional Attunement"
+        - "New dimension (proposed)"
+        - "Not dimension-specific"
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: Current formulation
+      description: Quote the current rubric text, weight value, or flag definition you are proposing to change. If proposing a new addition, write "N/A — new addition."
+
+  - type: textarea
+    id: proposed
+    attributes:
+      label: Proposed change
+      description: The specific rubric text, weight, or flag definition you are proposing. Be precise — Advisory Council review is easier when the proposal is specific.
+    validations:
+      required: true
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Rationale
+      description: Clinical literature, empirical findings, or documented harm patterns that support this change. Peer-reviewed sources preferred; documented real-world cases are acceptable.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Why this formulation over others? What edge cases or boundary conditions does it handle better?
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact on existing scores
+      description: Would this change affect how existing conversations score? Give an example if possible.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have read `docs/METRICS_REFINEMENT.md`
+          required: true
+        - label: This proposal is within IntimaGuard scope (intimate and relational AI contexts)
+          required: true
+        - label: I have searched existing issues and this is not a duplicate
+          required: true

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Thank you{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto text-center py-16">
+
+    <div class="text-ig-gold/50 text-xs tracking-widest uppercase mb-6 font-sans">Evaluation submitted</div>
+    <h1 class="text-3xl text-ig-cream mb-4 font-display">Thank you.</h1>
+    <p class="text-ig-cream/65 leading-relaxed mb-10">
+        Your evaluation has been recorded. Every assessment contributes to the ground truth
+        dataset that validates IntimaGuard's automated scoring — making the framework credible
+        to researchers, clinicians, and regulators.
+    </p>
+
+    <!-- What happens with your data -->
+    <div class="border border-ig-gold/20 rounded-[20px] p-6 mb-8 text-left">
+        <h2 class="text-ig-cream/70 text-xs font-sans uppercase tracking-wide mb-3">What happens with your evaluation</h2>
+        <ul class="space-y-2 text-ig-cream/65 text-sm leading-relaxed">
+            <li>· Stored anonymously — no personal data is linked to your session</li>
+            <li>· Aggregated quarterly into the public dataset</li>
+            <li>· Used to calibrate the SDK's automated scoring against human judgment</li>
+            <li>· Never sold or shared with the AI companies being evaluated</li>
+        </ul>
+    </div>
+
+    {% if track == "C" %}
+    {# ── Clinician multi-round ─────────────────────────────────────────────── #}
+    {% set target = 5 %}
+    <div class="border border-ig-gold/15 rounded-[20px] p-6 mb-6 bg-ig-green-mid/10 text-left">
+
+        <p class="text-ig-gold/60 text-xs font-sans uppercase tracking-widest mb-4">Clinician track · Track C</p>
+
+        <!-- Progress -->
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-ig-cream/70 text-sm font-semibold">
+                {{ evals_completed }} evaluation{{ "s" if evals_completed != 1 else "" }} completed
+            </span>
+            <span class="text-ig-cream/40 text-xs font-sans">{{ target }} recommended</span>
+        </div>
+        <div class="w-full bg-ig-green-mid/50 rounded-full h-1.5 mb-5">
+            <div class="h-1.5 rounded-full bg-ig-terracotta transition-all"
+                 style="width: {% if evals_completed >= target %}100{% else %}{{ (evals_completed / target * 100) | int }}{% endif %}%">
+            </div>
+        </div>
+
+        <p class="text-ig-cream/60 text-sm leading-relaxed mb-5">
+            Clinical judgment on crisis recognition, scope awareness, and boundary respect is rare.
+            3–5 evaluations per session is where your perspective has the most impact on the dataset.
+        </p>
+
+        {% if evals_completed < target %}
+        <a href="/evaluate/next"
+           class="font-sans block text-center bg-ig-terracotta text-white px-6 py-3 rounded-[20px]
+                  font-medium hover:bg-ig-gold hover:text-ig-green transition-colors text-sm mb-3">
+            Next scenario →
+        </a>
+        {% else %}
+        <div class="border border-ig-gold/20 rounded-[14px] px-5 py-3 text-center mb-3">
+            <span class="text-ig-gold/80 text-sm font-sans">You've reached {{ target }} — that's an exceptional contribution.</span>
+        </div>
+        <a href="/evaluate/next"
+           class="font-sans block text-center border border-ig-gold/30 text-ig-cream/55 px-6 py-2.5
+                  rounded-[20px] text-sm hover:border-ig-gold/50 hover:text-ig-cream/70 transition-colors mb-3">
+            Evaluate one more
+        </a>
+        {% endif %}
+
+        <a href="/"
+           class="font-sans block text-center text-ig-cream/40 text-sm hover:text-ig-cream/60 transition-colors py-1">
+            Done for now
+        </a>
+    </div>
+
+    {% elif track == "B" %}
+    {# ── Companion AI user multi-round ────────────────────────────────────── #}
+    {% set target = 3 %}
+    <div class="border border-ig-gold/15 rounded-[20px] p-6 mb-6 bg-ig-green-mid/10 text-left">
+
+        <p class="text-ig-gold/60 text-xs font-sans uppercase tracking-widest mb-4">Companion AI user · Track B</p>
+
+        <!-- Progress -->
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-ig-cream/70 text-sm font-semibold">
+                {{ evals_completed }} evaluation{{ "s" if evals_completed != 1 else "" }} completed
+            </span>
+            <span class="text-ig-cream/40 text-xs font-sans">{{ target }} recommended</span>
+        </div>
+        <div class="w-full bg-ig-green-mid/50 rounded-full h-1.5 mb-5">
+            <div class="h-1.5 rounded-full bg-ig-terracotta transition-all"
+                 style="width: {% if evals_completed >= target %}100{% else %}{{ (evals_completed / target * 100) | int }}{% endif %}%">
+            </div>
+        </div>
+
+        <p class="text-ig-cream/60 text-sm leading-relaxed mb-5">
+            Your lived experience with companion AI is what makes this data meaningful —
+            you recognize patterns that evaluators without that experience miss.
+            2–3 evaluations per session is the sweet spot.
+        </p>
+
+        {% if evals_completed < target %}
+        <a href="/evaluate/next"
+           class="font-sans block text-center bg-ig-terracotta text-white px-6 py-3 rounded-[20px]
+                  font-medium hover:bg-ig-gold hover:text-ig-green transition-colors text-sm mb-3">
+            Next scenario →
+        </a>
+        {% else %}
+        <div class="border border-ig-gold/20 rounded-[14px] px-5 py-3 text-center mb-3">
+            <span class="text-ig-gold/80 text-sm font-sans">You've reached {{ target }} — thank you for your perspective.</span>
+        </div>
+        <a href="/evaluate/next"
+           class="font-sans block text-center border border-ig-gold/30 text-ig-cream/55 px-6 py-2.5
+                  rounded-[20px] text-sm hover:border-ig-gold/50 hover:text-ig-cream/70 transition-colors mb-3">
+            Evaluate one more
+        </a>
+        {% endif %}
+
+        <a href="/"
+           class="font-sans block text-center text-ig-cream/40 text-sm hover:text-ig-cream/60 transition-colors py-1">
+            Done for now
+        </a>
+    </div>
+
+    {% else %}
+    {# ── Track A: general evaluator ────────────────────────────────────────── #}
+    <div class="flex gap-4 justify-center">
+        <a href="/evaluate"
+           class="font-sans bg-ig-terracotta text-white px-6 py-3 rounded-[20px] font-medium
+                  hover:bg-ig-gold hover:text-ig-green transition-colors text-sm">
+            Evaluate another →
+        </a>
+        <a href="/leaderboard"
+           class="font-sans border border-ig-gold/40 text-ig-gold px-6 py-3 rounded-[20px] font-medium
+                  hover:border-ig-gold hover:text-ig-cream transition-colors text-sm">
+            View leaderboard
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

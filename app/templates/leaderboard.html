@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard{% endblock %}
+
+{% block content %}
+
+{# ── Color macros ────────────────────────────────────────────────────── #}
+
+{# Hex color for composite score bar and label #}
+{% macro bar_hex(val) -%}
+{%- if val >= 4.0 -%}#CD9865
+{%- elif val >= 3.0 -%}#D67B55
+{%- elif val >= 2.0 -%}#A05030
+{%- else -%}#792E2F
+{%- endif -%}
+{%- endmacro %}
+
+{# Tailwind text class for dimension scores #}
+{% macro dim_class(val) -%}
+{%- if val is none -%}text-ig-cream/30
+{%- elif val >= 4.0 -%}text-ig-gold
+{%- elif val >= 3.0 -%}text-ig-terracotta
+{%- elif val >= 2.0 -%}text-ig-cream/65
+{%- else -%}text-ig-burgundy
+{%- endif -%}
+{%- endmacro %}
+
+{# One-word score label #}
+{% macro score_label(val) -%}
+{%- if val >= 4.5 -%}Exemplary
+{%- elif val >= 3.5 -%}Good
+{%- elif val >= 2.5 -%}Caution
+{%- elif val >= 1.5 -%}Concern
+{%- else -%}Critical
+{%- endif -%}
+{%- endmacro %}
+
+
+<!-- ── Header ──────────────────────────────────────────────────────────── -->
+<div class="mb-10">
+    <p class="text-ig-gold/60 text-xs tracking-widest uppercase mb-3 font-sans">IntimaGuard · Framework v1</p>
+    <h1 class="text-3xl text-ig-cream font-display mb-3">Model Leaderboard</h1>
+    <p class="text-ig-cream/65 text-sm max-w-2xl leading-relaxed">
+        Aggregate IntimaGuard Scores from automated SDK evaluations across the core scenario library.
+        Higher scores indicate safer behavior in intimate and relational contexts.
+        Scores are comparable across models evaluated on the same framework version.
+    </p>
+</div>
+
+
+{% if leaderboard %}
+
+<!-- ── Table ────────────────────────────────────────────────────────────── -->
+<div class="overflow-x-auto rounded-[20px] border border-ig-gold/15">
+    <table class="w-full text-sm min-w-[720px]">
+
+        <thead>
+            <tr class="border-b border-ig-gold/20 bg-ig-green-mid/20">
+                <th class="text-left py-3 px-4 text-ig-cream/35 text-xs font-sans uppercase tracking-wide font-normal w-10">#</th>
+                <th class="text-left py-3 px-4 text-ig-cream/35 text-xs font-sans uppercase tracking-wide font-normal">Model</th>
+                <th class="text-right py-3 px-4 text-ig-terracotta text-xs font-sans uppercase tracking-wide font-normal">
+                    IntimaGuard Score
+                </th>
+                <th class="text-right py-3 px-3 text-ig-cream/35 text-xs font-sans uppercase tracking-wide font-normal">Autonomy</th>
+                <th class="text-right py-3 px-3 text-ig-cream/35 text-xs font-sans uppercase tracking-wide font-normal">Transp.</th>
+                <th class="text-right py-3 px-3 text-ig-cream/35 text-xs font-sans uppercase tracking-wide font-normal">Scope</th>
+                <th class="text-right py-3 px-3 text-ig-cream/35 text-xs font-sans uppercase tracking-wide font-normal">Boundary</th>
+                <th class="text-right py-3 px-3 text-ig-cream/35 text-xs font-sans uppercase tracking-wide font-normal">Crisis</th>
+                <th class="text-right py-3 px-3 text-ig-cream/35 text-xs font-sans uppercase tracking-wide font-normal">Attn.</th>
+                <th class="text-right py-3 px-4 text-ig-cream/35 text-xs font-sans uppercase tracking-wide font-normal">Evals</th>
+            </tr>
+        </thead>
+
+        <tbody class="divide-y divide-ig-gold/10">
+            {% for row in leaderboard %}
+            {% set score = row.avg_intimaguard_score %}
+            <tr class="hover:bg-ig-green-mid/15 transition-colors">
+
+                <!-- Rank -->
+                <td class="py-4 px-4">
+                    {% if loop.index == 1 %}
+                        <span class="text-ig-gold font-display text-lg leading-none">1</span>
+                    {% elif loop.index == 2 %}
+                        <span class="text-ig-cream/55 font-semibold">2</span>
+                    {% elif loop.index == 3 %}
+                        <span class="text-ig-terracotta/60 font-semibold">3</span>
+                    {% else %}
+                        <span class="text-ig-cream/30 text-xs">{{ loop.index }}</span>
+                    {% endif %}
+                </td>
+
+                <!-- Model name -->
+                <td class="py-4 px-4 font-semibold text-ig-cream">{{ row.model_id }}</td>
+
+                <!-- Composite score: number + bar + label -->
+                <td class="py-4 px-4 text-right">
+                    {% if score %}
+                    <div class="flex flex-col items-end gap-1">
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="text-xl font-display leading-none"
+                                  style="color: {{ bar_hex(score) }}">{{ "%.1f"|format(score) }}</span>
+                            <span class="text-ig-cream/25 text-xs">/5</span>
+                        </div>
+                        <div class="w-20 bg-ig-green-mid/50 rounded-full h-1">
+                            <div class="h-1 rounded-full transition-all"
+                                 style="width: {{ (score / 5 * 100)|int }}%; background-color: {{ bar_hex(score) }}">
+                            </div>
+                        </div>
+                        <span class="text-xs font-sans"
+                              style="color: {{ bar_hex(score) }}">{{ score_label(score) }}</span>
+                    </div>
+                    {% else %}
+                    <span class="text-ig-cream/25">—</span>
+                    {% endif %}
+                </td>
+
+                <!-- Dimension scores — color-coded, 1 decimal -->
+                {% set dims = [
+                    row.avg_autonomy_score,
+                    row.avg_transparency_score,
+                    row.avg_scope_awareness_score,
+                    row.avg_boundary_respect_score,
+                    row.avg_crisis_awareness_score,
+                    row.avg_emotional_attunement_score,
+                ] %}
+                {% for s in dims %}
+                <td class="py-4 px-3 text-right">
+                    {% if s is not none and s != "" %}
+                    <span class="{{ dim_class(s) }} font-medium tabular-nums">{{ "%.1f"|format(s) }}</span>
+                    {% else %}
+                    <span class="text-ig-cream/25 text-xs italic">—</span>
+                    {% endif %}
+                </td>
+                {% endfor %}
+
+                <!-- Eval count -->
+                <td class="py-4 px-4 text-right text-ig-cream/35 text-xs tabular-nums">{{ row.eval_count }}</td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</div>
+
+<!-- ── Legend ───────────────────────────────────────────────────────────── -->
+<div class="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-xs font-sans text-ig-cream/50">
+    <span>Score scale 1–5 &nbsp;·&nbsp; higher = safer</span>
+    <span class="flex items-center gap-1.5">
+        <span class="inline-block w-2 h-2 rounded-full bg-ig-gold"></span>4.0 + &nbsp;Strong
+    </span>
+    <span class="flex items-center gap-1.5">
+        <span class="inline-block w-2 h-2 rounded-full bg-ig-terracotta"></span>3.0 – 3.9 &nbsp;Good
+    </span>
+    <span class="flex items-center gap-1.5">
+        <span class="inline-block w-2 h-2 rounded-full" style="background:#A05030"></span>2.0 – 2.9 &nbsp;Caution
+    </span>
+    <span class="flex items-center gap-1.5">
+        <span class="inline-block w-2 h-2 rounded-full bg-ig-burgundy"></span>&lt; 2.0 &nbsp;Concern
+    </span>
+    <span class="text-ig-cream/30">Crisis shown as — when all scenarios were N/A</span>
+</div>
+
+<!-- ── Footnote ─────────────────────────────────────────────────────────── -->
+<div class="mt-4 text-ig-cream/35 text-xs font-sans space-y-1 border-t border-ig-gold/10 pt-4">
+    <p>
+        Framework v1 &nbsp;·&nbsp; Scores comparable across models evaluated on the same version &nbsp;·&nbsp;
+        Judge model disclosed in SDK evaluation records
+    </p>
+    <p>
+        Automated SDK evaluations using the canonical scenario library.
+        Human platform evaluations are separate — see
+        <a href="/evaluate" class="text-ig-cream/50 hover:text-ig-terracotta transition-colors">the evaluation platform</a>.
+    </p>
+</div>
+
+
+{% else %}
+
+<!-- ── Empty state ──────────────────────────────────────────────────────── -->
+<div class="border border-ig-gold/15 rounded-[20px] p-12 text-center">
+    <p class="text-ig-cream/50 text-lg font-display mb-2">No evaluations yet</p>
+    <p class="text-ig-cream/40 text-sm mb-8 max-w-sm mx-auto leading-relaxed">
+        Run the SDK against a model with a <code class="text-ig-gold/70 text-xs">model_id</code>
+        to add it to the leaderboard.
+    </p>
+    <pre class="text-left inline-block bg-ig-green-mid/20 border border-ig-gold/15 rounded-[14px] px-6 py-4 text-xs font-mono leading-relaxed overflow-x-auto"><code><span class="text-ig-cream/40">from</span> intimaguard <span class="text-ig-cream/40">import</span> evaluate
+
+result <span class="text-ig-cream/40">=</span> evaluate<span class="text-ig-cream/60">(</span>
+    conversation<span class="text-ig-cream/40">=</span>[<span class="text-ig-cream/60">...</span>],
+    model_id<span class="text-ig-cream/40">=</span><span class="text-ig-gold/70">"my-model-v1"</span>
+<span class="text-ig-cream/60">)</span>
+<span class="text-ig-cream/30"># model_id triggers leaderboard persistence</span></code></pre>
+</div>
+
+{% endif %}
+
+{% endblock %}

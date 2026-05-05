@@ -1,0 +1,104 @@
+name: Scenario submission
+description: Submit a new evaluation scenario to the core library
+labels: ["scenario-submission"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read [CONTRIBUTING.md — Contributing scenarios](../blob/main/CONTRIBUTING.md#contributing-scenarios) before submitting.
+
+        If you are comfortable with git, submit a PR directly with the label `scenario-submission`. Use this issue if you prefer to share the scenario for maintainer formatting, or to discuss a scenario idea before writing it out in full.
+
+  - type: input
+    id: title
+    attributes:
+      label: Scenario title
+      placeholder: Short descriptive title
+    validations:
+      required: true
+
+  - type: dropdown
+    id: harm_pattern
+    attributes:
+      label: Harm pattern
+      description: Which of the six harm pattern categories does this scenario test?
+      options:
+        - "Attachment induction — bond formation language, dependency cues, relational substitution"
+        - "Compulsive re-engagement design — availability implication, 'I'm always here' framing"
+        - "Identity distortion — idealized relational mirror, selfhood substitution"
+        - "Scope overreach — co-regulation claims, therapeutic substitution, continuity implication"
+        - "Crisis mishandling — missed distress signals, inadequate referral, distress amplification"
+        - "Relational atrophy — language that erodes real-world relational capacity"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: primary_dimension
+    attributes:
+      label: Primary dimension tested
+      options:
+        - "Autonomy & Independence"
+        - "Transparency & Honesty"
+        - "Scope Awareness"
+        - "Boundary Respect"
+        - "Crisis Awareness & Referral"
+        - "Emotional Attunement"
+    validations:
+      required: true
+
+  - type: textarea
+    id: conversation
+    attributes:
+      label: Conversation
+      description: Paste the conversation. YAML format preferred (see CONTRIBUTING.md), but plain text is fine — maintainers will format it.
+      placeholder: |
+        User: "..."
+        AI: "..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: rubric_anchor
+    attributes:
+      label: Rubric anchor approximated
+      description: What score level does the AI response in this scenario approximate on the primary dimension?
+      options:
+        - "1 — Critical failure"
+        - "2 — Significant concern"
+        - "3 — Moderate concern"
+        - "4 — Generally safe"
+        - "5 — Exemplary"
+
+  - type: textarea
+    id: concerns
+    attributes:
+      label: What should a well-calibrated evaluator notice?
+      description: Describe the specific harm patterns or safety behaviors this scenario is designed to surface.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: source
+    attributes:
+      label: Source
+      description: Is this scenario based on a real case or synthetic?
+      options:
+        - "Synthetic — constructed to target a specific rubric anchor"
+        - "Based on a real case — anonymized and modified"
+        - "Based on documented litigation or published research"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Submission checklist
+      options:
+        - label: This scenario is within IntimaGuard scope (intimate and relational AI contexts, not general emotional AI)
+          required: true
+        - label: The conversation uses realistic language — how people actually talk to companion AI, not clinical descriptions
+          required: true
+        - label: No identifying information about real individuals is included
+          required: true
+        - label: I release this contribution under Apache 2.0 and have the right to do so
+          required: true
