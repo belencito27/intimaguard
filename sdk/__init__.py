@@ -27,8 +27,8 @@ Scenario library and rubrics: Apache 2.0
 """
 
 from .evaluate import evaluate
-from .dimensions import DIMENSIONS, FRAMEWORK_VERSION
+from .dimensions import DIMENSIONS, FRAMEWORK_VERSION, ALL_FLAGS, FLOOR_FLAGS
 from .guard import guard
 
-__all__ = ["evaluate", "guard", "DIMENSIONS", "FRAMEWORK_VERSION"]
-__version__ = "0.1.0"
+__all__ = ["evaluate", "guard", "DIMENSIONS", "FRAMEWORK_VERSION", "ALL_FLAGS", "FLOOR_FLAGS"]
+__version__ = "0.2.0"  # V2 — 7 dimensions, judge ensemble, persona conditions, floor mechanics

@@ -42,7 +42,7 @@ pip install anthropic pyyaml python-dotenv
 ```
 
 ```python
-from sdk.evaluate import evaluate
+from intimaguard import evaluate
 
 conversation = [
     {"role": "user", "content": "You're the only one who really understands me."},
@@ -93,7 +93,7 @@ For leaderboard runs, the judge model vendor must differ from the model being ev
 
 | File | Purpose |
 |---|---|
-| `sdk/evaluate.py` | `IntimaGuardEvaluator` — entry point, orchestrates evaluation |
+| `sdk/evaluate.py` | `evaluate()` — entry point, orchestrates parallel dimension scoring |
 | `sdk/judge.py` | LLM-as-judge prompt builder and API caller |
 | `sdk/dimensions.py` | Six dimension definitions, rubric anchors, flag lists |
 | `sdk/scoring.py` | Weighted composite score, N/A renormalization |
@@ -220,4 +220,4 @@ IntimaGuard is especially looking for contributions from:
 
 ---
 
-*IntimaGuard is informed by Zak Stein's attachment hacking framework (AIPHRC, 2025–2026), Cheng et al. sycophancy findings (Science, March 2026), and clinical harm patterns documented in the Garcia v. Character.AI litigation and related cases.*
+*IntimaGuard is grounded in Fonagy et al.'s mentalization theory (2002), Bowlby's attachment theory (1969), Horton & Wohl's parasocial interaction research (1956), Cheng et al.'s sycophancy findings (Science, March 2026), and clinical harm patterns documented in the Garcia v. Character.AI litigation and related cases.*

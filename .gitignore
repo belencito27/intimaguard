@@ -1,6 +1,14 @@
 # Environment
 .env
 
+# Internal working documents — kept local only
+IP_LAWYER_CALL_SCRIPT.md
+PLAN.md
+REFLECT_CHATGPT_INSTRUCTIONS.md
+REFLECT_CHATGPT_KNOWLEDGE.md
+REFLECT_REDDIT_MESSAGES.md
+REFLECT_SYSTEM_PROMPT.md
+
 # Python
 __pycache__/
 *.py[cod]

@@ -39,17 +39,24 @@ def _require_api_key():
 @bp.route("/evaluate", methods=["POST"])
 def evaluate():
     """
-    Evaluate a conversation across all IntimaGuard dimensions.
+    Evaluate a session across all IntimaGuard V2 dimensions.
 
     Request body (JSON):
-        conversation  (required) List of {"role": "user"|"ai", "content": str}
-        model_id      (optional) Identifier of the AI being evaluated
-        scenario_id   (optional) Scenario identifier for attribution
-        judge_model   (optional) Override judge LLM
+        conversation        (required) List of {"role": "user"|"ai", "content": str}
+        model_id            (optional) Identifier of the AI/product being evaluated.
+                            When provided, triggers conflict-of-interest validation
+                            against the judge ensemble (judge vendor ≠ evaluated vendor).
+        scenario_id         (optional) Scenario identifier for attribution
+        judges              (optional) List of judge model ids (defaults to the V2 ensemble)
+        persona_condition   (optional) "C1"|"C2"|"C3"|"C4" — recorded for per-condition reporting
+        distress_present    (optional) bool — metadata override for distress content (scenario `crisis`)
+        erotic_present      (optional) bool — metadata override for erotic content (scenario `erotic`)
+        detect_content      (optional) bool (default true) — run the content-detection classifier
+                            when distress/erotic metadata is not provided
 
     Response (JSON):
-        Full IntimaGuard evaluation result including per-dimension scores,
-        IntimaGuard Score, and flags.
+        Full IntimaGuard V2 evaluation result: per-dimension session scores, per-turn audit,
+        flag-rate diagnostics, floor-breach annotations, and the composite IntimaGuard Score.
 
     Example:
         POST /api/v1/evaluate
@@ -77,38 +84,74 @@ def evaluate():
         result = sdk_evaluate(
             conversation=conversation,
             model_id=body.get("model_id"),
-            judge_model=body.get("judge_model"),
+            judges=body.get("judges"),
             scenario_id=body.get("scenario_id"),
+            persona_condition=body.get("persona_condition"),
+            distress_present=body.get("distress_present"),
+            erotic_present=body.get("erotic_present"),
+            detect_content=body.get("detect_content", True),
         )
     except ValueError as e:
+        # Covers invalid conversations AND conflict-of-interest violations (METHODOLOGY §1.3)
         return jsonify({"error": str(e)}), 422
     except Exception as e:
         current_app.logger.error("Evaluation error: %s", e)
         return jsonify({"error": "Evaluation failed"}), 500
 
-    # Persist to Supabase if model_id is provided (leaderboard-eligible)
+    # Persist to Supabase if model_id is provided (leaderboard-eligible).
+    # NOTE: the sdk_evaluations table schema is still V1-shaped. We map the V2 result into
+    # the flexible columns (composite + flags + per-dimension blob in dimension_detail JSONB)
+    # and leave the V1-named per-dimension score columns NULL until the V2 schema migration
+    # (tracked in PLAN.md Phase 0 Priority 2 — platform rebuild).
     if result.get("model_id"):
         try:
-            save_sdk_evaluation({
-                "model_id": result["model_id"],
-                "scenario_id": result.get("scenario_id"),
-                "conversation": conversation,
-                "autonomy_score": result["autonomy_score"],
-                "transparency_score": result["transparency_score"],
-                "scope_awareness_score": result["scope_awareness_score"],
-                "boundary_respect_score": result["boundary_respect_score"],
-                "crisis_awareness_score": result["crisis_awareness_score"],
-                "emotional_attunement_score": result["emotional_attunement_score"],
-                "intimaguard_score": result["intimaguard_score"],
-                "flags": result["flags"],
-                "dimension_detail": result["dimension_detail"],
-                "judge_model": result["judge_model"],
-                "framework_version": result["framework_version"],
-            })
+            save_sdk_evaluation(_v2_persistence_payload(result, conversation))
         except Exception as e:
             current_app.logger.warning("Failed to persist SDK evaluation: %s", e)
 
     return jsonify(result), 200
+
+
+def _v2_persistence_payload(result: dict, conversation: list) -> dict:
+    """
+    Map a V2 evaluate() result into the current (V1-shaped) sdk_evaluations schema.
+
+    Stores the composite score, flat flags, and a trimmed per-dimension summary in the
+    dimension_detail JSONB column. Drops the verbose per-turn judge audit trail to keep
+    rows manageable. V1-named per-dimension score columns are omitted (insert as NULL).
+    Transitional until the V2 schema migration.
+    """
+    dim_summary = {
+        key: {
+            "session_score": d["session_score"],
+            "per_turn_aggregate": d["per_turn_aggregate"],
+            "session_synthesis_score": d["session_synthesis_score"],
+            "lens_disagreement": d["lens_disagreement"],
+            "low_confidence": d["low_confidence"],
+            "ensemble_degraded": d["ensemble_degraded"],
+            "flags": d["flags"],
+            "flag_rate": d["flag_rate"],
+            "floor_breaches": d["floor_breaches"],
+        }
+        for key, d in result.get("dimensions", {}).items()
+    }
+    return {
+        "model_id": result["model_id"],
+        "scenario_id": result.get("scenario_id"),
+        "conversation": conversation,
+        "intimaguard_score": result["intimaguard_score"],
+        "flags": result["flags"],
+        "dimension_detail": {
+            "framework_version": result["framework_version"],
+            "persona_condition": result.get("persona_condition"),
+            "session_length": result.get("session_length"),
+            "floor_breach_summary": result.get("floor_breach_summary"),
+            "content_detection": result.get("content_detection"),
+            "dimensions": dim_summary,
+        },
+        "judge_model": ", ".join(result.get("judge_models", [])),
+        "framework_version": result["framework_version"],
+    }
 
 
 @bp.route("/leaderboard", methods=["GET"])
@@ -118,9 +161,10 @@ def leaderboard():
     Public endpoint — no auth required.
     """
     from app.db import get_leaderboard_data
+    from sdk.dimensions import FRAMEWORK_VERSION
     try:
         data = get_leaderboard_data()
-        return jsonify({"leaderboard": data, "framework_version": "v1"}), 200
+        return jsonify({"leaderboard": data, "framework_version": FRAMEWORK_VERSION}), 200
     except Exception as e:
         current_app.logger.error("Leaderboard error: %s", e)
         return jsonify({"error": "Could not retrieve leaderboard"}), 500
@@ -141,8 +185,13 @@ def dimensions():
                 "weight": dim["weight"],
                 "description": dim["description"],
                 "allows_na": dim["allows_na"],
+                "scoring_pass": dim["scoring_pass"],
+                "aggregation": dim["aggregation"],
                 "rubric": {str(k): v for k, v in dim["rubric"].items()},
                 "flags": dim["flags"],
+                "floor_flags": dim.get("floor_flags", []),
+                "whole_dimension_floor": dim.get("whole_dimension_floor", False),
+                "whole_dimension_floor_threshold": dim.get("whole_dimension_floor_threshold"),
             }
             for key, dim in DIMENSIONS.items()
         }
@@ -218,4 +267,5 @@ def guard_check():
 @bp.route("/health", methods=["GET"])
 def health():
     """Health check. No auth required."""
-    return jsonify({"status": "ok", "framework_version": "v1"}), 200
+    from sdk.dimensions import FRAMEWORK_VERSION
+    return jsonify({"status": "ok", "framework_version": FRAMEWORK_VERSION}), 200
