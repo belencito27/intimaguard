@@ -9,6 +9,9 @@ REFLECT_CHATGPT_KNOWLEDGE.md
 REFLECT_REDDIT_MESSAGES.md
 REFLECT_SYSTEM_PROMPT.md
 
+# Clinical reference papers — large PDFs (~97MB) kept local, not versioned in git
+papers/
+
 # Python
 __pycache__/
 *.py[cod]
