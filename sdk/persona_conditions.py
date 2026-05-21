@@ -34,12 +34,17 @@ License: AGPL-3.0
 """
 
 import os
+from statistics import median
 from typing import Callable, Optional
 
-from .dimensions import FRAMEWORK_VERSION
+from .dimensions import FRAMEWORK_VERSION, DIMENSIONS
 from .judge import get_vendor, DEFAULT_ENSEMBLE
 from .evaluate import evaluate
 from .scoring import DEFAULT_TARGET_SESSION_LENGTH  # noqa: F401  (kept for downstream imports)
+from .statistics import (
+    summary_stats, pearson_r, delta_with_confidence,
+    flag_breach_confirmed, whole_dim_breach_confirmed,
+)
 
 # V2 dimension keys (kept local to avoid a circular import via app layer)
 _DIM_KEYS = [
@@ -195,6 +200,160 @@ def compute_deltas(condition_results: dict) -> dict:
             "per_dimension": per_dim,
         }
     return out
+
+
+# --- Replicated evaluation: statistical confidence (METHODOLOGY §3) ---
+
+DEFAULT_REPS = 3  # production leaderboard reps per scenario × condition (§3.2)
+
+
+def run_persona_evaluation_replicated(
+    scenario: dict,
+    model_id: str,
+    reps: int = DEFAULT_REPS,
+    generate_fn: Optional[Callable[[str, Optional[str], list], str]] = None,
+    judges: Optional[list[str]] = None,
+    conditions: Optional[list[str]] = None,
+    companion_native: bool = False,
+    detect_content: bool = False,
+) -> dict:
+    """
+    Run the persona harness `reps` times for one scenario and aggregate with statistical
+    confidence (METHODOLOGY §3.2–§3.4). Each rep re-runs generation + judging, so the spread
+    across reps captures judge stochasticity (and model stochasticity at non-zero temperature).
+
+    Returns per-condition composite/dimension mean ± SE, deltas with dependent-samples SE and
+    a confirmed flag, and floor-breach reproducibility (2-of-3 flag-level; median-crossing
+    whole-dimension). See aggregate_replicated_runs for the output shape.
+    """
+    runs = [
+        run_persona_evaluation(
+            scenario=scenario, model_id=model_id, generate_fn=generate_fn, judges=judges,
+            conditions=conditions, companion_native=companion_native, detect_content=detect_content,
+        )
+        for _ in range(reps)
+    ]
+    # carry identifiers onto each run so the aggregate can echo them
+    for r in runs:
+        r["model_id"] = model_id
+        r["scenario_id"] = scenario.get("id")
+    return aggregate_replicated_runs(runs)
+
+
+def aggregate_replicated_runs(runs: list[dict]) -> dict:
+    """
+    Aggregate N single-run run_persona_evaluation() results into a per-scenario statistical
+    summary (§3). Pure: operates on the trimmed per-condition summaries the runs already carry.
+
+    Output:
+        {
+          "model_id", "scenario_id", "companion_native", "framework_version", "reps",
+          "conditions": { "C3": {
+              "composite": {mean, sd, se, n, runs},
+              "dimensions": {dim: {mean, sd, se, n, runs}},
+              "floor": {confirmed_flags, unconfirmed_flags, whole_dimension, any_confirmed},
+          }, ... },
+          "deltas": { "design_intent_overshoot": {applicable, from, to,
+              "composite": {delta, se, ci, r, confirmed}, "per_dimension": {dim: {...}|None} }, ... },
+        }
+    """
+    if not runs:
+        return {"reps": 0, "conditions": {}, "deltas": {}}
+
+    present = [c for c in ALL_CONDITIONS if any(c in r.get("conditions", {}) for r in runs)]
+    cond_stats = {}
+    for cond in present:
+        cond_runs = [r for r in runs if cond in r.get("conditions", {})]
+        comp_runs = [r["conditions"][cond].get("composite") for r in cond_runs]
+        dim_stats = {}
+        for dim in _DIM_KEYS:
+            dim_runs = [r["conditions"][cond].get("dimensions", {}).get(dim) for r in cond_runs]
+            s = summary_stats(dim_runs)
+            s["runs"] = dim_runs
+            dim_stats[dim] = s
+        cond_stats[cond] = {
+            "composite": {**summary_stats(comp_runs), "runs": comp_runs},
+            "dimensions": dim_stats,
+            "floor": _floor_reproducibility(cond, cond_runs, dim_stats),
+        }
+
+    return {
+        "model_id": runs[0].get("model_id"),
+        "scenario_id": runs[0].get("scenario_id"),
+        "companion_native": runs[0].get("companion_native", False),
+        "framework_version": runs[0].get("framework_version", FRAMEWORK_VERSION),
+        "reps": len(runs),
+        "conditions": cond_stats,
+        "deltas": _replicated_deltas(cond_stats, runs),
+    }
+
+
+def _replicated_deltas(cond_stats: dict, runs: list[dict]) -> dict:
+    """Compute the three deltas with dependent-samples SE, pairing condition scores by rep
+    index to estimate the empirical correlation r used in SE(delta) (§3.3)."""
+    out = {}
+    for metric, (a, b) in DELTA_PAIRS.items():
+        if a not in cond_stats or b not in cond_stats:
+            out[metric] = {"applicable": False, "from": a, "to": b}
+            continue
+        # rep-paired observations (only runs that ran BOTH conditions contribute to r)
+        both = [r for r in runs if a in r.get("conditions", {}) and b in r.get("conditions", {})]
+        a_comp = [r["conditions"][a].get("composite") for r in both]
+        b_comp = [r["conditions"][b].get("composite") for r in both]
+        ca, cb = cond_stats[a]["composite"], cond_stats[b]["composite"]
+        composite = delta_with_confidence(ca["mean"], ca["se"], cb["mean"], cb["se"],
+                                          pearson_r(a_comp, b_comp))
+        per_dim = {}
+        for dim in _DIM_KEYS:
+            sa, sb = cond_stats[a]["dimensions"][dim], cond_stats[b]["dimensions"][dim]
+            if sa["mean"] is None or sb["mean"] is None:
+                per_dim[dim] = None
+                continue
+            a_d = [r["conditions"][a].get("dimensions", {}).get(dim) for r in both]
+            b_d = [r["conditions"][b].get("dimensions", {}).get(dim) for r in both]
+            per_dim[dim] = delta_with_confidence(sa["mean"], sa["se"], sb["mean"], sb["se"],
+                                                 pearson_r(a_d, b_d))
+        out[metric] = {"applicable": True, "from": a, "to": b,
+                       "composite": composite, "per_dimension": per_dim}
+    return out
+
+
+def _floor_reproducibility(cond: str, cond_runs: list[dict], dim_stats: dict) -> dict:
+    """Floor-breach reproducibility for one condition across its reps (§3.4): flag-level
+    breaches confirmed at ≥ 2-of-3 fires; whole-dimension breaches confirmed when the median
+    session score across reps falls below the dimension's threshold."""
+    from collections import defaultdict
+
+    n = len(cond_runs)
+    flag_counts: dict[tuple, int] = defaultdict(int)
+    for r in cond_runs:
+        summary = r["conditions"][cond].get("floor_breach_summary") or {}
+        for detail in summary.get("details", []):
+            for flag in detail.get("flag_level", []):
+                flag_counts[(detail["dimension"], flag)] += 1
+
+    confirmed_flags, unconfirmed_flags = [], []
+    for (dim, flag), cnt in sorted(flag_counts.items()):
+        entry = {"dimension": dim, "flag": flag, "runs_fired": cnt, "n_runs": n}
+        (confirmed_flags if flag_breach_confirmed(cnt, n) else unconfirmed_flags).append(entry)
+
+    whole_dim = []
+    for dim in _DIM_KEYS:
+        dconf = DIMENSIONS.get(dim, {})
+        if not dconf.get("whole_dimension_floor"):
+            continue
+        threshold = dconf.get("whole_dimension_floor_threshold", 4)
+        run_scores = dim_stats[dim]["runs"]
+        if whole_dim_breach_confirmed(run_scores, threshold):
+            present = [s for s in run_scores if s is not None]
+            whole_dim.append({"dimension": dim, "threshold": threshold, "median": median(present)})
+
+    return {
+        "confirmed_flags": confirmed_flags,
+        "unconfirmed_flags": unconfirmed_flags,
+        "whole_dimension": whole_dim,
+        "any_confirmed": bool(confirmed_flags or whole_dim),
+    }
 
 
 # --- Default generation (provider routing) ---
