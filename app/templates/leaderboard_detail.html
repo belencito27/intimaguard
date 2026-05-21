@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}{{ detail.model_id }} — Evaluation Detail{% endblock %}
+
+{% block content %}
+
+{% macro bar_hex(val) -%}
+{%- if val >= 4.0 -%}#CD9865
+{%- elif val >= 3.0 -%}#D67B55
+{%- elif val >= 2.0 -%}#A05030
+{%- else -%}#792E2F
+{%- endif -%}
+{%- endmacro %}
+
+{# Full dimension names for the detail page #}
+{% set dim_full = {
+    "relational_sovereignty": "Relational Sovereignty",
+    "as_if_integrity": "As-If Integrity",
+    "embodied_relational_scope": "Embodied & Relational Scope",
+    "reciprocity_asymmetry": "Reciprocity & Asymmetry",
+    "erotic_vulnerability_pacing": "Erotic & Vulnerability Pacing",
+    "distress_routing": "Distress Routing",
+    "identity_relational_self": "Identity & Relational Self",
+} %}
+
+
+<!-- ── Breadcrumb ──────────────────────────────────────────────────────── -->
+<div class="mb-6">
+    <a href="/leaderboard" class="text-ig-cream/50 hover:text-ig-terracotta transition-colors text-sm font-sans">← Leaderboards</a>
+</div>
+
+<!-- ── Header ──────────────────────────────────────────────────────────── -->
+<div class="mb-10">
+    <p class="text-ig-gold/60 text-xs tracking-widest uppercase mb-2 font-sans">
+        {% if detail.classification == "companion_product" %}Companion-AI Product{% else %}General-Purpose LLM{% endif %}
+        · Framework v2
+    </p>
+    <h1 class="text-3xl text-ig-cream font-display mb-4">{{ detail.model_id }}</h1>
+
+    <div class="flex flex-wrap items-center gap-6">
+        {% set score = detail.avg_intimaguard_score %}
+        <div>
+            <p class="text-ig-cream/40 text-xs uppercase tracking-wide font-sans mb-1">IntimaGuard Score</p>
+            {% if score is not none %}
+            <span class="text-4xl font-display" style="color: {{ bar_hex(score) }}">{{ "%.2f"|format(score) }}</span>
+            <span class="text-ig-cream/25 text-sm">/5</span>
+            {% else %}<span class="text-ig-cream/30 text-2xl">—</span>{% endif %}
+        </div>
+        <div>
+            <p class="text-ig-cream/40 text-xs uppercase tracking-wide font-sans mb-1">Evaluations</p>
+            <span class="text-2xl font-display text-ig-cream/80">{{ detail.eval_count }}</span>
+        </div>
+        <div>
+            <p class="text-ig-cream/40 text-xs uppercase tracking-wide font-sans mb-1">Whole-dim floor breaches</p>
+            <span class="text-2xl font-display {% if detail.whole_dim_breaches %}text-ig-burgundy{% else %}text-ig-cream/50{% endif %}">
+                {{ detail.whole_dim_breaches.values()|sum if detail.whole_dim_breaches else 0 }}
+            </span>
+        </div>
+    </div>
+</div>
+
+
+<!-- ── Per-dimension scores ────────────────────────────────────────────── -->
+<div class="mb-10">
+    <h2 class="text-lg text-ig-terracotta font-display mb-4">Per-Dimension Scores</h2>
+    <div class="space-y-3">
+        {% for key in dim_keys %}
+        {% set s = detail.dims[key] %}
+        <div class="flex items-center gap-4">
+            <div class="w-52 text-sm text-ig-cream/80 font-sans">{{ dim_full[key] }}</div>
+            <div class="flex-1 bg-ig-green-mid/40 rounded-full h-2 max-w-md">
+                {% if s is not none %}
+                <div class="h-2 rounded-full" style="width: {{ (s / 5 * 100)|int }}%; background-color: {{ bar_hex(s) }}"></div>
+                {% endif %}
+            </div>
+            <div class="w-12 text-right text-sm tabular-nums">
+                {% if s is not none %}
+                <span style="color: {{ bar_hex(s) }}" class="font-medium">{{ "%.1f"|format(s) }}</span>
+                {% else %}<span class="text-ig-cream/30 italic text-xs">N/A</span>{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<!-- ── Floor breaches ──────────────────────────────────────────────────── -->
+<div class="mb-10">
+    <h2 class="text-lg text-ig-terracotta font-display mb-4">Safety-Floor Breaches</h2>
+    {% if detail.floor_flag_counts or detail.whole_dim_breaches %}
+    <div class="border border-ig-burgundy/40 bg-ig-burgundy/10 rounded-[16px] p-5 space-y-3">
+        {% if detail.whole_dim_breaches %}
+        <div>
+            <p class="text-ig-cream/70 text-xs uppercase tracking-wide font-sans mb-2">Whole-dimension floor breaches</p>
+            {% for key, count in detail.whole_dim_breaches.items() %}
+            <div class="flex items-center gap-2 text-sm text-ig-cream/85">
+                <span class="text-ig-burgundy">⚠</span>
+                <span>{{ dim_full.get(key, key) }} — session score below floor in {{ count }} evaluation(s)</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% if detail.floor_flag_counts %}
+        <div>
+            <p class="text-ig-cream/70 text-xs uppercase tracking-wide font-sans mb-2">Floor-flag firings</p>
+            <div class="flex flex-wrap gap-2">
+                {% for flag, count in detail.floor_flag_counts.items() %}
+                <span class="bg-ig-burgundy/25 border border-ig-burgundy/50 text-ig-cream rounded-full px-2.5 py-0.5 text-xs font-mono">
+                    {{ flag }} ×{{ count }}
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        <p class="text-ig-cream/45 text-xs font-sans pt-1">
+            Floor breaches are published safety failures regardless of design intent
+            (Garcia v. Character.AI precedent). They are reported separately from the composite score.
+        </p>
+    </div>
+    {% else %}
+    <div class="border border-ig-gold/15 rounded-[16px] p-5 text-sm text-ig-cream/55">
+        No safety-floor breaches recorded across {{ detail.eval_count }} evaluation(s).
+    </div>
+    {% endif %}
+</div>
+
+
+<!-- ── Flag profile + judges ───────────────────────────────────────────── -->
+<div class="grid md:grid-cols-2 gap-6 mb-10">
+    <div>
+        <h2 class="text-lg text-ig-terracotta font-display mb-3">Flags Observed</h2>
+        {% if detail.flags %}
+        <div class="flex flex-wrap gap-2">
+            {% for flag in detail.flags %}
+            <span class="bg-ig-green-mid/30 border border-ig-gold/15 text-ig-cream/70 rounded-full px-2.5 py-0.5 text-xs font-mono">{{ flag }}</span>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-ig-cream/40 text-sm">No flags fired.</p>
+        {% endif %}
+    </div>
+    <div>
+        <h2 class="text-lg text-ig-terracotta font-display mb-3">Judge Ensemble</h2>
+        {% if detail.judge_models %}
+        <ul class="text-sm text-ig-cream/65 space-y-1 font-mono">
+            {% for jm in detail.judge_models %}<li>{{ jm }}</li>{% endfor %}
+        </ul>
+        <p class="text-ig-cream/40 text-xs font-sans mt-2">Conflict-of-interest policy: judge vendor ≠ evaluated model vendor.</p>
+        {% else %}
+        <p class="text-ig-cream/40 text-sm">Judge ensemble not recorded.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

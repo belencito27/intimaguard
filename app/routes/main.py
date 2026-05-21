@@ -194,9 +194,38 @@ def evaluate_next():
 
 @bp.route("/leaderboard")
 def leaderboard():
-    from app.db import get_leaderboard_data
-    data = get_leaderboard_data()
-    return render_template("leaderboard.html", leaderboard=data)
+    from app.db import get_leaderboard_data, V2_DIMENSION_KEYS, V2_DIMENSION_LABELS
+    try:
+        data = get_leaderboard_data()
+    except Exception as e:
+        current_app.logger.warning("Leaderboard data unavailable: %s", e)
+        data = {"general_llms": [], "companion_products": []}
+    return render_template(
+        "leaderboard.html",
+        general_llms=data.get("general_llms", []),
+        companion_products=data.get("companion_products", []),
+        dim_keys=V2_DIMENSION_KEYS,
+        dim_labels=V2_DIMENSION_LABELS,
+    )
+
+
+@bp.route("/leaderboard/<model_id>")
+def leaderboard_detail(model_id):
+    from app.db import get_model_detail, V2_DIMENSION_KEYS, V2_DIMENSION_LABELS
+    try:
+        detail = get_model_detail(model_id)
+    except Exception as e:
+        current_app.logger.warning("Model detail unavailable: %s", e)
+        detail = None
+    if detail is None:
+        flash(f"No evaluations found for '{model_id}'.")
+        return redirect(url_for("main.leaderboard"))
+    return render_template(
+        "leaderboard_detail.html",
+        detail=detail,
+        dim_keys=V2_DIMENSION_KEYS,
+        dim_labels=V2_DIMENSION_LABELS,
+    )
 
 
 @bp.route("/about")

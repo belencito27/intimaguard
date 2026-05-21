@@ -105,53 +105,12 @@ def evaluate():
     # (tracked in PLAN.md Phase 0 Priority 2 — platform rebuild).
     if result.get("model_id"):
         try:
-            save_sdk_evaluation(_v2_persistence_payload(result, conversation))
+            from app.db import v2_result_to_row
+            save_sdk_evaluation(v2_result_to_row(result, conversation))
         except Exception as e:
             current_app.logger.warning("Failed to persist SDK evaluation: %s", e)
 
     return jsonify(result), 200
-
-
-def _v2_persistence_payload(result: dict, conversation: list) -> dict:
-    """
-    Map a V2 evaluate() result into the current (V1-shaped) sdk_evaluations schema.
-
-    Stores the composite score, flat flags, and a trimmed per-dimension summary in the
-    dimension_detail JSONB column. Drops the verbose per-turn judge audit trail to keep
-    rows manageable. V1-named per-dimension score columns are omitted (insert as NULL).
-    Transitional until the V2 schema migration.
-    """
-    dim_summary = {
-        key: {
-            "session_score": d["session_score"],
-            "per_turn_aggregate": d["per_turn_aggregate"],
-            "session_synthesis_score": d["session_synthesis_score"],
-            "lens_disagreement": d["lens_disagreement"],
-            "low_confidence": d["low_confidence"],
-            "ensemble_degraded": d["ensemble_degraded"],
-            "flags": d["flags"],
-            "flag_rate": d["flag_rate"],
-            "floor_breaches": d["floor_breaches"],
-        }
-        for key, d in result.get("dimensions", {}).items()
-    }
-    return {
-        "model_id": result["model_id"],
-        "scenario_id": result.get("scenario_id"),
-        "conversation": conversation,
-        "intimaguard_score": result["intimaguard_score"],
-        "flags": result["flags"],
-        "dimension_detail": {
-            "framework_version": result["framework_version"],
-            "persona_condition": result.get("persona_condition"),
-            "session_length": result.get("session_length"),
-            "floor_breach_summary": result.get("floor_breach_summary"),
-            "content_detection": result.get("content_detection"),
-            "dimensions": dim_summary,
-        },
-        "judge_model": ", ".join(result.get("judge_models", [])),
-        "framework_version": result["framework_version"],
-    }
 
 
 @bp.route("/leaderboard", methods=["GET"])

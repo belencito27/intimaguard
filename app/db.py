@@ -116,22 +116,41 @@ def get_scenario_eval_counts() -> dict[str, int]:
         return {}
 
 
-def get_leaderboard_data() -> list[dict]:
+def get_leaderboard_data() -> dict:
     """
-    Aggregate SDK evaluation scores by model for the leaderboard.
-    Returns list of {model_id, avg_intimaguard_score, eval_count, ...} sorted descending.
+    Aggregate V2 SDK evaluation scores into the two-leaderboard structure
+    (METHODOLOGY §6.5): general-purpose LLMs and companion-AI products.
+
+    V2 per-dimension data lives in the dimension_detail JSONB column (the sdk_evaluations
+    table schema is still V1-shaped pending migration). Returns:
+        {
+          "general_llms": [ {model_id, avg_intimaguard_score, dims:{...},
+                             floor_breach_evals, eval_count}, ... ],
+          "companion_products": [ ... ],
+        }
     """
     client = get_client()
     result = (
         client.table("sdk_evaluations")
-        .select(
-            "model_id, intimaguard_score, autonomy_score, transparency_score, "
-            "scope_awareness_score, boundary_respect_score, crisis_awareness_score, "
-            "emotional_attunement_score"
-        )
+        .select("model_id, intimaguard_score, dimension_detail, framework_version")
         .execute()
     )
-    return _aggregate_leaderboard(result.data or [])
+    return _aggregate_leaderboard_v2(result.data or [])
+
+
+def get_model_detail(model_id: str) -> dict | None:
+    """Fetch all evaluations for a single model and aggregate for the detail page."""
+    client = get_client()
+    result = (
+        client.table("sdk_evaluations")
+        .select("model_id, scenario_id, intimaguard_score, dimension_detail, flags, judge_model, framework_version, created_at")
+        .eq("model_id", model_id)
+        .execute()
+    )
+    rows = result.data or []
+    if not rows:
+        return None
+    return _aggregate_model_detail(model_id, rows)
 
 
 def save_sdk_evaluation(data: dict) -> dict:
@@ -141,32 +160,192 @@ def save_sdk_evaluation(data: dict) -> dict:
     return result.data[0] if result.data else {}
 
 
+# --- V2 result → DB row mapping (shared by api.py and seed_leaderboard.py) ---
+
+# V2 dimension keys, ordered for display
+V2_DIMENSION_KEYS = [
+    "relational_sovereignty", "as_if_integrity", "embodied_relational_scope",
+    "reciprocity_asymmetry", "erotic_vulnerability_pacing", "distress_routing",
+    "identity_relational_self",
+]
+
+# Short labels for leaderboard column headers
+V2_DIMENSION_LABELS = {
+    "relational_sovereignty": "Rel. Sov.",
+    "as_if_integrity": "As-If",
+    "embodied_relational_scope": "Embodied",
+    "reciprocity_asymmetry": "Recip.",
+    "erotic_vulnerability_pacing": "Erotic Pac.",
+    "distress_routing": "Distress",
+    "identity_relational_self": "Identity",
+}
+
+# Companion-product markers for the two-leaderboard split (METHODOLOGY §6.5 lineage note)
+_COMPANION_PRODUCT_MARKERS = (
+    "replika", "character", "nomi", "kindroid", "candy", "chai", "paradot", "anima", "eva ai",
+)
+
+
+def classify_model(model_id: str) -> str:
+    """Classify a model_id as 'companion_product' or 'general_llm' for the two-leaderboard split."""
+    lower = (model_id or "").lower()
+    if any(m in lower for m in _COMPANION_PRODUCT_MARKERS):
+        return "companion_product"
+    return "general_llm"
+
+
+def v2_result_to_row(result: dict, conversation: list) -> dict:
+    """
+    Map a V2 evaluate() result into the current (V1-shaped) sdk_evaluations schema.
+
+    Stores composite + flat flags in their columns; the full per-dimension V2 summary
+    (session scores, floor breaches, flag-rate, lens-disagreement) goes in the
+    dimension_detail JSONB column. The verbose per-turn judge audit is dropped to keep
+    rows manageable. V1-named per-dimension score columns are omitted (insert as NULL).
+    Transitional until the V2 schema migration.
+    """
+    dim_summary = {
+        key: {
+            "session_score": d.get("session_score"),
+            "per_turn_aggregate": d.get("per_turn_aggregate"),
+            "session_synthesis_score": d.get("session_synthesis_score"),
+            "lens_disagreement": d.get("lens_disagreement"),
+            "low_confidence": d.get("low_confidence"),
+            "ensemble_degraded": d.get("ensemble_degraded"),
+            "flags": d.get("flags", []),
+            "flag_rate": d.get("flag_rate", {}),
+            "floor_breaches": d.get("floor_breaches", {}),
+        }
+        for key, d in result.get("dimensions", {}).items()
+    }
+    return {
+        "model_id": result["model_id"],
+        "scenario_id": result.get("scenario_id"),
+        "conversation": conversation,
+        "intimaguard_score": result["intimaguard_score"],
+        "flags": result["flags"],
+        "dimension_detail": {
+            "framework_version": result["framework_version"],
+            "persona_condition": result.get("persona_condition"),
+            "session_length": result.get("session_length"),
+            "floor_breach_summary": result.get("floor_breach_summary"),
+            "content_detection": result.get("content_detection"),
+            "dimensions": dim_summary,
+        },
+        "judge_model": ", ".join(result.get("judge_models", [])),
+        "framework_version": result["framework_version"],
+    }
+
+
 # --- Aggregation helpers ---
 
-def _aggregate_leaderboard(rows: list[dict]) -> list[dict]:
+def _aggregate_leaderboard_v2(rows: list[dict]) -> dict:
     from collections import defaultdict
 
-    score_fields = [
-        "intimaguard_score", "autonomy_score", "transparency_score",
-        "scope_awareness_score", "boundary_respect_score",
-        "crisis_awareness_score", "emotional_attunement_score",
-    ]
+    def _new_bucket():
+        return {
+            "composite": [],
+            "dims": {k: [] for k in V2_DIMENSION_KEYS},
+            "floor_breach_evals": 0,
+            "eval_count": 0,
+        }
 
-    buckets: dict[str, dict] = defaultdict(lambda: {f: [] for f in score_fields})
+    buckets: dict[str, dict] = defaultdict(_new_bucket)
 
     for row in rows:
         model = row.get("model_id", "unknown")
-        for field in score_fields:
-            val = row.get(field)
-            if val is not None:
-                buckets[model][field].append(float(val))
+        b = buckets[model]
+        b["eval_count"] += 1
 
-    leaderboard = []
-    for model_id, scores in buckets.items():
-        entry = {"model_id": model_id, "eval_count": len(scores["intimaguard_score"])}
-        for field in score_fields:
-            vals = scores[field]
-            entry[f"avg_{field}"] = round(sum(vals) / len(vals), 2) if vals else None
-        leaderboard.append(entry)
+        composite = row.get("intimaguard_score")
+        if composite is not None:
+            b["composite"].append(float(composite))
 
-    return sorted(leaderboard, key=lambda x: x["avg_intimaguard_score"] or 0, reverse=True)
+        detail = row.get("dimension_detail") or {}
+        dims = detail.get("dimensions", {})
+        for key in V2_DIMENSION_KEYS:
+            d = dims.get(key) or {}
+            score = d.get("session_score")
+            if score is not None:
+                b["dims"][key].append(float(score))
+
+        fb = detail.get("floor_breach_summary") or {}
+        if fb.get("any_breach"):
+            b["floor_breach_evals"] += 1
+
+    def _finalize(model_id, b):
+        comp = b["composite"]
+        entry = {
+            "model_id": model_id,
+            "avg_intimaguard_score": round(sum(comp) / len(comp), 2) if comp else None,
+            "eval_count": b["eval_count"],
+            "floor_breach_evals": b["floor_breach_evals"],
+            "dims": {},
+        }
+        for key in V2_DIMENSION_KEYS:
+            vals = b["dims"][key]
+            entry["dims"][key] = round(sum(vals) / len(vals), 2) if vals else None
+        return entry
+
+    general, companion = [], []
+    for model_id, b in buckets.items():
+        entry = _finalize(model_id, b)
+        if classify_model(model_id) == "companion_product":
+            companion.append(entry)
+        else:
+            general.append(entry)
+
+    keyfn = lambda x: x["avg_intimaguard_score"] or 0
+    return {
+        "general_llms": sorted(general, key=keyfn, reverse=True),
+        "companion_products": sorted(companion, key=keyfn, reverse=True),
+    }
+
+
+def _aggregate_model_detail(model_id: str, rows: list[dict]) -> dict:
+    """Aggregate per-dimension detail across a model's evaluations for the detail page."""
+    from collections import defaultdict
+
+    dim_scores: dict[str, list] = {k: [] for k in V2_DIMENSION_KEYS}
+    floor_flag_counts: dict[str, int] = defaultdict(int)
+    whole_dim_breaches: dict[str, int] = defaultdict(int)
+    composites = []
+    all_flags = set()
+    judge_models = set()
+
+    for row in rows:
+        comp = row.get("intimaguard_score")
+        if comp is not None:
+            composites.append(float(comp))
+        for f in row.get("flags") or []:
+            all_flags.add(f)
+        if row.get("judge_model"):
+            judge_models.add(row["judge_model"])
+
+        detail = row.get("dimension_detail") or {}
+        dims = detail.get("dimensions", {})
+        for key in V2_DIMENSION_KEYS:
+            d = dims.get(key) or {}
+            score = d.get("session_score")
+            if score is not None:
+                dim_scores[key].append(float(score))
+            fb = d.get("floor_breaches") or {}
+            for flag in fb.get("flag_level", []):
+                floor_flag_counts[flag] += 1
+            if fb.get("whole_dimension"):
+                whole_dim_breaches[key] += 1
+
+    return {
+        "model_id": model_id,
+        "classification": classify_model(model_id),
+        "eval_count": len(rows),
+        "avg_intimaguard_score": round(sum(composites) / len(composites), 2) if composites else None,
+        "dims": {
+            key: round(sum(v) / len(v), 2) if v else None
+            for key, v in dim_scores.items()
+        },
+        "floor_flag_counts": dict(floor_flag_counts),
+        "whole_dim_breaches": dict(whole_dim_breaches),
+        "flags": sorted(all_flags),
+        "judge_models": sorted(judge_models),
+    }
