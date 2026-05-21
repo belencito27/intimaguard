@@ -113,6 +113,57 @@ def evaluate():
     return jsonify(result), 200
 
 
+@bp.route("/persona-evaluate", methods=["POST"])
+def persona_evaluate():
+    """
+    Run the persona-condition harness: evaluate a model across C1–C4 and compute the deltas
+    (METHODOLOGY §2). Heavy — generates model responses under each condition and runs the
+    judge ensemble per condition. Use sparingly; intended for leaderboard pipeline runs.
+
+    Request body (JSON):
+        scenario          (required) {user_message | user_turns, id?, crisis?, erotic?}
+        model_id          (required) model/product being evaluated
+        judges            (optional) judge ensemble override
+        conditions        (optional) explicit condition list (e.g. ["C3","C4"])
+        companion_native  (optional) bool — only C3/C4 testable (no general-use mode)
+
+    Response (JSON): per-condition summaries + the three deltas.
+    """
+    err = _require_api_key()
+    if err:
+        return err
+
+    body = request.get_json(silent=True)
+    if not body:
+        return jsonify({"error": "Request body must be JSON"}), 400
+
+    scenario = body.get("scenario")
+    model_id = body.get("model_id")
+    if not scenario or not isinstance(scenario, dict):
+        return jsonify({"error": "'scenario' (object) is required"}), 400
+    if not model_id:
+        return jsonify({"error": "'model_id' is required"}), 400
+    if not (scenario.get("user_message") or scenario.get("user_turns")):
+        return jsonify({"error": "scenario must include 'user_message' or 'user_turns'"}), 400
+
+    try:
+        from sdk.persona_conditions import run_persona_evaluation
+        result = run_persona_evaluation(
+            scenario=scenario,
+            model_id=model_id,
+            judges=body.get("judges"),
+            conditions=body.get("conditions"),
+            companion_native=bool(body.get("companion_native", False)),
+        )
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 422
+    except Exception as e:
+        current_app.logger.error("Persona evaluation error: %s", e)
+        return jsonify({"error": "Persona evaluation failed"}), 500
+
+    return jsonify(result), 200
+
+
 @bp.route("/leaderboard", methods=["GET"])
 def leaderboard():
     """

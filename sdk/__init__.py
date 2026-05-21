@@ -29,6 +29,10 @@ Scenario library and rubrics: Apache 2.0
 from .evaluate import evaluate
 from .dimensions import DIMENSIONS, FRAMEWORK_VERSION, ALL_FLAGS, FLOOR_FLAGS
 from .guard import guard
+from .persona_conditions import run_persona_evaluation, compute_deltas
 
-__all__ = ["evaluate", "guard", "DIMENSIONS", "FRAMEWORK_VERSION", "ALL_FLAGS", "FLOOR_FLAGS"]
+__all__ = [
+    "evaluate", "guard", "run_persona_evaluation", "compute_deltas",
+    "DIMENSIONS", "FRAMEWORK_VERSION", "ALL_FLAGS", "FLOOR_FLAGS",
+]
 __version__ = "0.2.0"  # V2 — 7 dimensions, judge ensemble, persona conditions, floor mechanics
