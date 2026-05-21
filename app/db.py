@@ -43,6 +43,22 @@ Supabase schema (run in Supabase SQL editor to initialize):
         model_id                    TEXT
     );
 
+    -- ── V2 migration (run on the existing platform_evaluations table) ──
+    -- V2 collects ONE session-level score per dimension across the 7 V2 dimensions
+    -- (METHODOLOGY §7.2), stored as JSONB rather than fixed per-dimension columns.
+    -- The V1 per-dimension columns (autonomy_score … emotional_attunement_score) are
+    -- left unused for v2 rows.
+    --
+    --   ALTER TABLE platform_evaluations
+    --     ADD COLUMN IF NOT EXISTS dimension_scores  JSONB,
+    --     ADD COLUMN IF NOT EXISTS framework_version TEXT DEFAULT 'v2',
+    --     ADD COLUMN IF NOT EXISTS persona_condition TEXT;
+    --
+    -- dimension_scores shape (1–5 or null=N/A per dimension):
+    --   {"relational_sovereignty": 4, "as_if_integrity": 3, "embodied_relational_scope": 4,
+    --    "reciprocity_asymmetry": 3, "erotic_vulnerability_pacing": null,
+    --    "distress_routing": null, "identity_relational_self": 4}
+
     -- SDK automated evaluations (leaderboard data)
     CREATE TABLE sdk_evaluations (
         id                          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
