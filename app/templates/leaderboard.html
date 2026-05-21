@@ -13,15 +13,6 @@
 {%- endif -%}
 {%- endmacro %}
 
-{% macro dim_class(val) -%}
-{%- if val is none -%}text-ig-cream/30
-{%- elif val >= 4.0 -%}text-ig-gold
-{%- elif val >= 3.0 -%}text-ig-terracotta
-{%- elif val >= 2.0 -%}text-ig-cream/65
-{%- else -%}text-ig-burgundy
-{%- endif -%}
-{%- endmacro %}
-
 {% macro score_label(val) -%}
 {%- if val >= 4.5 -%}Exemplary
 {%- elif val >= 3.5 -%}Good
@@ -31,18 +22,64 @@
 {%- endif -%}
 {%- endmacro %}
 
+{# Delta = to − from; negative = degradation / overshoot (METHODOLOGY §8.2). #}
+{% macro delta_hex(d) -%}
+{%- if d is none -%}#6B6457
+{%- elif d <= -0.5 -%}#792E2F
+{%- elif d < -0.15 -%}#A05030
+{%- elif d <= 0.15 -%}#8A8270
+{%- else -%}#CD9865
+{%- endif -%}
+{%- endmacro %}
+
+
+{# ── Compact composite cell ──────────────────────────────────────────── #}
+{% macro composite_cell(score) %}
+<td class="py-4 px-3 text-right">
+    {% if score is not none %}
+    <div class="flex flex-col items-end gap-1">
+        <div class="flex items-baseline gap-1">
+            <span class="text-lg font-display leading-none" style="color: {{ bar_hex(score) }}">{{ "%.2f"|format(score) }}</span>
+        </div>
+        <div class="w-16 bg-ig-green-mid/50 rounded-full h-1">
+            <div class="h-1 rounded-full" style="width: {{ (score / 5 * 100)|int }}%; background-color: {{ bar_hex(score) }}"></div>
+        </div>
+    </div>
+    {% else %}<span class="text-ig-cream/25 text-xs italic">not&nbsp;tested</span>{% endif %}
+</td>
+{% endmacro %}
+
+{# ── Delta cell ──────────────────────────────────────────────────────── #}
+{% macro delta_cell(d) %}
+<td class="py-4 px-3 text-right">
+    {% if d.applicable and d.composite_delta is not none %}
+    <span class="font-display text-base tabular-nums" style="color: {{ delta_hex(d.composite_delta) }}"
+          title="{{ d.from }} → {{ d.to }} composite change">{{ "%+.2f"|format(d.composite_delta) }}</span>
+    {% else %}
+    <span class="text-ig-cream/25 text-xs italic" title="requires both {{ d.from }} and {{ d.to }}">—</span>
+    {% endif %}
+</td>
+{% endmacro %}
+
 
 {# ── Reusable leaderboard table ──────────────────────────────────────── #}
-{% macro leaderboard_table(rows) %}
+{# cond_keys: composite columns to show · delta_keys: delta columns to show #}
+{% macro leaderboard_table(rows, cond_keys, delta_keys) %}
 <div class="overflow-x-auto rounded-[20px] border border-ig-gold/15">
-    <table class="w-full text-sm min-w-[860px]">
+    <table class="w-full text-sm min-w-[720px]">
         <thead>
             <tr class="border-b border-ig-gold/20 bg-ig-green-mid/20">
                 <th class="text-left py-3 px-4 text-ig-cream/35 text-xs font-sans uppercase tracking-wide font-normal w-10">#</th>
                 <th class="text-left py-3 px-4 text-ig-cream/35 text-xs font-sans uppercase tracking-wide font-normal">Model</th>
-                <th class="text-right py-3 px-4 text-ig-terracotta text-xs font-sans uppercase tracking-wide font-normal">IntimaGuard Score</th>
-                {% for key in dim_keys %}
-                <th class="text-right py-3 px-2 text-ig-cream/35 text-xs font-sans uppercase tracking-wide font-normal">{{ dim_labels[key] }}</th>
+                {% for c in cond_keys %}
+                <th class="text-right py-3 px-3 text-ig-terracotta text-xs font-sans uppercase tracking-wide font-normal" title="{{ cond_labels[c] }}">
+                    {{ c }}<span class="block text-ig-cream/30 text-[10px] normal-case tracking-normal font-normal">{{ cond_labels[c] }}</span>
+                </th>
+                {% endfor %}
+                {% for m in delta_keys %}
+                <th class="text-right py-3 px-3 text-ig-gold/70 text-xs font-sans uppercase tracking-wide font-normal" title="{{ delta_meta[m].label }} ({{ delta_meta[m].short }})">
+                    {{ delta_meta[m].short }}<span class="block text-ig-cream/30 text-[10px] normal-case tracking-normal font-normal">{{ delta_meta[m].label }}</span>
+                </th>
                 {% endfor %}
                 <th class="text-center py-3 px-3 text-ig-burgundy text-xs font-sans uppercase tracking-wide font-normal">Floor</th>
                 <th class="text-right py-3 px-4 text-ig-cream/35 text-xs font-sans uppercase tracking-wide font-normal">Evals</th>
@@ -50,7 +87,6 @@
         </thead>
         <tbody class="divide-y divide-ig-gold/10">
             {% for row in rows %}
-            {% set score = row.avg_intimaguard_score %}
             <tr class="hover:bg-ig-green-mid/15 transition-colors">
                 <!-- Rank -->
                 <td class="py-4 px-4">
@@ -63,29 +99,13 @@
                 <td class="py-4 px-4">
                     <a href="/leaderboard/{{ row.model_id }}" class="font-semibold text-ig-cream hover:text-ig-terracotta transition-colors">{{ row.model_id }}</a>
                 </td>
-                <!-- Composite -->
-                <td class="py-4 px-4 text-right">
-                    {% if score is not none %}
-                    <div class="flex flex-col items-end gap-1">
-                        <div class="flex items-baseline gap-1.5">
-                            <span class="text-xl font-display leading-none" style="color: {{ bar_hex(score) }}">{{ "%.1f"|format(score) }}</span>
-                            <span class="text-ig-cream/25 text-xs">/5</span>
-                        </div>
-                        <div class="w-20 bg-ig-green-mid/50 rounded-full h-1">
-                            <div class="h-1 rounded-full" style="width: {{ (score / 5 * 100)|int }}%; background-color: {{ bar_hex(score) }}"></div>
-                        </div>
-                        <span class="text-xs font-sans" style="color: {{ bar_hex(score) }}">{{ score_label(score) }}</span>
-                    </div>
-                    {% else %}<span class="text-ig-cream/25">—</span>{% endif %}
-                </td>
-                <!-- Per-dimension scores -->
-                {% for key in dim_keys %}
-                {% set s = row.dims[key] %}
-                <td class="py-4 px-2 text-right">
-                    {% if s is not none %}
-                    <span class="{{ dim_class(s) }} font-medium tabular-nums">{{ "%.1f"|format(s) }}</span>
-                    {% else %}<span class="text-ig-cream/25 text-xs italic">—</span>{% endif %}
-                </td>
+                <!-- Per-condition composites -->
+                {% for c in cond_keys %}
+                {{ composite_cell((row.conditions[c].composite if row.conditions.get(c) else none)) }}
+                {% endfor %}
+                <!-- Persona deltas -->
+                {% for m in delta_keys %}
+                {{ delta_cell(row.deltas[m]) }}
                 {% endfor %}
                 <!-- Floor breach badge -->
                 <td class="py-4 px-3 text-center">
@@ -113,23 +133,30 @@
     <p class="text-ig-gold/60 text-xs tracking-widest uppercase mb-3 font-sans">IntimaGuard · Framework v2</p>
     <h1 class="text-3xl text-ig-cream font-display mb-3">Model Leaderboards</h1>
     <p class="text-ig-cream/65 text-sm max-w-2xl leading-relaxed">
-        Automated SDK evaluations across the seven V2 dimensions. Two leaderboards, not one —
-        general-purpose LLMs and companion-AI products are evaluated under different deployment
-        conditions and cannot be ranked against each other. Higher scores indicate safer behavior
-        in intimate and relational contexts. Safety-floor breaches are flagged separately from the
-        composite score.
+        Automated SDK evaluations across the four persona conditions (METHODOLOGY §2). Two
+        leaderboards, not one — general-purpose LLMs and companion-AI products are evaluated
+        under different deployment conditions and cannot be ranked against each other. Each row
+        reports composites under the relevant conditions and the persona <em>deltas</em> that
+        capture how a model drifts under engagement pressure. Higher composites are safer;
+        negative deltas mean degradation or overshoot. Safety-floor breaches are flagged
+        separately from the composite.
     </p>
 </div>
 
 
 <!-- ── Leaderboard 1: General-Purpose LLMs ─────────────────────────────── -->
 <div class="mb-12">
-    <div class="flex items-baseline justify-between mb-3">
+    <div class="flex items-baseline justify-between mb-2">
         <h2 class="text-xl text-ig-terracotta font-display">General-Purpose LLMs</h2>
-        <span class="text-ig-cream/40 text-xs font-sans">Evaluated for emergent intimate use</span>
+        <span class="text-ig-cream/40 text-xs font-sans">Emergent intimate use · adversarial robustness</span>
     </div>
+    <p class="text-ig-cream/45 text-xs font-sans mb-3 max-w-2xl">
+        Composite at C1 (baseline) and C2 (intimate content the model wasn't primed for).
+        <span class="text-ig-gold/70">C1→C2</span> = emergent-use safety;
+        <span class="text-ig-gold/70">C1→C4</span> = adversarial robustness under engagement-max pressure.
+    </p>
     {% if general_llms %}
-        {{ leaderboard_table(general_llms) }}
+        {{ leaderboard_table(general_llms, general_spec.conditions, general_spec.deltas) }}
     {% else %}
     <div class="border border-ig-gold/15 rounded-[16px] p-8 text-center text-ig-cream/40 text-sm">
         No general-purpose LLM evaluations yet.
@@ -140,12 +167,18 @@
 
 <!-- ── Leaderboard 2: Companion-AI Products ────────────────────────────── -->
 <div class="mb-10">
-    <div class="flex items-baseline justify-between mb-3">
+    <div class="flex items-baseline justify-between mb-2">
         <h2 class="text-xl text-ig-terracotta font-display">Companion-AI Products</h2>
         <span class="text-ig-cream/40 text-xs font-sans">Design-intent overshoot under engagement pressure</span>
     </div>
+    <p class="text-ig-cream/45 text-xs font-sans mb-3 max-w-2xl">
+        Composite at C3 (as shipped) and C4 (engagement-maximizing).
+        <span class="text-ig-gold/70">C3→C4</span> = design-intent overshoot: whether the product
+        exceeds its own design boundaries under engagement pressure. C1/C2 are not testable
+        without a general-use mode, so the C1-anchored deltas are reported as <span class="italic">—</span>.
+    </p>
     {% if companion_products %}
-        {{ leaderboard_table(companion_products) }}
+        {{ leaderboard_table(companion_products, companion_spec.conditions, companion_spec.deltas) }}
     {% else %}
     <div class="border border-ig-gold/15 rounded-[16px] p-8 text-center text-ig-cream/40 text-sm">
         No companion-AI product evaluations yet.
@@ -156,11 +189,12 @@
 
 <!-- ── Legend ───────────────────────────────────────────────────────────── -->
 <div class="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-xs font-sans text-ig-cream/50">
-    <span>Score scale 1–5 · higher = safer</span>
+    <span>Composite scale 1–5 · higher = safer</span>
     <span class="flex items-center gap-1.5"><span class="inline-block w-2 h-2 rounded-full bg-ig-gold"></span>4.0 + Strong</span>
     <span class="flex items-center gap-1.5"><span class="inline-block w-2 h-2 rounded-full bg-ig-terracotta"></span>3.0–3.9 Good</span>
     <span class="flex items-center gap-1.5"><span class="inline-block w-2 h-2 rounded-full" style="background:#A05030"></span>2.0–2.9 Caution</span>
     <span class="flex items-center gap-1.5"><span class="inline-block w-2 h-2 rounded-full bg-ig-burgundy"></span>&lt; 2.0 Concern</span>
+    <span class="flex items-center gap-1.5"><span style="color:#792E2F">▼</span> Negative delta = degradation / overshoot</span>
     <span class="flex items-center gap-1.5"><span class="text-ig-burgundy">⚠</span> Safety-floor breach (reported separately from composite)</span>
 </div>
 
@@ -171,12 +205,12 @@
         Conflict-of-interest policy: judge vendor ≠ evaluated model vendor
     </p>
     <p>
-        Automated SDK evaluations. Persona-condition deltas (C1→C4 adversarial robustness,
-        C3→C4 design-intent overshoot) are added once the persona-condition orchestration harness runs.
-        Human platform evaluations are separate — see
+        Persona-condition deltas are computed by the orchestration harness (METHODOLOGY §2):
+        each model is run across the persona conditions and the deltas compare session-level
+        composites. Human platform evaluations are separate — see
         <a href="/evaluate" class="text-ig-cream/50 hover:text-ig-terracotta transition-colors">the evaluation platform</a>.
     </p>
-    <p>Click a model name for the full per-dimension breakdown, floor-breach detail, and flag profile.</p>
+    <p>Click a model name for the full per-dimension breakdown under every tested condition, per-dimension deltas, floor-breach detail, and flag profile.</p>
 </div>
 
 {% endblock %}

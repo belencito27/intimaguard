@@ -174,7 +174,10 @@ def _render_session(scenario_id: str, evals_completed: int):
 
 @bp.route("/leaderboard")
 def leaderboard():
-    from app.db import get_leaderboard_data, V2_DIMENSION_KEYS, V2_DIMENSION_LABELS
+    from app.db import (
+        get_leaderboard_data, V2_CONDITION_LABELS, V2_DELTA_METRICS,
+        GENERAL_LEADERBOARD, COMPANION_LEADERBOARD,
+    )
     try:
         data = get_leaderboard_data()
     except Exception as e:
@@ -184,14 +187,19 @@ def leaderboard():
         "leaderboard.html",
         general_llms=data.get("general_llms", []),
         companion_products=data.get("companion_products", []),
-        dim_keys=V2_DIMENSION_KEYS,
-        dim_labels=V2_DIMENSION_LABELS,
+        cond_labels=V2_CONDITION_LABELS,
+        delta_meta=V2_DELTA_METRICS,
+        general_spec=GENERAL_LEADERBOARD,
+        companion_spec=COMPANION_LEADERBOARD,
     )
 
 
 @bp.route("/leaderboard/<model_id>")
 def leaderboard_detail(model_id):
-    from app.db import get_model_detail, V2_DIMENSION_KEYS, V2_DIMENSION_LABELS
+    from app.db import (
+        get_model_detail, V2_DIMENSION_KEYS, V2_DIMENSION_LABELS,
+        V2_CONDITION_KEYS, V2_CONDITION_LABELS, V2_DELTA_METRICS,
+    )
     try:
         detail = get_model_detail(model_id)
     except Exception as e:
@@ -205,6 +213,9 @@ def leaderboard_detail(model_id):
         detail=detail,
         dim_keys=V2_DIMENSION_KEYS,
         dim_labels=V2_DIMENSION_LABELS,
+        cond_keys=V2_CONDITION_KEYS,
+        cond_labels=V2_CONDITION_LABELS,
+        delta_meta=V2_DELTA_METRICS,
     )
 
 

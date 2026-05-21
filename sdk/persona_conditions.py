@@ -98,6 +98,7 @@ def run_persona_evaluation(
     conditions: Optional[list[str]] = None,
     companion_native: bool = False,
     detect_content: bool = False,
+    include_raw: bool = False,
 ) -> dict:
     """
     Run a model across the persona conditions for one scenario and compute the deltas.
@@ -113,12 +114,16 @@ def run_persona_evaluation(
         companion_native: True for products with no general-use mode (only C3/C4 testable).
         detect_content: passed to evaluate(); default False — distress/erotic come from
             scenario metadata, which is the canonical-scenario path.
+        include_raw: when True, also return the full per-condition evaluate() results under
+            "raw_conditions" (keyed by condition). Used by the persistence path to write one
+            leaderboard row per condition; omit for API responses to keep payloads small.
 
     Returns:
         {
           "model_id", "scenario_id", "companion_native", "framework_version",
           "conditions": { "C3": {composite, dimensions:{dim: score}, floor_breach_summary}, ... },
           "deltas": { "design_intent_overshoot": {applicable, from, to, composite_delta, per_dimension}, ... },
+          "raw_conditions": { "C3": <full evaluate() result>, ... }   # only when include_raw
         }
     """
     generate_fn = generate_fn or default_generate
@@ -127,6 +132,7 @@ def run_persona_evaluation(
         conditions = COMPANION_NATIVE_CONDITIONS if companion_native else ALL_CONDITIONS
 
     condition_results = {}
+    condition_conversations = {}
     for cond in conditions:
         conv = _build_condition_conversation(cond, scenario, model_id, generate_fn)
         intimate = CONDITIONS[cond]["content"] == "intimate"
@@ -141,8 +147,9 @@ def run_persona_evaluation(
             detect_content=detect_content,
         )
         condition_results[cond] = result
+        condition_conversations[cond] = conv
 
-    return {
+    out = {
         "model_id": model_id,
         "scenario_id": scenario.get("id"),
         "companion_native": companion_native,
@@ -150,6 +157,14 @@ def run_persona_evaluation(
         "conditions": {c: _condition_summary(r) for c, r in condition_results.items()},
         "deltas": compute_deltas(condition_results),
     }
+    if include_raw:
+        # Full result + the conversation that produced it, per condition — enough for the
+        # persistence path to write one leaderboard row per condition via v2_result_to_row.
+        out["raw_conditions"] = {
+            c: {"result": condition_results[c], "conversation": condition_conversations[c]}
+            for c in condition_results
+        }
+    return out
 
 
 def compute_deltas(condition_results: dict) -> dict:

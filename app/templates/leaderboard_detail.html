@@ -11,6 +11,15 @@
 {%- endif -%}
 {%- endmacro %}
 
+{% macro delta_hex(d) -%}
+{%- if d is none -%}#6B6457
+{%- elif d <= -0.5 -%}#792E2F
+{%- elif d < -0.15 -%}#A05030
+{%- elif d <= 0.15 -%}#8A8270
+{%- else -%}#CD9865
+{%- endif -%}
+{%- endmacro %}
+
 {# Full dimension names for the detail page #}
 {% set dim_full = {
     "relational_sovereignty": "Relational Sovereignty",
@@ -21,6 +30,14 @@
     "distress_routing": "Distress Routing",
     "identity_relational_self": "Identity & Relational Self",
 } %}
+
+{# Conditions this model was actually tested under, in canonical order #}
+{% set tested_conditions = cond_keys | select("in", detail.conditions) | list %}
+{# Deltas with both endpoints tested (mutate-in-place is the Jinja pattern for loop-built lists) #}
+{% set applicable_deltas = [] %}
+{% for m in delta_meta if detail.deltas.get(m) and detail.deltas[m].applicable %}
+    {% set _ = applicable_deltas.append(m) %}
+{% endfor %}
 
 
 <!-- ── Breadcrumb ──────────────────────────────────────────────────────── -->
@@ -39,11 +56,17 @@
     <div class="flex flex-wrap items-center gap-6">
         {% set score = detail.avg_intimaguard_score %}
         <div>
-            <p class="text-ig-cream/40 text-xs uppercase tracking-wide font-sans mb-1">IntimaGuard Score</p>
+            <p class="text-ig-cream/40 text-xs uppercase tracking-wide font-sans mb-1">
+                Composite · {{ detail.primary_condition }} {{ cond_labels[detail.primary_condition] }}
+            </p>
             {% if score is not none %}
             <span class="text-4xl font-display" style="color: {{ bar_hex(score) }}">{{ "%.2f"|format(score) }}</span>
             <span class="text-ig-cream/25 text-sm">/5</span>
             {% else %}<span class="text-ig-cream/30 text-2xl">—</span>{% endif %}
+        </div>
+        <div>
+            <p class="text-ig-cream/40 text-xs uppercase tracking-wide font-sans mb-1">Conditions tested</p>
+            <span class="text-2xl font-display text-ig-cream/80">{{ tested_conditions | join(", ") }}</span>
         </div>
         <div>
             <p class="text-ig-cream/40 text-xs uppercase tracking-wide font-sans mb-1">Evaluations</p>
@@ -59,28 +82,108 @@
 </div>
 
 
-<!-- ── Per-dimension scores ────────────────────────────────────────────── -->
+<!-- ── Persona deltas ──────────────────────────────────────────────────── -->
+{% if applicable_deltas %}
 <div class="mb-10">
-    <h2 class="text-lg text-ig-terracotta font-display mb-4">Per-Dimension Scores</h2>
-    <div class="space-y-3">
-        {% for key in dim_keys %}
-        {% set s = detail.dims[key] %}
-        <div class="flex items-center gap-4">
-            <div class="w-52 text-sm text-ig-cream/80 font-sans">{{ dim_full[key] }}</div>
-            <div class="flex-1 bg-ig-green-mid/40 rounded-full h-2 max-w-md">
-                {% if s is not none %}
-                <div class="h-2 rounded-full" style="width: {{ (s / 5 * 100)|int }}%; background-color: {{ bar_hex(s) }}"></div>
-                {% endif %}
-            </div>
-            <div class="w-12 text-right text-sm tabular-nums">
-                {% if s is not none %}
-                <span style="color: {{ bar_hex(s) }}" class="font-medium">{{ "%.1f"|format(s) }}</span>
-                {% else %}<span class="text-ig-cream/30 italic text-xs">N/A</span>{% endif %}
-            </div>
+    <h2 class="text-lg text-ig-terracotta font-display mb-1">Persona-Condition Deltas</h2>
+    <p class="text-ig-cream/45 text-xs font-sans mb-4">Delta = to − from. Negative = degradation or design-intent overshoot under engagement pressure.</p>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for m in applicable_deltas %}
+        {% set d = detail.deltas[m] %}
+        <div class="border border-ig-gold/15 rounded-[16px] p-4">
+            <p class="text-ig-cream/55 text-xs uppercase tracking-wide font-sans mb-1">{{ delta_meta[m].label }}</p>
+            <p class="text-ig-cream/35 text-[11px] font-mono mb-2">{{ d.from }} → {{ d.to }}</p>
+            {% if d.composite_delta is not none %}
+            <span class="text-3xl font-display" style="color: {{ delta_hex(d.composite_delta) }}">{{ "%+.2f"|format(d.composite_delta) }}</span>
+            {% else %}<span class="text-ig-cream/30 text-2xl">—</span>{% endif %}
         </div>
         {% endfor %}
     </div>
 </div>
+{% endif %}
+
+
+<!-- ── Per-dimension scores by condition ───────────────────────────────── -->
+<div class="mb-10">
+    <h2 class="text-lg text-ig-terracotta font-display mb-4">Dimension Scores by Condition</h2>
+    <div class="overflow-x-auto rounded-[16px] border border-ig-gold/15">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-ig-gold/20 bg-ig-green-mid/20">
+                    <th class="text-left py-3 px-4 text-ig-cream/35 text-xs font-sans uppercase tracking-wide font-normal">Dimension</th>
+                    {% for c in tested_conditions %}
+                    <th class="text-right py-3 px-3 text-ig-terracotta text-xs font-sans uppercase tracking-wide font-normal" title="{{ cond_labels[c] }}">
+                        {{ c }}<span class="block text-ig-cream/30 text-[10px] normal-case tracking-normal font-normal">{{ cond_labels[c] }}</span>
+                    </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-ig-gold/10">
+                {% for key in dim_keys %}
+                <tr class="hover:bg-ig-green-mid/15 transition-colors">
+                    <td class="py-3 px-4 text-ig-cream/80 font-sans">{{ dim_full[key] }}</td>
+                    {% for c in tested_conditions %}
+                    {% set s = detail.conditions[c].dims[key] if detail.conditions.get(c) else none %}
+                    <td class="py-3 px-3 text-right tabular-nums">
+                        {% if s is not none %}
+                        <span style="color: {{ bar_hex(s) }}" class="font-medium">{{ "%.1f"|format(s) }}</span>
+                        {% else %}<span class="text-ig-cream/25 text-xs italic">N/A</span>{% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                <tr class="border-t border-ig-gold/20 bg-ig-green-mid/10">
+                    <td class="py-3 px-4 text-ig-cream/60 font-sans uppercase text-xs tracking-wide">Composite</td>
+                    {% for c in tested_conditions %}
+                    {% set comp = detail.conditions[c].composite if detail.conditions.get(c) else none %}
+                    <td class="py-3 px-3 text-right tabular-nums">
+                        {% if comp is not none %}
+                        <span style="color: {{ bar_hex(comp) }}" class="font-display">{{ "%.2f"|format(comp) }}</span>
+                        {% else %}<span class="text-ig-cream/25 text-xs italic">—</span>{% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- ── Per-dimension deltas ────────────────────────────────────────────── -->
+{% if applicable_deltas %}
+<div class="mb-10">
+    <h2 class="text-lg text-ig-terracotta font-display mb-4">Per-Dimension Deltas</h2>
+    <div class="overflow-x-auto rounded-[16px] border border-ig-gold/15">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-ig-gold/20 bg-ig-green-mid/20">
+                    <th class="text-left py-3 px-4 text-ig-cream/35 text-xs font-sans uppercase tracking-wide font-normal">Dimension</th>
+                    {% for m in applicable_deltas %}
+                    <th class="text-right py-3 px-3 text-ig-gold/70 text-xs font-sans uppercase tracking-wide font-normal" title="{{ delta_meta[m].label }}">
+                        {{ delta_meta[m].short }}<span class="block text-ig-cream/30 text-[10px] normal-case tracking-normal font-normal">{{ delta_meta[m].label }}</span>
+                    </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-ig-gold/10">
+                {% for key in dim_keys %}
+                <tr class="hover:bg-ig-green-mid/15 transition-colors">
+                    <td class="py-3 px-4 text-ig-cream/80 font-sans">{{ dim_full[key] }}</td>
+                    {% for m in applicable_deltas %}
+                    {% set dv = detail.deltas[m].per_dimension[key] %}
+                    <td class="py-3 px-3 text-right tabular-nums">
+                        {% if dv is not none %}
+                        <span style="color: {{ delta_hex(dv) }}" class="font-medium">{{ "%+.1f"|format(dv) }}</span>
+                        {% else %}<span class="text-ig-cream/25 text-xs italic">—</span>{% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
 
 
 <!-- ── Floor breaches ──────────────────────────────────────────────────── -->

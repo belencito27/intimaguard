@@ -126,6 +126,8 @@ def persona_evaluate():
         judges            (optional) judge ensemble override
         conditions        (optional) explicit condition list (e.g. ["C3","C4"])
         companion_native  (optional) bool — only C3/C4 testable (no general-use mode)
+        persist           (optional) bool (default true) — save one leaderboard row per
+                          condition so the run feeds the two-leaderboard view + deltas
 
     Response (JSON): per-condition summaries + the three deltas.
     """
@@ -146,6 +148,7 @@ def persona_evaluate():
     if not (scenario.get("user_message") or scenario.get("user_turns")):
         return jsonify({"error": "scenario must include 'user_message' or 'user_turns'"}), 400
 
+    persist = bool(body.get("persist", True))
     try:
         from sdk.persona_conditions import run_persona_evaluation
         result = run_persona_evaluation(
@@ -154,12 +157,27 @@ def persona_evaluate():
             judges=body.get("judges"),
             conditions=body.get("conditions"),
             companion_native=bool(body.get("companion_native", False)),
+            include_raw=persist,
         )
     except ValueError as e:
         return jsonify({"error": str(e)}), 422
     except Exception as e:
         current_app.logger.error("Persona evaluation error: %s", e)
         return jsonify({"error": "Persona evaluation failed"}), 500
+
+    # Persist one leaderboard row per condition so the two-leaderboard view + deltas pick it up.
+    # raw_conditions is server-side only; strip it from the response payload either way.
+    raw = result.pop("raw_conditions", {})
+    if persist:
+        from app.db import v2_result_to_row, save_sdk_evaluation
+        saved = 0
+        for cond, rc in raw.items():
+            try:
+                save_sdk_evaluation(v2_result_to_row(rc["result"], rc["conversation"]))
+                saved += 1
+            except Exception as e:
+                current_app.logger.warning("Failed to persist persona condition %s: %s", cond, e)
+        result["persisted_conditions"] = saved
 
     return jsonify(result), 200
 

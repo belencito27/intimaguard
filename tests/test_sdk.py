@@ -436,3 +436,151 @@ class TestRunPersonaEvaluation:
         from sdk.persona_conditions import default_generate
         with pytest.raises(ValueError, match="No default generator"):
             default_generate("replika", None, [{"role": "user", "content": "hi"}])
+
+
+# --- Leaderboard aggregation (per-condition + deltas, METHODOLOGY §6.5) ---
+
+def _eval_row(model_id, condition, composite, dim_score, any_breach=False, flags=None,
+              judge="claude-sonnet-4-6"):
+    """An sdk_evaluations-shaped row (as v2_result_to_row would produce) for aggregation tests."""
+    flags = flags or []
+    return {
+        "model_id": model_id,
+        "intimaguard_score": composite,
+        "flags": flags,
+        "judge_model": judge,
+        "framework_version": "v2",
+        "dimension_detail": {
+            "persona_condition": condition,
+            "floor_breach_summary": {"any_breach": any_breach},
+            "dimensions": {
+                k: {
+                    "session_score": dim_score,
+                    "floor_breaches": {
+                        "flag_level": flags if k == "as_if_integrity" else [],
+                        "whole_dimension": bool(any_breach and k == "distress_routing"),
+                    },
+                }
+                for k in DIMENSIONS
+            },
+        },
+    }
+
+
+class TestLeaderboardAggregation:
+    def test_general_llm_per_condition_and_deltas(self):
+        from app.db import _aggregate_leaderboard_v2
+        rows = [
+            _eval_row("gpt-4o", "C1", 4.0, 4.0),
+            _eval_row("gpt-4o", "C2", 3.6, 3.6),
+            _eval_row("gpt-4o", "C4", 2.6, 2.6, any_breach=True),
+        ]
+        agg = _aggregate_leaderboard_v2(rows)
+        assert agg["companion_products"] == []
+        e = agg["general_llms"][0]
+        assert e["conditions"]["C1"]["composite"] == 4.0
+        assert e["conditions"]["C2"]["composite"] == 3.6
+        assert e["primary_condition"] == "C2"        # general LLM headline = C2
+        assert e["primary_score"] == 3.6
+        assert e["eval_count"] == 3
+        assert e["floor_breach_evals"] == 1
+        # delta = to − from
+        assert e["deltas"]["emergent_use_safety"]["composite_delta"] == -0.4    # C1→C2
+        assert e["deltas"]["adversarial_robustness"]["composite_delta"] == -1.4  # C1→C4
+        assert e["deltas"]["adversarial_robustness"]["per_dimension"]["relational_sovereignty"] == -1.4
+        # design-intent overshoot needs C3, which wasn't run for this general LLM
+        assert e["deltas"]["design_intent_overshoot"]["applicable"] is False
+
+    def test_companion_classification_and_overshoot(self):
+        from app.db import _aggregate_leaderboard_v2
+        rows = [
+            _eval_row("replika", "C3", 1.8, 1.8, any_breach=True),
+            _eval_row("replika", "C4", 1.4, 1.4, any_breach=True),
+        ]
+        agg = _aggregate_leaderboard_v2(rows)
+        assert agg["general_llms"] == []
+        e = agg["companion_products"][0]
+        assert e["primary_condition"] == "C3"        # companion headline = C3 (as shipped)
+        assert e["deltas"]["design_intent_overshoot"]["composite_delta"] == -0.4   # C3→C4
+        assert e["deltas"]["adversarial_robustness"]["applicable"] is False         # no C1
+        assert e["deltas"]["emergent_use_safety"]["applicable"] is False            # no C1/C2
+        assert e["floor_breach_evals"] == 2
+
+    def test_sorting_descending_by_primary_score(self):
+        from app.db import _aggregate_leaderboard_v2
+        rows = [
+            _eval_row("gpt-4o", "C2", 3.6, 3.6),
+            _eval_row("claude-sonnet-4-6", "C2", 4.4, 4.4),
+        ]
+        agg = _aggregate_leaderboard_v2(rows)
+        assert [e["model_id"] for e in agg["general_llms"]] == ["claude-sonnet-4-6", "gpt-4o"]
+
+    def test_legacy_unconditioned_row_buckets_to_primary(self):
+        from app.db import _aggregate_leaderboard_v2
+        agg = _aggregate_leaderboard_v2([_eval_row("gpt-4o", None, 3.5, 3.5)])
+        e = agg["general_llms"][0]
+        assert e["conditions"]["C2"]["composite"] == 3.5   # None condition → general primary C2
+
+    def test_model_detail_per_condition_and_deltas(self):
+        from app.db import _aggregate_model_detail
+        rows = [
+            _eval_row("replika", "C3", 1.8, 1.8, any_breach=True, flags=["genuine_relationship_claim"]),
+            _eval_row("replika", "C4", 1.4, 1.4, any_breach=True, flags=["genuine_relationship_claim"]),
+        ]
+        detail = _aggregate_model_detail("replika", rows)
+        assert set(detail["conditions"].keys()) == {"C3", "C4"}
+        assert detail["primary_condition"] == "C3"
+        assert detail["classification"] == "companion_product"
+        assert detail["conditions"]["C3"]["dims"]["as_if_integrity"] == 1.8
+        assert detail["deltas"]["design_intent_overshoot"]["applicable"] is True
+        assert detail["deltas"]["design_intent_overshoot"]["per_dimension"]["relational_sovereignty"] == -0.4
+        assert detail["floor_flag_counts"]["genuine_relationship_claim"] == 2
+        assert "genuine_relationship_claim" in detail["flags"]
+
+
+class TestPersonaPersistence:
+    @patch("sdk.judge._call_judge", return_value=json.dumps({"score": 3, "reasoning": "x", "flags": []}))
+    def test_include_raw_returns_full_conditions(self, mock_judge):
+        from sdk.persona_conditions import run_persona_evaluation
+        result = run_persona_evaluation(
+            scenario={"id": "t", "user_message": "hi"},
+            model_id="gpt-4o",
+            generate_fn=lambda mid, sp, conv: "resp",
+            judges=["claude-sonnet-4-6", "command-r-plus"],
+            include_raw=True,
+        )
+        raw = result["raw_conditions"]
+        assert set(raw.keys()) == {"C1", "C2", "C3", "C4"}
+        assert raw["C2"]["result"]["persona_condition"] == "C2"
+        assert isinstance(raw["C2"]["conversation"], list) and raw["C2"]["conversation"]
+
+    def test_include_raw_false_omits_raw(self):
+        from sdk.persona_conditions import run_persona_evaluation
+        with patch("sdk.judge._call_judge", return_value=json.dumps({"score": 3, "reasoning": "x", "flags": []})):
+            result = run_persona_evaluation(
+                scenario={"id": "t", "user_message": "hi"},
+                model_id="gpt-4o",
+                generate_fn=lambda mid, sp, conv: "resp",
+                judges=["claude-sonnet-4-6", "command-r-plus"],
+            )
+        assert "raw_conditions" not in result
+
+    @patch("sdk.judge._call_judge", return_value=json.dumps({"score": 3, "reasoning": "x", "flags": []}))
+    def test_raw_condition_persists_and_re_aggregates(self, mock_judge):
+        from sdk.persona_conditions import run_persona_evaluation
+        from app.db import v2_result_to_row, _aggregate_leaderboard_v2
+        result = run_persona_evaluation(
+            scenario={"id": "t", "user_message": "hi"},
+            model_id="gpt-4o",
+            generate_fn=lambda mid, sp, conv: "resp",
+            judges=["claude-sonnet-4-6", "command-r-plus"],
+            include_raw=True,
+        )
+        rows = [v2_result_to_row(rc["result"], rc["conversation"]) for rc in result["raw_conditions"].values()]
+        # Each row is tagged with its persona condition and round-trips through aggregation
+        assert {r["dimension_detail"]["persona_condition"] for r in rows} == {"C1", "C2", "C3", "C4"}
+        agg = _aggregate_leaderboard_v2(rows)
+        entry = agg["general_llms"][0]
+        assert entry["model_id"] == "gpt-4o"
+        assert set(entry["conditions"].keys()) == {"C1", "C2", "C3", "C4"}
+        assert entry["deltas"]["adversarial_robustness"]["applicable"] is True
