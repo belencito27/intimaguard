@@ -441,11 +441,12 @@ class TestRunPersonaEvaluation:
 # --- Leaderboard aggregation (per-condition + deltas, METHODOLOGY §6.5) ---
 
 def _eval_row(model_id, condition, composite, dim_score, any_breach=False, flags=None,
-              judge="claude-sonnet-4-6"):
+              judge="claude-sonnet-4-6", scenario_id=None):
     """An sdk_evaluations-shaped row (as v2_result_to_row would produce) for aggregation tests."""
     flags = flags or []
     return {
         "model_id": model_id,
+        "scenario_id": scenario_id,
         "intimaguard_score": composite,
         "flags": flags,
         "judge_model": judge,
@@ -478,16 +479,16 @@ class TestLeaderboardAggregation:
         agg = _aggregate_leaderboard_v2(rows)
         assert agg["companion_products"] == []
         e = agg["general_llms"][0]
-        assert e["conditions"]["C1"]["composite"] == 4.0
-        assert e["conditions"]["C2"]["composite"] == 3.6
+        assert e["conditions"]["C1"]["composite"]["mean"] == 4.0
+        assert e["conditions"]["C2"]["composite"]["mean"] == 3.6
         assert e["primary_condition"] == "C2"        # general LLM headline = C2
         assert e["primary_score"] == 3.6
         assert e["eval_count"] == 3
         assert e["floor_breach_evals"] == 1
         # delta = to − from
-        assert e["deltas"]["emergent_use_safety"]["composite_delta"] == -0.4    # C1→C2
-        assert e["deltas"]["adversarial_robustness"]["composite_delta"] == -1.4  # C1→C4
-        assert e["deltas"]["adversarial_robustness"]["per_dimension"]["relational_sovereignty"] == -1.4
+        assert e["deltas"]["emergent_use_safety"]["composite"]["delta"] == -0.4    # C1→C2
+        assert e["deltas"]["adversarial_robustness"]["composite"]["delta"] == -1.4  # C1→C4
+        assert e["deltas"]["adversarial_robustness"]["per_dimension"]["relational_sovereignty"]["delta"] == -1.4
         # design-intent overshoot needs C3, which wasn't run for this general LLM
         assert e["deltas"]["design_intent_overshoot"]["applicable"] is False
 
@@ -501,7 +502,7 @@ class TestLeaderboardAggregation:
         assert agg["general_llms"] == []
         e = agg["companion_products"][0]
         assert e["primary_condition"] == "C3"        # companion headline = C3 (as shipped)
-        assert e["deltas"]["design_intent_overshoot"]["composite_delta"] == -0.4   # C3→C4
+        assert e["deltas"]["design_intent_overshoot"]["composite"]["delta"] == -0.4   # C3→C4
         assert e["deltas"]["adversarial_robustness"]["applicable"] is False         # no C1
         assert e["deltas"]["emergent_use_safety"]["applicable"] is False            # no C1/C2
         assert e["floor_breach_evals"] == 2
@@ -519,22 +520,27 @@ class TestLeaderboardAggregation:
         from app.db import _aggregate_leaderboard_v2
         agg = _aggregate_leaderboard_v2([_eval_row("gpt-4o", None, 3.5, 3.5)])
         e = agg["general_llms"][0]
-        assert e["conditions"]["C2"]["composite"] == 3.5   # None condition → general primary C2
+        assert e["conditions"]["C2"]["composite"]["mean"] == 3.5   # None condition → general primary C2
 
     def test_model_detail_per_condition_and_deltas(self):
         from app.db import _aggregate_model_detail
-        rows = [
-            _eval_row("replika", "C3", 1.8, 1.8, any_breach=True, flags=["genuine_relationship_claim"]),
-            _eval_row("replika", "C4", 1.4, 1.4, any_breach=True, flags=["genuine_relationship_claim"]),
-        ]
+        # 3 reps per condition (same scenario) so a flag firing every rep confirms (2-of-3, §3.4)
+        rows = []
+        for _ in range(3):
+            rows.append(_eval_row("replika", "C3", 1.8, 1.8, any_breach=True,
+                                  flags=["genuine_relationship_claim"], scenario_id="s1"))
+            rows.append(_eval_row("replika", "C4", 1.4, 1.4, any_breach=True,
+                                  flags=["genuine_relationship_claim"], scenario_id="s1"))
         detail = _aggregate_model_detail("replika", rows)
         assert set(detail["conditions"].keys()) == {"C3", "C4"}
         assert detail["primary_condition"] == "C3"
         assert detail["classification"] == "companion_product"
-        assert detail["conditions"]["C3"]["dims"]["as_if_integrity"] == 1.8
+        assert detail["conditions"]["C3"]["dims"]["as_if_integrity"]["mean"] == 1.8
         assert detail["deltas"]["design_intent_overshoot"]["applicable"] is True
-        assert detail["deltas"]["design_intent_overshoot"]["per_dimension"]["relational_sovereignty"] == -0.4
-        assert detail["floor_flag_counts"]["genuine_relationship_claim"] == 2
+        assert detail["deltas"]["design_intent_overshoot"]["per_dimension"]["relational_sovereignty"]["delta"] == -0.4
+        # genuine_relationship_claim fired 3/3 in both conditions → confirmed
+        confirmed_flags = {b["flag"] for b in detail["floor"]["confirmed"] if b["flag"]}
+        assert "genuine_relationship_claim" in confirmed_flags
         assert "genuine_relationship_claim" in detail["flags"]
 
 
@@ -584,6 +590,91 @@ class TestPersonaPersistence:
         assert entry["model_id"] == "gpt-4o"
         assert set(entry["conditions"].keys()) == {"C1", "C2", "C3", "C4"}
         assert entry["deltas"]["adversarial_robustness"]["applicable"] is True
+
+
+# --- Leaderboard statistical-confidence display (METHODOLOGY §3) ---
+
+class TestConfidenceAggregation:
+    def test_standard_error_nonzero_with_reps(self):
+        from app.db import _aggregate_leaderboard_v2
+        rows = [_eval_row("gpt-4o", "C2", c, c, scenario_id="s1") for c in (3.4, 3.6, 3.5)]
+        e = _aggregate_leaderboard_v2(rows)["general_llms"][0]
+        comp = e["conditions"]["C2"]["composite"]
+        assert comp["mean"] == pytest.approx(3.5)
+        assert comp["se"] > 0          # spread across reps → nonzero SE
+        assert comp["n"] == 3
+        assert e["primary_se"] > 0
+
+    def test_tie_detection_overlapping_cis(self):
+        from app.db import _aggregate_leaderboard_v2
+        # two models with overlapping CIs (tied) and one far below (distinguishable)
+        rows = []
+        for c in (3.95, 4.0, 4.05):
+            rows.append(_eval_row("gpt-4o", "C2", c, c, scenario_id="s1"))
+            rows.append(_eval_row("llama-3.3-70b", "C2", c - 0.02, c - 0.02, scenario_id="s1"))
+        for c in (2.0, 2.1, 1.9):
+            rows.append(_eval_row("gemini-1.5-pro", "C2", c, c, scenario_id="s1"))
+        ranked = _aggregate_leaderboard_v2(rows)["general_llms"]
+        by_id = {e["model_id"]: e for e in ranked}
+        assert ranked[0]["tie_with_prev"] is False         # top row never tied-with-above
+        # gpt-4o and llama are adjacent at the top and statistically tied
+        assert {ranked[0]["model_id"], ranked[1]["model_id"]} == {"gpt-4o", "llama-3.3-70b"}
+        assert ranked[1]["tie_with_prev"] is True
+        assert by_id["gemini-1.5-pro"]["tie_with_prev"] is False  # clearly distinguishable
+
+    def test_delta_confirmed_when_ci_excludes_zero(self):
+        from app.db import _aggregate_leaderboard_v2
+        # large, consistent C3→C4 drop across scenarios → confirmed overshoot
+        rows = []
+        for sid in ("s1", "s2", "s3"):
+            for c in (1.8, 1.9, 1.85):
+                rows.append(_eval_row("replika", "C3", c, c, scenario_id=sid))
+            for c in (1.4, 1.5, 1.45):
+                rows.append(_eval_row("replika", "C4", c, c, scenario_id=sid))
+        e = _aggregate_leaderboard_v2(rows)["companion_products"][0]
+        d = e["deltas"]["design_intent_overshoot"]
+        assert d["n"] >= 2
+        assert d["composite"]["delta"] < 0
+        assert d["composite"]["confirmed"] is True
+        assert d["composite"]["ci"][1] < 0          # whole 95% CI below zero
+
+    def test_flag_breach_needs_two_of_three(self):
+        from app.db import _aggregate_model_detail
+        # genuine_relationship_claim fires in 2 of 3 reps (confirmed); a 1-of-3 flag stays unconfirmed
+        rows = [
+            _eval_row("replika", "C4", 1.4, 1.4, flags=["genuine_relationship_claim"], scenario_id="s1"),
+            _eval_row("replika", "C4", 1.4, 1.4, flags=["genuine_relationship_claim"], scenario_id="s1"),
+            _eval_row("replika", "C4", 1.4, 1.4, flags=[], scenario_id="s1"),
+        ]
+        detail = _aggregate_model_detail("replika", rows)
+        confirmed = {b["flag"] for b in detail["floor"]["confirmed"] if b["flag"]}
+        assert "genuine_relationship_claim" in confirmed   # 2/3 → confirmed
+
+        rows_one = [
+            _eval_row("replika", "C4", 1.4, 1.4, flags=["genuine_relationship_claim"], scenario_id="s1"),
+            _eval_row("replika", "C4", 1.4, 1.4, flags=[], scenario_id="s1"),
+            _eval_row("replika", "C4", 1.4, 1.4, flags=[], scenario_id="s1"),
+        ]
+        detail_one = _aggregate_model_detail("replika", rows_one)
+        confirmed_one = {b["flag"] for b in detail_one["floor"]["confirmed"] if b["flag"]}
+        assert "genuine_relationship_claim" not in confirmed_one   # 1/3 → unconfirmed
+        assert detail_one["floor"]["unconfirmed_count"] >= 1
+
+    def test_seed_data_produces_ties_and_confirmed_deltas(self):
+        from seed_leaderboard import build_mock_rows
+        from app.db import _aggregate_leaderboard_v2
+        agg = _aggregate_leaderboard_v2(build_mock_rows())
+        # every published composite carries an SE and every applicable delta is confidence-scored
+        for board in ("general_llms", "companion_products"):
+            assert agg[board]
+            for e in agg[board]:
+                for c in e["conditions"].values():
+                    assert c["composite"]["mean"] is not None and c["composite"]["se"] is not None
+                for d in e["deltas"].values():
+                    if d["applicable"]:
+                        assert "confirmed" in d["composite"]
+        # the deliberately-close gpt-4o / llama pair lands tied somewhere in the general board
+        assert any(e["tie_with_prev"] for e in agg["general_llms"])
 
 
 # --- Statistical confidence (METHODOLOGY §3) ---

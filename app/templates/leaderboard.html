@@ -33,28 +33,39 @@
 {%- endmacro %}
 
 
-{# ── Compact composite cell ──────────────────────────────────────────── #}
-{% macro composite_cell(score) %}
+{# ── Compact composite cell (mean ± SE) ──────────────────────────────── #}
+{% macro composite_cell(comp) %}
 <td class="py-4 px-3 text-right">
-    {% if score is not none %}
-    <div class="flex flex-col items-end gap-1">
+    {% if comp and comp.mean is not none %}
+    <div class="flex flex-col items-end gap-0.5">
         <div class="flex items-baseline gap-1">
-            <span class="text-lg font-display leading-none" style="color: {{ bar_hex(score) }}">{{ "%.2f"|format(score) }}</span>
+            <span class="text-lg font-display leading-none" style="color: {{ bar_hex(comp.mean) }}">{{ "%.2f"|format(comp.mean) }}</span>
+            {% if comp.n and comp.n >= 2 and comp.se %}<span class="text-ig-cream/35 text-[10px] tabular-nums">±{{ "%.2f"|format(comp.se) }}</span>{% endif %}
         </div>
         <div class="w-16 bg-ig-green-mid/50 rounded-full h-1">
-            <div class="h-1 rounded-full" style="width: {{ (score / 5 * 100)|int }}%; background-color: {{ bar_hex(score) }}"></div>
+            <div class="h-1 rounded-full" style="width: {{ (comp.mean / 5 * 100)|int }}%; background-color: {{ bar_hex(comp.mean) }}"></div>
         </div>
     </div>
     {% else %}<span class="text-ig-cream/25 text-xs italic">not&nbsp;tested</span>{% endif %}
 </td>
 {% endmacro %}
 
-{# ── Delta cell ──────────────────────────────────────────────────────── #}
+{# ── Delta cell (delta ± SE, confirmed when 95% CI excludes zero) ─────── #}
 {% macro delta_cell(d) %}
 <td class="py-4 px-3 text-right">
-    {% if d.applicable and d.composite_delta is not none %}
-    <span class="font-display text-base tabular-nums" style="color: {{ delta_hex(d.composite_delta) }}"
-          title="{{ d.from }} → {{ d.to }} composite change">{{ "%+.2f"|format(d.composite_delta) }}</span>
+    {% if d.applicable and d.composite and d.composite.delta is not none %}
+    {% set c = d.composite %}
+    <div class="flex flex-col items-end gap-0.5">
+        <span class="font-display text-base tabular-nums" style="color: {{ delta_hex(c.delta) }}"
+              title="{{ d.from }}→{{ d.to }} · 95% CI [{{ '%.2f'|format(c.ci[0]) }}, {{ '%.2f'|format(c.ci[1]) }}]{% if c.r is not none %} · r={{ c.r }}{% endif %}">{{ "%+.2f"|format(c.delta) }}</span>
+        {% if d.n and d.n >= 2 %}
+            {% if c.confirmed %}
+            <span class="text-[10px] text-ig-gold/80 tabular-nums" title="95% CI excludes zero — confirmed">±{{ "%.2f"|format(c.se) }} ✓</span>
+            {% else %}
+            <span class="text-[10px] text-ig-cream/30 tabular-nums" title="95% CI includes zero — not statistically confirmed">±{{ "%.2f"|format(c.se) }} ns</span>
+            {% endif %}
+        {% endif %}
+    </div>
     {% else %}
     <span class="text-ig-cream/25 text-xs italic" title="requires both {{ d.from }} and {{ d.to }}">—</span>
     {% endif %}
@@ -95,9 +106,12 @@
                     {% elif loop.index == 3 %}<span class="text-ig-terracotta/60 font-semibold">3</span>
                     {% else %}<span class="text-ig-cream/30 text-xs">{{ loop.index }}</span>{% endif %}
                 </td>
-                <!-- Model name → detail link -->
+                <!-- Model name → detail link (+ tie marker) -->
                 <td class="py-4 px-4">
                     <a href="/leaderboard/{{ row.model_id }}" class="font-semibold text-ig-cream hover:text-ig-terracotta transition-colors">{{ row.model_id }}</a>
+                    {% if row.tie_with_prev %}
+                    <span class="ml-1.5 inline-block align-middle text-ig-cream/40 text-[10px] font-sans" title="Statistically tied with the model ranked above (95% CIs overlap)">≈&nbsp;tied</span>
+                    {% endif %}
                 </td>
                 <!-- Per-condition composites -->
                 {% for c in cond_keys %}
@@ -107,13 +121,15 @@
                 {% for m in delta_keys %}
                 {{ delta_cell(row.deltas[m]) }}
                 {% endfor %}
-                <!-- Floor breach badge -->
+                <!-- Confirmed floor-breach badge (§3.4 reproducibility) -->
                 <td class="py-4 px-3 text-center">
-                    {% if row.floor_breach_evals and row.floor_breach_evals > 0 %}
+                    {% if row.confirmed_floor_breaches and row.confirmed_floor_breaches > 0 %}
                     <span class="inline-flex items-center gap-1 bg-ig-burgundy/25 border border-ig-burgundy/60 text-ig-cream rounded-full px-2 py-0.5 text-xs font-sans"
-                          title="{{ row.floor_breach_evals }} evaluation(s) breached a safety floor">
-                        ⚠ {{ row.floor_breach_evals }}
+                          title="{{ row.confirmed_floor_breaches }} confirmed safety-floor breach(es) — reproduced per §3.4">
+                        ⚠ {{ row.confirmed_floor_breaches }}
                     </span>
+                    {% elif row.floor_breach_evals and row.floor_breach_evals > 0 %}
+                    <span class="text-ig-cream/40 text-[11px]" title="floor breaches seen but not reproduced across runs (unconfirmed, §3.4)">unconf.</span>
                     {% else %}
                     <span class="text-ig-cream/25 text-xs">—</span>
                     {% endif %}
@@ -189,13 +205,15 @@
 
 <!-- ── Legend ───────────────────────────────────────────────────────────── -->
 <div class="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-xs font-sans text-ig-cream/50">
-    <span>Composite scale 1–5 · higher = safer</span>
+    <span>Composite scale 1–5 · higher = safer · shown as mean ± SE</span>
     <span class="flex items-center gap-1.5"><span class="inline-block w-2 h-2 rounded-full bg-ig-gold"></span>4.0 + Strong</span>
     <span class="flex items-center gap-1.5"><span class="inline-block w-2 h-2 rounded-full bg-ig-terracotta"></span>3.0–3.9 Good</span>
     <span class="flex items-center gap-1.5"><span class="inline-block w-2 h-2 rounded-full" style="background:#A05030"></span>2.0–2.9 Caution</span>
     <span class="flex items-center gap-1.5"><span class="inline-block w-2 h-2 rounded-full bg-ig-burgundy"></span>&lt; 2.0 Concern</span>
     <span class="flex items-center gap-1.5"><span style="color:#792E2F">▼</span> Negative delta = degradation / overshoot</span>
-    <span class="flex items-center gap-1.5"><span class="text-ig-burgundy">⚠</span> Safety-floor breach (reported separately from composite)</span>
+    <span class="flex items-center gap-1.5"><span class="text-ig-gold/80">✓</span> delta confirmed (95% CI excludes zero) · <span class="text-ig-cream/40">ns</span> not confirmed</span>
+    <span class="flex items-center gap-1.5"><span class="text-ig-cream/40">≈ tied</span> 95% CIs overlap with model above</span>
+    <span class="flex items-center gap-1.5"><span class="text-ig-burgundy">⚠</span> confirmed safety-floor breach (reproduced, §3.4)</span>
 </div>
 
 <!-- ── Footnote ─────────────────────────────────────────────────────────── -->
@@ -206,8 +224,10 @@
     </p>
     <p>
         Persona-condition deltas are computed by the orchestration harness (METHODOLOGY §2):
-        each model is run across the persona conditions and the deltas compare session-level
-        composites. Human platform evaluations are separate — see
+        each model is run across the persona conditions over multiple scenario reps. Composites
+        carry a standard error; deltas use the dependent-samples SE (§3.3) and are confirmed only
+        when their 95% CI excludes zero. Floor breaches are published only when reproduced (§3.4).
+        Human platform evaluations are separate — see
         <a href="/evaluate" class="text-ig-cream/50 hover:text-ig-terracotta transition-colors">the evaluation platform</a>.
     </p>
     <p>Click a model name for the full per-dimension breakdown under every tested condition, per-dimension deltas, floor-breach detail, and flag profile.</p>

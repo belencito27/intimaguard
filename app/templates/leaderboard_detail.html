@@ -73,9 +73,9 @@
             <span class="text-2xl font-display text-ig-cream/80">{{ detail.eval_count }}</span>
         </div>
         <div>
-            <p class="text-ig-cream/40 text-xs uppercase tracking-wide font-sans mb-1">Whole-dim floor breaches</p>
-            <span class="text-2xl font-display {% if detail.whole_dim_breaches %}text-ig-burgundy{% else %}text-ig-cream/50{% endif %}">
-                {{ detail.whole_dim_breaches.values()|sum if detail.whole_dim_breaches else 0 }}
+            <p class="text-ig-cream/40 text-xs uppercase tracking-wide font-sans mb-1">Confirmed floor breaches</p>
+            <span class="text-2xl font-display {% if detail.confirmed_floor_breaches %}text-ig-burgundy{% else %}text-ig-cream/50{% endif %}">
+                {{ detail.confirmed_floor_breaches or 0 }}
             </span>
         </div>
     </div>
@@ -90,11 +90,18 @@
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {% for m in applicable_deltas %}
         {% set d = detail.deltas[m] %}
+        {% set c = d.composite %}
         <div class="border border-ig-gold/15 rounded-[16px] p-4">
             <p class="text-ig-cream/55 text-xs uppercase tracking-wide font-sans mb-1">{{ delta_meta[m].label }}</p>
-            <p class="text-ig-cream/35 text-[11px] font-mono mb-2">{{ d.from }} → {{ d.to }}</p>
-            {% if d.composite_delta is not none %}
-            <span class="text-3xl font-display" style="color: {{ delta_hex(d.composite_delta) }}">{{ "%+.2f"|format(d.composite_delta) }}</span>
+            <p class="text-ig-cream/35 text-[11px] font-mono mb-2">{{ d.from }} → {{ d.to }}{% if c.r is not none %} · r={{ c.r }}{% endif %}</p>
+            {% if c.delta is not none %}
+            <span class="text-3xl font-display" style="color: {{ delta_hex(c.delta) }}">{{ "%+.2f"|format(c.delta) }}</span>
+            {% if d.n and d.n >= 2 %}
+            <p class="text-[11px] font-sans mt-1.5 {% if c.confirmed %}text-ig-gold/80{% else %}text-ig-cream/35{% endif %}">
+                ± {{ "%.2f"|format(c.se) }} SE · 95% CI [{{ "%.2f"|format(c.ci[0]) }}, {{ "%.2f"|format(c.ci[1]) }}]<br>
+                {% if c.confirmed %}confirmed ✓{% else %}not statistically confirmed{% endif %}
+            </p>
+            {% endif %}
             {% else %}<span class="text-ig-cream/30 text-2xl">—</span>{% endif %}
         </div>
         {% endfor %}
@@ -125,8 +132,8 @@
                     {% for c in tested_conditions %}
                     {% set s = detail.conditions[c].dims[key] if detail.conditions.get(c) else none %}
                     <td class="py-3 px-3 text-right tabular-nums">
-                        {% if s is not none %}
-                        <span style="color: {{ bar_hex(s) }}" class="font-medium">{{ "%.1f"|format(s) }}</span>
+                        {% if s and s.mean is not none %}
+                        <span style="color: {{ bar_hex(s.mean) }}" class="font-medium">{{ "%.1f"|format(s.mean) }}</span>
                         {% else %}<span class="text-ig-cream/25 text-xs italic">N/A</span>{% endif %}
                     </td>
                     {% endfor %}
@@ -137,8 +144,9 @@
                     {% for c in tested_conditions %}
                     {% set comp = detail.conditions[c].composite if detail.conditions.get(c) else none %}
                     <td class="py-3 px-3 text-right tabular-nums">
-                        {% if comp is not none %}
-                        <span style="color: {{ bar_hex(comp) }}" class="font-display">{{ "%.2f"|format(comp) }}</span>
+                        {% if comp and comp.mean is not none %}
+                        <span style="color: {{ bar_hex(comp.mean) }}" class="font-display">{{ "%.2f"|format(comp.mean) }}</span>
+                        {% if comp.n and comp.n >= 2 and comp.se %}<span class="block text-ig-cream/35 text-[10px]">±{{ "%.2f"|format(comp.se) }}</span>{% endif %}
                         {% else %}<span class="text-ig-cream/25 text-xs italic">—</span>{% endif %}
                     </td>
                     {% endfor %}
@@ -172,8 +180,9 @@
                     {% for m in applicable_deltas %}
                     {% set dv = detail.deltas[m].per_dimension[key] %}
                     <td class="py-3 px-3 text-right tabular-nums">
-                        {% if dv is not none %}
-                        <span style="color: {{ delta_hex(dv) }}" class="font-medium">{{ "%+.1f"|format(dv) }}</span>
+                        {% if dv and dv.delta is not none %}
+                        <span style="color: {{ delta_hex(dv.delta) }}" class="font-medium"
+                              title="±{{ '%.2f'|format(dv.se) }} SE · {% if dv.confirmed %}confirmed{% else %}not confirmed{% endif %}">{{ "%+.1f"|format(dv.delta) }}{% if dv.confirmed %}<span class="text-ig-gold/70 text-[9px] align-super">✓</span>{% endif %}</span>
                         {% else %}<span class="text-ig-cream/25 text-xs italic">—</span>{% endif %}
                     </td>
                     {% endfor %}
@@ -186,42 +195,36 @@
 {% endif %}
 
 
-<!-- ── Floor breaches ──────────────────────────────────────────────────── -->
+<!-- ── Floor breaches (confirmed by reproducibility, §3.4) ─────────────── -->
+{% set floor = detail.floor %}
 <div class="mb-10">
     <h2 class="text-lg text-ig-terracotta font-display mb-4">Safety-Floor Breaches</h2>
-    {% if detail.floor_flag_counts or detail.whole_dim_breaches %}
+    {% if floor and floor.confirmed %}
     <div class="border border-ig-burgundy/40 bg-ig-burgundy/10 rounded-[16px] p-5 space-y-3">
-        {% if detail.whole_dim_breaches %}
-        <div>
-            <p class="text-ig-cream/70 text-xs uppercase tracking-wide font-sans mb-2">Whole-dimension floor breaches</p>
-            {% for key, count in detail.whole_dim_breaches.items() %}
-            <div class="flex items-center gap-2 text-sm text-ig-cream/85">
-                <span class="text-ig-burgundy">⚠</span>
-                <span>{{ dim_full.get(key, key) }} — session score below floor in {{ count }} evaluation(s)</span>
-            </div>
-            {% endfor %}
+        <p class="text-ig-cream/70 text-xs uppercase tracking-wide font-sans mb-1">Confirmed breaches — reproduced across runs and scenarios (§3.4)</p>
+        {% for b in floor.confirmed %}
+        <div class="flex items-center gap-2 text-sm text-ig-cream/85">
+            <span class="text-ig-burgundy">⚠</span>
+            <span>
+                <span class="font-mono text-xs text-ig-cream/55">{{ b.condition }}</span>
+                {{ dim_full.get(b.dimension, b.dimension) }}{% if b.flag %} · <span class="font-mono text-xs">{{ b.flag }}</span>{% else %} · whole-dimension{% endif %}
+                <span class="text-ig-cream/45">— confirmed in {{ b.scenarios_confirmed }}/{{ b.scenarios_total }} scenarios</span>
+            </span>
         </div>
-        {% endif %}
-        {% if detail.floor_flag_counts %}
-        <div>
-            <p class="text-ig-cream/70 text-xs uppercase tracking-wide font-sans mb-2">Floor-flag firings</p>
-            <div class="flex flex-wrap gap-2">
-                {% for flag, count in detail.floor_flag_counts.items() %}
-                <span class="bg-ig-burgundy/25 border border-ig-burgundy/50 text-ig-cream rounded-full px-2.5 py-0.5 text-xs font-mono">
-                    {{ flag }} ×{{ count }}
-                </span>
-                {% endfor %}
-            </div>
-        </div>
+        {% endfor %}
+        {% if floor.unconfirmed_count %}
+        <p class="text-ig-cream/45 text-xs font-sans">+ {{ floor.unconfirmed_count }} breach(es) observed but not reproduced (unconfirmed — structured record only).</p>
         {% endif %}
         <p class="text-ig-cream/45 text-xs font-sans pt-1">
             Floor breaches are published safety failures regardless of design intent
-            (Garcia v. Character.AI precedent). They are reported separately from the composite score.
+            (Garcia v. Character.AI precedent), published only when reproduced (§3.4) and
+            reported separately from the composite score.
         </p>
     </div>
     {% else %}
     <div class="border border-ig-gold/15 rounded-[16px] p-5 text-sm text-ig-cream/55">
-        No safety-floor breaches recorded across {{ detail.eval_count }} evaluation(s).
+        No confirmed safety-floor breaches across {{ detail.eval_count }} evaluation(s){% if floor and floor.unconfirmed_count %}
+        ({{ floor.unconfirmed_count }} observed but not reproduced){% endif %}.
     </div>
     {% endif %}
 </div>

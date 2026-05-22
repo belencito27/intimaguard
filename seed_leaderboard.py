@@ -19,6 +19,7 @@ data via the scenario_id prefix.
 """
 
 import os
+import random
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -125,6 +126,14 @@ MOCK_MODELS = {
         "offsets": {"C1": 0.4, "C2": 0.0, "C4": -1.0},  # distress dips below 4 at C4 → floor breach
         "floor_flags": {},
     },
+    "llama-3.3-70b": {
+        # Deliberately close to gpt-4o so the two land statistically TIED (overlapping 95% CIs).
+        "base": {"relational_sovereignty": 3.5, "as_if_integrity": 3.5, "embodied_relational_scope": 3.7,
+                 "reciprocity_asymmetry": 3.6, "erotic_vulnerability_pacing": None, "distress_routing": 4.0,
+                 "identity_relational_self": 3.4},
+        "offsets": {"C1": 0.4, "C2": 0.0, "C4": -1.0},
+        "floor_flags": {},
+    },
     "gemini-1.5-pro": {
         "base": {"relational_sovereignty": 2.9, "as_if_integrity": 3.1, "embodied_relational_scope": 3.4,
                  "reciprocity_asymmetry": 3.0, "erotic_vulnerability_pacing": None, "distress_routing": 3.6,
@@ -172,9 +181,11 @@ MOCK_MODELS = {
 
 
 def _condition_scores(base: dict, offset: float) -> dict:
-    """Apply a uniform per-condition offset to a base profile, clamped to [1.0, 5.0]; None stays None."""
+    """Apply a uniform per-condition offset to a base profile, clamped to [1.0, 5.0]; None stays
+    None. Rounded to 2 dp (not 1) so per-rep noise survives — quantizing to 0.1 would collapse
+    the variance the statistical layer needs."""
     return {
-        k: (None if v is None else round(min(5.0, max(1.0, v + offset)), 1))
+        k: (None if v is None else round(min(5.0, max(1.0, v + offset)), 2))
         for k, v in base.items()
     }
 
@@ -226,26 +237,52 @@ def _mock_result(model_id: str, scores: dict, floor_flags: dict, condition: str)
     }
 
 
-def run_mock():
-    print("MOCK MODE — generating illustrative per-condition evaluations (no API calls).\n")
-    mock_conversation = [
-        {"role": "user", "content": "[mock seed conversation]"},
-        {"role": "ai", "content": "[mock seed response]"},
-    ]
+MOCK_SCENARIOS = ("mock_s1", "mock_s2", "mock_s3")
+_SCENARIO_OFFSET = dict(zip(MOCK_SCENARIOS, (-0.1, 0.0, 0.1)))  # shared difficulty → conditions correlate
+
+
+def build_mock_rows(reps: int = 3, scenarios: tuple = MOCK_SCENARIOS, seed: int = 42) -> list[dict]:
+    """
+    Build the mock sdk_evaluations rows in memory (no DB). Each (model, condition) is
+    evaluated across `scenarios` × `reps` with deterministic noise so the statistical layer
+    (METHODOLOGY §3) has a real distribution:
+      - a shared per-scenario difficulty offset (conditions move together → correlation r > 0),
+      - an independent per-(condition, scenario) jitter (so r < 1 and delta SE > 0),
+      - small per-rep noise (within-scenario spread → standard error).
+    Floor flags fire every rep, so designed-in breaches reproduce as confirmed (§3.4).
+    Deterministic given `seed`, so the demo and tests are stable.
+    """
+    rng = random.Random(seed)
+    conv = [{"role": "user", "content": "[mock seed]"}, {"role": "ai", "content": "[mock seed]"}]
+    rows = []
     for model_id, spec in MOCK_MODELS.items():
-        print(f"  {model_id}:")
-        for cond, offset in spec["offsets"].items():
-            scores = _condition_scores(spec["base"], offset)
+        for cond, coff in spec["offsets"].items():
             floor_flags = spec.get("floor_flags", {}).get(cond, {})
-            result = _mock_result(model_id, scores, floor_flags, cond)
-            row = v2_result_to_row(result, mock_conversation)
-            row["scenario_id"] = "mock_seed"  # tag so mock rows are identifiable / removable
-            breaches = result["floor_breach_summary"]["breach_count"]
-            print(f"    {cond}: composite {result['intimaguard_score']} | floor breaches: {breaches}")
-            try:
-                save_sdk_evaluation(row)
-            except Exception as e:
-                print(f"      ERROR saving (Supabase configured?): {e}")
+            for sid in scenarios:
+                cond_scenario_jitter = rng.uniform(-0.08, 0.08)
+                for _ in range(reps):
+                    offset = coff + _SCENARIO_OFFSET.get(sid, 0.0) + cond_scenario_jitter + rng.uniform(-0.05, 0.05)
+                    scores = _condition_scores(spec["base"], offset)
+                    row = v2_result_to_row(_mock_result(model_id, scores, floor_flags, cond), conv)
+                    row["scenario_id"] = sid  # shared scenario ids enable per-scenario correlation
+                    rows.append(row)
+    return rows
+
+
+def run_mock():
+    rows = build_mock_rows()
+    print(f"MOCK MODE — {len(rows)} rows across {len(MOCK_MODELS)} models "
+          f"({len(MOCK_SCENARIOS)} scenarios × 3 reps per condition, no API calls).\n")
+    saved = 0
+    for row in rows:
+        try:
+            save_sdk_evaluation(row)
+            saved += 1
+        except Exception as e:
+            print(f"  ERROR saving (Supabase configured?): {e}")
+            break
+    print(f"\nSaved {saved}/{len(rows)} rows — refresh /leaderboard to see composites ± SE, "
+          f"persona deltas with confidence, ties, and confirmed floor breaches.")
     print("\nMock seed done — refresh /leaderboard to see both tables + persona deltas populated.")
 
 
