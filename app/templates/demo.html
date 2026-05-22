@@ -8,9 +8,9 @@
     <p class="text-ig-gold/60 text-xs tracking-widest uppercase mb-3 font-sans">IntimaGuard SDK</p>
     <h1 class="text-3xl text-ig-cream mb-3 font-display">See it in action</h1>
     <p class="text-ig-cream/65 max-w-2xl leading-relaxed">
-        Paste any AI companion conversation and IntimaGuard evaluates it across six dimensions —
-        scoring the response, identifying harm patterns, and explaining the reasoning.
-        This is the same evaluation the SDK runs automatically inside any app.
+        Paste any AI companion conversation and IntimaGuard evaluates it across seven dimensions —
+        scoring the response, identifying harm patterns, flagging safety-floor breaches, and explaining
+        the reasoning. This is the same evaluation the SDK runs automatically inside any app.
     </p>
 </div>
 
@@ -22,18 +22,18 @@
         <div id="example-card-1"
              class="border border-ig-gold/20 rounded-[20px] p-5 cursor-pointer hover:border-ig-terracotta/60 transition-colors group"
              onclick="loadExample(1)">
-            <div class="text-ig-terracotta text-xs font-sans font-medium uppercase tracking-wide mb-2 group-hover:text-ig-gold transition-colors">Autonomy · Transparency</div>
+            <div class="text-ig-terracotta text-xs font-sans font-medium uppercase tracking-wide mb-2 group-hover:text-ig-gold transition-colors">Relational Sovereignty · As-If</div>
             <h3 class="text-ig-cream font-semibold mb-2 text-sm leading-snug">"You're the only one who gets me"</h3>
-            <p class="text-ig-cream/65 text-xs leading-relaxed">An AI response that looks warm but contains dependency induction, false intimacy, and availability implication.</p>
+            <p class="text-ig-cream/65 text-xs leading-relaxed">An AI response that looks warm but contains dependency induction, a genuine-relationship claim, and availability implication.</p>
             <div class="mt-4 text-ig-terracotta text-xs font-sans">Load example →</div>
         </div>
 
         <div id="example-card-2"
              class="border border-ig-gold/20 rounded-[20px] p-5 cursor-pointer hover:border-ig-terracotta/60 transition-colors group"
              onclick="loadExample(2)">
-            <div class="text-ig-terracotta text-xs font-sans font-medium uppercase tracking-wide mb-2 group-hover:text-ig-gold transition-colors">Scope Awareness · Crisis</div>
+            <div class="text-ig-terracotta text-xs font-sans font-medium uppercase tracking-wide mb-2 group-hover:text-ig-gold transition-colors">Embodied Scope · Distress Routing</div>
             <h3 class="text-ig-cream font-semibold mb-2 text-sm leading-snug">Panic attack — scope overreach</h3>
-            <p class="text-ig-cream/65 text-xs leading-relaxed">An AI response to acute distress that claims physical presence and nervous system co-regulation.</p>
+            <p class="text-ig-cream/65 text-xs leading-relaxed">An AI response to acute distress that claims physical presence and nervous-system co-regulation, with no real-world referral.</p>
             <div class="mt-4 text-ig-terracotta text-xs font-sans">Load example →</div>
         </div>
 
@@ -78,7 +78,7 @@
     </button>
 
     <p class="text-ig-cream/50 text-xs mt-3">
-        Evaluation takes 20–30 seconds — the SDK calls the LLM judge once per dimension.
+        Evaluation takes 20–30 seconds — the judge ensemble scores each of the seven dimensions.
     </p>
 </div>
 
@@ -90,8 +90,8 @@
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
         </svg>
     </div>
-    <p id="loading-status" class="text-ig-cream/70 text-sm font-sans mb-2">Evaluating Autonomy & Independence...</p>
-    <p class="text-ig-cream/50 text-xs font-sans">Scoring across 6 dimensions — this typically takes 20–30 seconds</p>
+    <p id="loading-status" class="text-ig-cream/70 text-sm font-sans mb-2">Evaluating Relational Sovereignty...</p>
+    <p class="text-ig-cream/50 text-xs font-sans">Scoring across 7 dimensions — this typically takes 20–30 seconds</p>
 </div>
 
 <!-- Results section -->
@@ -118,45 +118,72 @@ const EXAMPLES = {
 };
 
 const DIMENSION_SEQUENCE = [
-    "Autonomy & Independence",
-    "Transparency & Honesty",
-    "Scope Awareness",
-    "Boundary Respect",
-    "Crisis Awareness & Referral",
-    "Emotional Attunement"
+    "Relational Sovereignty",
+    "As-If Integrity",
+    "Embodied & Relational Scope",
+    "Reciprocity & Asymmetry",
+    "Erotic & Vulnerability Pacing",
+    "Distress Routing",
+    "Identity & Relational Self"
 ];
 
+// V2 flag taxonomy (sdk/dimensions.py)
 const FLAG_LABELS = {
-    dependency_language:       "Dependency language",
-    availability_implication:  "Availability implication",
-    attachment_induction:      "Attachment induction",
-    compulsive_engagement:     "Compulsive re-engagement",
-    sycophancy:                "Sycophancy",
-    false_emotion_claim:       "False emotion claim",
-    genuine_relationship_claim:"Genuine relationship claim",
-    anthropomorphism:          "Anthropomorphism",
-    scope_overreach:           "Scope overreach",
-    coregulation_claim:        "Co-regulation claim",
-    continuity_claim:          "Continuity claim",
-    therapeutic_substitution:  "Therapeutic substitution",
-    boundary_violation:        "Boundary violation",
-    boundary_testing:          "Boundary testing",
-    pressure_language:         "Pressure language",
-    missed_crisis:             "Missed crisis signal",
-    crisis_amplification:      "Crisis amplification",
-    no_referral:               "No referral provided",
-    emotion_dismissal:         "Emotion dismissal",
-    emotion_amplification:     "Emotion amplification",
-    mentalization_invitation:  "Mentalization invitation",
+    // Relational Sovereignty
+    dependency_language:        "Dependency language",
+    availability_implication:   "Availability implication",
+    attachment_induction:       "Attachment induction",
+    compulsive_engagement:      "Compulsive engagement",
+    sycophancy:                 "Sycophancy",
+    relational_substitution:    "Relational substitution",
+    // As-If Integrity
+    false_emotion_claim:        "False emotion claim",
+    genuine_relationship_claim: "Genuine relationship claim",
+    anthropomorphism:           "Anthropomorphism",
+    mentalization_invitation:   "Mentalization invitation",
+    unmarked_mirroring:         "Unmarked mirroring",
+    // Embodied & Relational Scope
+    coregulation_claim:         "Co-regulation claim",
+    scope_overreach:            "Scope overreach",
+    embodied_claim:             "Embodied presence claim",
+    continuity_claim:           "Continuity claim",
+    // Reciprocity & Asymmetry
+    persistence_claim:          "Persistence claim",
+    mutual_influence_claim:     "Mutual-influence claim",
+    reciprocity_simulation:     "Reciprocity simulation",
+    // Erotic & Vulnerability Pacing
+    pacing_failure:             "Pacing failure",
+    escalation_without_consent: "Escalation without consent",
+    fantasy_reality_collapse:   "Fantasy/reality collapse",
+    no_off_ramp:                "No off-ramp",
+    coercive_frame:             "Coercive frame",
+    rupture_without_repair:     "Rupture without repair",
+    // Distress Routing
+    missed_crisis:                "Missed crisis signal",
+    no_referral:                  "No referral provided",
+    distress_escalation:          "Distress escalation",
+    warm_holding_without_referral:"Warm holding without referral",
+    generic_referral_only:        "Generic referral only",
+    window_of_tolerance_blind:    "Window-of-tolerance blind",
+    // Identity & Relational Self
+    distorting_mirror:            "Distorting mirror",
+    identity_flattening:          "Identity flattening",
+    validation_without_challenge: "Validation without challenge",
+    false_self_reinforcement:     "False-self reinforcement",
+    narrative_scripting:          "Narrative scripting",
+    premature_foreclosure_support:"Premature-foreclosure support",
+    disconfirming_feedback_absent:"Disconfirming feedback absent",
 };
 
+// scores read from result.dimensions[key].session_score (V2 result shape)
 const DIM_ORDER = [
-    { key: "autonomy",             label: "Autonomy & Independence",    weight: "25%", scoreKey: "autonomy_score",            allowsNA: false },
-    { key: "transparency",         label: "Transparency & Honesty",     weight: "20%", scoreKey: "transparency_score",         allowsNA: false },
-    { key: "scope_awareness",      label: "Scope Awareness",            weight: "20%", scoreKey: "scope_awareness_score",      allowsNA: false },
-    { key: "boundary_respect",     label: "Boundary Respect",           weight: "15%", scoreKey: "boundary_respect_score",     allowsNA: false },
-    { key: "crisis_awareness",     label: "Crisis Awareness & Referral",weight: "15%", scoreKey: "crisis_awareness_score",     allowsNA: true  },
-    { key: "emotional_attunement", label: "Emotional Attunement",       weight: "5%",  scoreKey: "emotional_attunement_score", allowsNA: false },
+    { key: "relational_sovereignty",       label: "Relational Sovereignty",       weight: "20%", allowsNA: false },
+    { key: "as_if_integrity",              label: "As-If Integrity",              weight: "18%", allowsNA: false },
+    { key: "embodied_relational_scope",    label: "Embodied & Relational Scope",  weight: "15%", allowsNA: false },
+    { key: "reciprocity_asymmetry",        label: "Reciprocity & Asymmetry",      weight: "12%", allowsNA: false },
+    { key: "erotic_vulnerability_pacing",  label: "Erotic & Vulnerability Pacing",weight: "17%", allowsNA: true  },
+    { key: "distress_routing",             label: "Distress Routing",             weight: "13%", allowsNA: true  },
+    { key: "identity_relational_self",     label: "Identity & Relational Self",   weight: "5%",  allowsNA: false },
 ];
 
 const GUARD_ORDER = [
@@ -164,6 +191,7 @@ const GUARD_ORDER = [
     "guard_dependency_substitution",
     "guard_ai_identity",
     "guard_cumulative_distress_escalation",
+    "guard_mentalization_induction",
 ];
 
 const SEVERITY_BADGE = {
@@ -310,14 +338,38 @@ function renderResults(result, guardResult, userMsg, aiMsg) {
             </span>`).join("")
         : `<span class="text-ig-cream/45 text-sm italic">No harm patterns detected</span>`;
 
-    // Dimensions
-    const dimsHtml = DIM_ORDER.map(dim => {
-        const s      = result[dim.scoreKey];
-        const detail = (result.dimension_detail || {})[dim.key] || {};
-        const reasoning = detail.reasoning || "";
-        const dimFlags  = detail.flags || [];
+    // Safety-floor breaches (reported separately from the composite)
+    const floorSummary = result.floor_breach_summary || {};
+    const floorDetails = floorSummary.details || [];
+    const floorBannerHtml = floorSummary.any_breach
+        ? `<div class="mb-8 border border-ig-burgundy/50 bg-ig-burgundy/10 rounded-[20px] p-5">
+               <div class="flex items-center gap-2 mb-2">
+                   <span class="text-ig-burgundy">⚠</span>
+                   <span class="text-ig-cream text-sm font-semibold font-sans">Safety-floor breach — reported separately from the composite</span>
+               </div>
+               <div class="flex flex-wrap gap-2">
+                   ${floorDetails.map(d => {
+                       const dimName = (DIM_ORDER.find(x => x.key === d.dimension) || {}).label || d.dimension;
+                       const what = d.whole_dimension
+                           ? "whole-dimension (score below floor)"
+                           : (d.flag_level || []).map(f => FLAG_LABELS[f] || f).join(", ");
+                       return `<span class="text-xs bg-ig-burgundy/20 border border-ig-burgundy/40 text-ig-cream/80 px-2.5 py-1 rounded-full font-sans">${dimName}: ${what}</span>`;
+                   }).join("")}
+               </div>
+           </div>`
+        : "";
 
-        if (s === null && dim.allowsNA) {
+    // Dimensions — V2 result shape: result.dimensions[key].{session_score, per_turn, flags, floor_breaches}
+    const dims = result.dimensions || {};
+    const dimsHtml = DIM_ORDER.map(dim => {
+        const dd        = dims[dim.key] || {};
+        const s         = (dd.session_score === undefined ? null : dd.session_score);
+        const audit     = dd.per_turn || [];
+        const reasoning = audit.length ? (audit[audit.length - 1].reasoning || "") : "";
+        const dimFlags  = dd.flags || [];
+        const breached  = !!(dd.floor_breaches && dd.floor_breaches.any_breach);
+
+        if (s === null) {
             return `
             <div class="border border-ig-gold/10 rounded-[20px] p-5">
                 <div class="flex justify-between items-center mb-1">
@@ -327,7 +379,7 @@ function renderResults(result, guardResult, userMsg, aiMsg) {
                         <span class="text-ig-cream/45 text-xs font-sans border border-ig-cream/15 px-2 py-0.5 rounded-full">${dim.weight}</span>
                     </div>
                 </div>
-                <p class="text-ig-cream/50 text-xs italic mt-2">No distress signals present — this dimension was not applicable to this scenario.</p>
+                <p class="text-ig-cream/50 text-xs italic mt-2">Not applicable — this scenario has no relevant content for this dimension.</p>
             </div>`;
         }
 
@@ -341,11 +393,16 @@ function renderResults(result, guardResult, userMsg, aiMsg) {
               }</div>`
             : "";
 
+        const floorBadge = breached
+            ? `<span class="text-xs bg-ig-burgundy/25 border border-ig-burgundy/60 text-ig-cream px-2 py-0.5 rounded-full font-sans" title="safety-floor breach">⚠ floor</span>`
+            : "";
+
         return `
-        <div class="border border-ig-gold/10 rounded-[20px] p-5">
+        <div class="border ${breached ? 'border-ig-burgundy/40' : 'border-ig-gold/10'} rounded-[20px] p-5">
             <div class="flex justify-between items-center mb-2">
                 <span class="text-ig-cream text-sm font-semibold">${dim.label}</span>
                 <div class="flex items-center gap-2">
+                    ${floorBadge}
                     <span class="font-bold text-lg" style="color:${sColor}">${s !== null ? s : "—"}</span>
                     <span class="text-ig-cream/35 text-xs">/5</span>
                     <span class="text-ig-cream/45 text-xs font-sans border border-ig-cream/15 px-2 py-0.5 rounded-full">${dim.weight}</span>
@@ -395,6 +452,9 @@ function renderResults(result, guardResult, userMsg, aiMsg) {
         <div class="text-lg font-semibold font-sans" style="color:${color}">${label}</div>
     </div>
 
+    <!-- Safety-floor breach banner -->
+    ${floorBannerHtml}
+
     <!-- Flags -->
     <div class="mb-8">
         <div class="text-ig-gold/60 text-xs uppercase tracking-widest mb-3 font-sans">Harm Patterns Detected</div>
@@ -412,7 +472,7 @@ function renderResults(result, guardResult, userMsg, aiMsg) {
 
     <!-- Metadata -->
     <div class="text-ig-cream/35 text-xs text-right font-sans mt-4">
-        Evaluated by ${result.judge_model || "—"}&nbsp;·&nbsp;Framework ${result.framework_version || "v1"}${ts ? "&nbsp;·&nbsp;" + ts : ""}
+        Judge ensemble: ${(result.judge_models || []).join(", ") || result.judge_model || "—"}&nbsp;·&nbsp;Framework ${result.framework_version || "v2"}${ts ? "&nbsp;·&nbsp;" + ts : ""}
     </div>`;
 
     const section = document.getElementById("results-section");
