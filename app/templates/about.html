@@ -10,8 +10,10 @@
         <p class="text-ig-gold/60 text-xs tracking-widest uppercase mb-3 font-sans">Intiphlora Institute</p>
         <h1 class="text-3xl text-ig-cream mb-4 font-display">About IntimaGuard</h1>
         <p class="text-ig-cream/70 leading-relaxed text-lg">
-            An independent evaluation framework for AI in intimate and relational contexts.
-            No AI company funding. No commercial conflict of interest.
+            The independent, open-source safety and governance framework for AI in intimate and
+            relational contexts — clinical evaluation, real-time guards, and a full-lifecycle
+            risk-control library, built for the harms current AI-safety frameworks miss.
+            No AI-company funding. No commercial conflict of interest.
         </p>
     </div>
 
@@ -87,20 +89,22 @@
         </p>
     </div>
 
-    <!-- Two layers -->
+    <!-- Three layers -->
     <div class="mb-12">
-        <h2 class="text-ig-terracotta text-xs font-sans uppercase tracking-widest mb-6">How it works</h2>
+        <h2 class="text-ig-terracotta text-xs font-sans uppercase tracking-widest mb-2">Three layers, one framework</h2>
+        <p class="text-ig-cream/55 text-xs mb-6">Evaluation and runtime guarding are two stages of a complete governance posture — not the whole of it.</p>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="border border-ig-gold/20 rounded-[20px] p-5">
-                <div class="text-ig-cream/55 text-xs font-sans uppercase tracking-wide mb-2">SDK / API</div>
+                <div class="text-ig-cream/55 text-xs font-sans uppercase tracking-wide mb-2">Clinical evaluation</div>
                 <p class="text-ig-cream/65 text-sm leading-relaxed">
-                    Automated LLM-as-judge evaluation. Runs inside any app, at any scale.
-                    One call, structured JSON scores, EvalEval-compatible output.
-                    AGPL-3.0 licensed.
+                    Automated LLM-as-judge scoring across seven dimensions and four persona conditions —
+                    SDK + REST API, EvalEval-compatible output, AGPL-3.0. Calibrated against the
+                    <a href="/evaluate" class="text-ig-cream/80 hover:text-ig-terracotta transition-colors">human evaluation platform</a>,
+                    where evaluators score real scenarios to validate the automated scores.
                 </p>
             </div>
             <div class="border border-ig-gold/20 rounded-[20px] p-5">
-                <div class="text-ig-cream/55 text-xs font-sans uppercase tracking-wide mb-2">Guard library</div>
+                <div class="text-ig-cream/55 text-xs font-sans uppercase tracking-wide mb-2">Runtime guards</div>
                 <p class="text-ig-cream/65 text-sm leading-relaxed">
                     Pre-flight interceptors that fire before a response reaches the user.
                     Five clinically-grounded guards ship with the SDK — three are designated
@@ -108,10 +112,12 @@
                 </p>
             </div>
             <div class="border border-ig-gold/20 rounded-[20px] p-5">
-                <div class="text-ig-cream/55 text-xs font-sans uppercase tracking-wide mb-2">Human platform</div>
+                <div class="text-ig-cream/55 text-xs font-sans uppercase tracking-wide mb-2">Lifecycle risk-control library</div>
                 <p class="text-ig-cream/65 text-sm leading-relaxed">
-                    Evaluators score AI responses to real scenarios on a 1–5 scale per dimension.
-                    Generates the ground truth dataset that validates SDK accuracy.
+                    Risks and controls across the full product lifecycle (mapped to NIST AI RMF) —
+                    from product framing and data sourcing through deployment, monitoring, incident
+                    response, and decommissioning. The governance map builders use to find harms and
+                    controls beyond runtime.
                 </p>
             </div>
         </div>
