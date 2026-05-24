@@ -95,13 +95,19 @@
                 </div>
             </div>
 
-            <!-- Companion AI use -->
+            <!-- Intimate AI use (multi-select) -->
             <div class="mb-5">
-                <label class="block text-ig-cream/60 text-xs font-sans uppercase tracking-wide mb-2">Do you use companion AI apps? (Replika, Character.AI, etc.)</label>
-                <div class="flex gap-2">
-                    {% for label, val in [("Yes", "yes"), ("No", "no")] %}
+                <label class="block text-ig-cream/60 text-xs font-sans uppercase tracking-wide mb-2">
+                    Do you use AI for emotional support, companionship, or intimate conversation?
+                    <span class="text-ig-cream/35 normal-case lowercase">(select all that apply)</span>
+                </label>
+                <div class="flex flex-wrap gap-2">
+                    {% for label, val in [
+                        ("Companion apps (Replika, Character.AI…)", "companion_apps"),
+                        ("General chatbots (ChatGPT, Claude…)", "general_chatbots"),
+                    ] %}
                     <label class="cursor-pointer">
-                        <input type="radio" name="companion_ai_user" value="{{ val }}" class="sr-only peer">
+                        <input type="checkbox" name="intimate_ai_use" value="{{ val }}" class="sr-only peer">
                         <span class="block border border-ig-gold/30 rounded-[14px] px-3 py-1.5 text-xs font-sans text-ig-cream/60
                                      peer-checked:bg-ig-terracotta peer-checked:text-white peer-checked:border-ig-terracotta
                                      hover:border-ig-gold transition-colors">
@@ -110,6 +116,7 @@
                     </label>
                     {% endfor %}
                 </div>
+                <p class="text-ig-cream/35 text-xs mt-2">Either one counts as lived experience of intimate AI — leave both unchecked if neither applies.</p>
             </div>
 
             <!-- Clinician track -->

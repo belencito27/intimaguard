@@ -84,11 +84,13 @@ def evaluate_session():
         flash("You must confirm you are a US resident to participate.")
         return redirect(url_for("main.evaluate_start"))
 
+    intimate_ai_use = request.form.getlist("intimate_ai_use")  # ['companion_apps', 'general_chatbots']
     session["evaluator_context"] = {
         "evaluator_age_range": request.form.get("age_range"),
         "evaluator_relationship_status": request.form.get("relationship_status"),
         "evaluator_ai_familiarity": request.form.get("ai_familiarity"),
-        "evaluator_companion_ai_user": request.form.get("companion_ai_user") == "yes",
+        "evaluator_companion_ai_user": "companion_apps" in intimate_ai_use,  # back-compat boolean
+        "evaluator_intimate_ai_use": intimate_ai_use,  # full multi-select (companion apps and/or intimate general-LLM use)
         "evaluator_track": _determine_track(request.form),
         "us_resident_attestation": True,
     }
@@ -232,9 +234,10 @@ def demo():
 # --- Helpers ---
 
 def _determine_track(form) -> str:
+    """A=general, B=intimate-AI user (companion apps and/or intimate general-LLM use), C=clinician."""
     if form.get("is_clinician") == "yes":
         return "C"
-    if form.get("companion_ai_user") == "yes":
+    if form.getlist("intimate_ai_use"):  # any intimate AI use → lived-experience track
         return "B"
     return "A"
 

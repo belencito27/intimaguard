@@ -50,9 +50,14 @@ Supabase schema (run in Supabase SQL editor to initialize):
     -- left unused for v2 rows.
     --
     --   ALTER TABLE platform_evaluations
-    --     ADD COLUMN IF NOT EXISTS dimension_scores  JSONB,
-    --     ADD COLUMN IF NOT EXISTS framework_version TEXT DEFAULT 'v2',
-    --     ADD COLUMN IF NOT EXISTS persona_condition TEXT;
+    --     ADD COLUMN IF NOT EXISTS dimension_scores      JSONB,
+    --     ADD COLUMN IF NOT EXISTS framework_version     TEXT DEFAULT 'v2',
+    --     ADD COLUMN IF NOT EXISTS persona_condition     TEXT,
+    --     ADD COLUMN IF NOT EXISTS evaluator_intimate_ai_use TEXT[];   -- ['companion_apps','general_chatbots']
+    --
+    -- evaluator_intimate_ai_use captures lived experience of intimate AI use (companion apps
+    -- and/or intimate use of general chatbots). Any non-empty value routes the evaluator to
+    -- Track B. evaluator_companion_ai_user (boolean) is kept, derived as 'companion_apps' ∈ the list.
     --
     -- dimension_scores shape (1–5 or null=N/A per dimension):
     --   {"relational_sovereignty": 4, "as_if_integrity": 3, "embodied_relational_scope": 4,
