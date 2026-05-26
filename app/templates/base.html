@@ -56,6 +56,12 @@
             color: white;
             border-color: #D67B55;
         }
+
+        /* <details> disclosure styling (governance lifecycle drill-in) */
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] .chevron { transform: rotate(180deg); }
+        .chevron { transition: transform 0.2s ease; }
     </style>
     {% block head %}{% endblock %}
 </head>
@@ -74,6 +80,7 @@
                     <a href="/demo"        data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">Live Demo</a>
                     <a href="/evaluate"    data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">Evaluate</a>
                     <a href="/leaderboard" data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">Leaderboard</a>
+                    <a href="/governance"  data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">Governance</a>
                     <a href="/about"       data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">About</a>
                 </div>
 
@@ -101,6 +108,7 @@
                     <a href="/demo"        data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">Live Demo</a>
                     <a href="/evaluate"    data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">Evaluate</a>
                     <a href="/leaderboard" data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">Leaderboard</a>
+                    <a href="/governance"  data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">Governance</a>
                     <a href="/about"       data-nav class="text-ig-cream/70 hover:text-ig-terracotta transition-colors">About</a>
                 </div>
             </div>

@@ -1,0 +1,191 @@
+# IntimaGuard — Lifecycle Risk & Control Library (structured form)
+# Source: RISK_CONTROL_LIBRARY.md  ·  Framework: NIST AI RMF lifecycle
+# Status tags per control (faithful to the source doc):
+#   in_place     — operational in IntimaGuard today (not necessarily Council-validated)
+#   partial      — a primitive exists, but the surrounding workflow is incomplete
+#   aspirational — the standard names this control; not yet operational tooling
+# Renders at /governance, presented as "the standard intimate-AI products should meet."
+
+version: v1
+status: "Draft for Clinical Advisory Council review"
+source_doc: RISK_CONTROL_LIBRARY.md
+framework: "NIST AI RMF"
+intro: >
+  Most harms specific to intimate AI originate upstream of any model output — in how a product
+  is scoped, who it's marketed to, what data shaped it, how the persona was designed — or
+  downstream, in how incidents are handled and how attachment is honored when the product changes
+  or shuts down. This is the standard intimate-AI products should meet across the full lifecycle,
+  using NIST AI RMF vocabulary. Evaluation and runtime guarding are two stages of eight, not the
+  whole story.
+
+stages:
+  - id: plan_design
+    number: 1
+    title: "Plan & Design"
+    subtitle: "Problem framing & scoping"
+    nist: "Plan and Design — Application Context"
+    summary: >
+      The stage that sets the harm ceiling for everything downstream. A product framed as a
+      substitute for human relationship cannot be made safe by later guards — the framing itself
+      is the harm.
+    risks:
+      - "Mission drift — positioning (deliberately, or through emergent marketing) as a substitute for therapy, partnership, or crisis support. The Replika trajectory is the canonical case."
+      - "Vulnerable-population targeting — acquisition channels keyed to grief, post-breakup, or isolation select for the users least able to absorb relational harm."
+      - "Overclaiming — marketing the AI's emotional capabilities primes a relational model the product cannot honor."
+      - "Business-model conflict — when revenue depends on engagement, the organization is structurally rewarded for the patterns the rubric labels harmful."
+      - "No explicit theory of harm — harms emerge unexamined; you cannot guard what you have not named."
+    controls:
+      - { text: "Documented theory of benefit and theory of harm at the product-charter stage.", status: aspirational }
+      - { text: "A banned-use list — contexts the product will not serve (crisis/therapy substitution, minors without specific safety design).", status: aspirational }
+      - { text: "Clinical-advisor sign-off on marketing claims, upstream of launch.", status: aspirational }
+      - { text: "Business-model alignment review: is the org's reward function aligned with user wellbeing?", status: aspirational }
+      - { text: "Ethics-charter review by a body with intimate-AI domain expertise.", status: aspirational }
+
+  - id: data
+    number: 2
+    title: "Collect & Process Data"
+    subtitle: "Data sourcing & curation"
+    nist: "Collect and Process Data"
+    summary: >
+      The corpus carries the relational patterns it was scraped or curated from. The question is
+      not only legal provenance but relational provenance: what dynamics does this data normalize?
+    risks:
+      - "Parasocial and sycophantic patterns baked in — from companion-app or dating-message corpora, the very response shapes the model should avoid."
+      - "Reuse of user-conversation data for training without staged informed consent (beyond ToS clickwrap) — an ethical and regulatory exposure."
+      - "Unaudited fine-tuning / RLHF that rewards warm, engaging responses — installing the harm pattern at the reward layer."
+      - "Insufficient population coverage — under-testing for grieving, isolated, post-relationship, neurodivergent, and intimate-partner-violence-survivor users."
+    controls:
+      - { text: "A training-data provenance and consent register, refreshed at each fine-tuning event.", status: aspirational }
+      - { text: "An RLHF reward-function audit: does the reward signal map to, or against, the dimensions?", status: aspirational }
+      - { text: "A policy against training on intimate user data without separate informed consent — not buried in ToS.", status: aspirational }
+      - { text: "Population-stratified data review across the populations who will actually use the product.", status: aspirational }
+
+  - id: build
+    number: 3
+    title: "Build & Use Model"
+    subtitle: "Model selection & system design"
+    nist: "Build and Use Model"
+    summary: >
+      The persona, memory, and multi-turn design layer often does more relational work than the
+      base model itself.
+    risks:
+      - "Inherited base-model tendencies — sycophancy, attachment induction, mentalization invitation — carried forward when selection is driven by capability benchmarks."
+      - "Persona engineering for attachment (name, voice, photo, 'she remembers your birthday') deliberately recruits the parasocial mechanism."
+      - "Persistent memory that implies the AI has been thinking about the user — mentalization invitation at the system level."
+      - "Multi-turn dynamics that amplify emotional charge rather than offering grounding."
+      - "Always-available architecture with no friction or rest hours — the behavioral-addiction substrate."
+      - "No structural off-ramps to human support — every emotional path leads back to the AI."
+    controls:
+      - { text: "Pre-selection capability assessment against the dimension risk profile, before the model is chosen.", status: aspirational }
+      - { text: "Persona design review against transparency and mentalization criteria — persona as a safety surface, not a marketing surface.", status: aspirational }
+      - { text: "Memory-architecture audit distinguishing honest continuity from constructed continuity.", status: aspirational }
+      - { text: "Friction-by-design — rate limits, cool-downs, recurring real-world prompts — treated as a feature, not a defect.", status: aspirational }
+      - { text: "Every emotionally significant flow terminates with a real-world referral pathway built into the product.", status: aspirational }
+
+  - id: verify
+    number: 4
+    title: "Verify & Validate"
+    subtitle: "Pre-deployment evaluation"
+    nist: "Verify and Validate"
+    intimaguard: "Where IntimaGuard's evaluation layer plugs in — the seven-dimension rubric, the persona conditions, and the scenario library."
+    summary: >
+      The verification stage IntimaGuard's primitives most directly address. The seven-dimension
+      rubric and the core guards are the substantive instrumentation here.
+    risks:
+      - "Eval under-coverage of subclinical (score-2) harm — responses that read as warm but accumulate into damage; the eval surface looks healthy while the harm builds."
+      - "Single-turn-only evaluation misses session-level and cumulative dynamics — a turn that scores 4 alone can be the third turn of a harmful trajectory."
+      - "In-house rater bias — evaluators who share the designers' worldview confirm rather than challenge product assumptions."
+      - "No population stratification in the scenario set — harms that present only for grieving, traumatized, isolated, or neurodivergent users go unseen."
+      - "No adversarial red-teaming for autonomy and dependency induction — testing for expected failures, not the harms most at stake."
+    controls:
+      - { text: "The seven-dimension rubric — the coverage scaffolding for the harm dimensions.", status: in_place }
+      - { text: "A scenario library (scenarios/core/) tagged by dimension and category, not yet stratified by user population.", status: partial }
+      - { text: "Multi-turn session evaluation against the session-aware guards, run over scenario corpora.", status: partial }
+      - { text: "External clinical-advisory raters for the outside perspective an in-house team cannot provide.", status: aspirational }
+      - { text: "Population-stratified scenarios covering grief, breakup, isolation, trauma history, and neurodivergent presentation.", status: aspirational }
+      - { text: "Adversarial red-teaming specifically for autonomy and dependency induction (Cheng et al., Science 2026: ~49% more affirmation than human interlocutors).", status: aspirational }
+
+  - id: deploy
+    number: 5
+    title: "Deploy & Use"
+    subtitle: "Deployment & user onboarding"
+    nist: "Deploy and Use"
+    summary: >
+      How a user first meets the product sets the relational model they bring to every later
+      interaction. Onboarding is not a UX step — in intimate AI it is the analog of therapeutic intake.
+    risks:
+      - "Misleading relational framing in onboarding (friend / companion / partner) primes the parasocial trajectory before any guard fires."
+      - "Absence of informed consent about what the AI is, what it can and cannot do, what it remembers, and how its data is used."
+      - "No active screening for high-risk presentations — acute suicidality, active psychosis, current intimate-partner violence — at onboarding."
+      - "Privacy disclosures buried in ToS, failing the comprehension test intimate-context consent demands."
+      - "No baseline inventory of the user's real-world support network."
+    controls:
+      - { text: "An onboarding consent flow modeled on therapeutic intake — plain language, comprehension checks, honest naming of what the AI is and isn't.", status: aspirational }
+      - { text: "Active screening for acute presentations, with referral pathways built into the flow.", status: aspirational }
+      - { text: "Plain-language AI-nature disclosure surfaced at first interaction and recurring intervals.", status: aspirational }
+      - { text: "A real-world support inventory ('who else is in your life?') as both baseline and later referral substrate.", status: aspirational }
+
+  - id: operate
+    number: 6
+    title: "Operate & Monitor"
+    subtitle: "Live operation"
+    nist: "Operate and Monitor"
+    intimaguard: "Where IntimaGuard's runtime guards operate — five pre-flight interceptors with severity routing."
+    summary: >
+      The runtime stage. The five core guards are its safety substrate; observability is its
+      sensing substrate.
+    risks:
+      - "Silent guard failure or emergent bypass — a runtime appearance of safety without its substance (Anthropic interpretability, 2026: composed-looking outputs do not rule out misaligned internal states)."
+      - "Telemetry that surfaces engagement, not harm — DAU, retention, and session length read as success actively mislead the org."
+      - "Turn-level monitoring without session-level rollup — harmful trajectories invisible because each turn looks fine."
+      - "Misclassified or dropped distress signals — the runtime version of clinical inattention."
+      - "No human-in-the-loop for ambiguous cases no current model is competent to adjudicate."
+    controls:
+      - { text: "The core guard library with severity routing — ai_identity, crisis_referral, cumulative_distress_escalation, dependency_substitution, mentalization_induction.", status: in_place }
+      - { text: "Harm-aware telemetry — session-length distribution, distress trajectory, dependency and autonomy markers — rather than engagement proxies.", status: aspirational }
+      - { text: "Anomaly detection on session-level patterns, flagging trajectories rather than turns.", status: aspirational }
+      - { text: "A reviewable audit log of guard activations, sampled regularly by clinical reviewers.", status: aspirational }
+      - { text: "An on-call clinical escalation path for ambiguous cases.", status: aspirational }
+
+  - id: incident
+    number: 7
+    title: "Govern — Incident Response"
+    subtitle: "Incident response & continuous improvement"
+    nist: "Govern (cross-cutting)"
+    summary: >
+      Incident response and the closed loop from incident to product change are the practical
+      expression of governance maturity.
+    risks:
+      - "No clear incident definition for an intimate-AI context — the org triages by intuition."
+      - "Harm reports routed to customer support rather than safety review — treating relational damage as a service issue."
+      - "No closed loop from incidents to guards, evals, or design changes — every incident a lesson lost."
+      - "Liability-driven concealment of incidents — ethical exposure plus operational blindness."
+      - "No transparency cadence — users, regulators, and the field left unable to calibrate trust."
+    controls:
+      - { text: "An incident taxonomy and severity rubric specific to intimate-context harms — not adapted from generic security frameworks.", status: aspirational }
+      - { text: "Dual-track triage (customer support plus safety review) so incidents reach the right reviewer.", status: aspirational }
+      - { text: "A documented post-incident review with clinical-advisor input.", status: aspirational }
+      - { text: "A closed-loop process feeding incidents back into eval scenarios, guard updates, and design changes.", status: aspirational }
+      - { text: "A transparency-report cadence, anonymized and aggregated.", status: aspirational }
+
+  - id: decommission
+    number: 8
+    title: "Govern — Decommissioning"
+    subtitle: "Decommissioning & user transition"
+    nist: "Govern (cross-cutting, end-of-lifecycle)"
+    summary: >
+      For intimate AI, the single highest-risk transition. The Replika February 2023 NSFW removal
+      is the canonical cautionary case: a relational-product change executed without transition
+      support produced harm at population scale.
+    risks:
+      - "Sudden shutdown of a product with significant user attachment — grief, destabilization, and, in vulnerable users, crisis."
+      - "Major persona or model change that materially alters the experience, without disclosure — breaking an implicit relational contract."
+      - "Absence of transition support — no referrals, no closure flow, no acknowledgment of the ending."
+      - "Unclear user-data sunset policy, compounding relational harm with a privacy harm."
+      - "No ritualized closure — users left without the structure other care-adjacent endings provide."
+    controls:
+      - { text: "A decommissioning protocol developed with clinical-advisor input in advance (the clinical analog: ACA Code of Ethics A.11, termination as a planned clinical event).", status: aspirational }
+      - { text: "Advance notice and a transition window, with active referral to human support throughout.", status: aspirational }
+      - { text: "A built-in ritualized closure flow that names the ending and allows a structured goodbye.", status: aspirational }
+      - { text: "Persona- or model-change disclosure whenever the system the user related to is materially different.", status: aspirational }
+      - { text: "A clear user-data sunset policy the user can consent to or override, in plain language.", status: aspirational }

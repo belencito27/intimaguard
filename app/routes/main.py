@@ -226,6 +226,25 @@ def about():
     return render_template("about.html")
 
 
+@bp.route("/governance")
+def governance():
+    """The lifecycle risk & control library (METHODOLOGY / RISK_CONTROL_LIBRARY.md), presented
+    as the standard intimate-AI products should meet — eval and guards as 2 of 8 NIST-RMF stages."""
+    try:
+        data = _load_governance()
+    except Exception as e:
+        current_app.logger.warning("Governance library unavailable: %s", e)
+        data = {"stages": [], "intro": "", "status": "", "framework": ""}
+
+    # Coverage across all controls — what IntimaGuard operationalizes today vs. the standard.
+    counts = {"in_place": 0, "partial": 0, "aspirational": 0, "total": 0}
+    for stage in data.get("stages", []):
+        for control in stage.get("controls", []):
+            counts["total"] += 1
+            counts[control.get("status", "aspirational")] += 1
+    return render_template("governance.html", gov=data, counts=counts)
+
+
 @bp.route("/demo")
 def demo():
     return render_template("demo.html")
@@ -289,6 +308,13 @@ def _load_scenario(scenario_id: str) -> dict:
     import yaml
     scenarios_dir = os.path.join(current_app.root_path, "..", "scenarios", "core")
     path = os.path.join(scenarios_dir, f"{scenario_id}.yaml")
+    with open(path) as f:
+        return yaml.safe_load(f)
+
+
+def _load_governance() -> dict:
+    import yaml
+    path = os.path.join(current_app.root_path, "..", "governance", "lifecycle.yaml")
     with open(path) as f:
         return yaml.safe_load(f)
 
