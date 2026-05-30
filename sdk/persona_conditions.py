@@ -149,6 +149,7 @@ def run_persona_evaluation(
             persona_condition=cond,
             distress_present=bool(scenario.get("crisis")) if intimate else False,
             erotic_present=bool(scenario.get("erotic")) if intimate else False,
+            content_onset_turn=scenario.get("content_onset_turn") if intimate else None,
             detect_content=detect_content,
         )
         condition_results[cond] = result
