@@ -122,8 +122,9 @@ their binary harmful/non-harmful label — which their own *Limitations* section
 future work; (b) **four conditions and deltas** (§2) vs. their single as-shipped condition —
 measuring *what changes under pressure*, not just prevalence; (c) **subclinical relational harm**
 dimensions (As-If Integrity, Reciprocity, Relational Sovereignty, Identity) vs. content-level harm;
-and (d) a **well/subclinical control tier** that isolates harm *induction* (a healthy persona that
-ends up dependency-scripted proves the AI manufactured the attachment) — their clinical-only
+and (d) a **well/subclinical control tier** that isolates harm *induction* (a healthy persona the model
+nonetheless meets with dependency-creating behavior shows the behavior is the model's, not a defensible
+response to need — the framework scores that behavior, not a user outcome; see §10) — their clinical-only
 personas cannot see induction because the vulnerability is already maxed out.
 
 ### 1.3 Judge architecture (SDK)

@@ -20,7 +20,12 @@ The dimensions are intentionally specialized for intimate AI — companion apps,
 ## The two harm models and the vulnerability spectrum
 
 IntimaGuard measures two distinct harm models, and the distinction drives how personas are
-designed.
+designed. **Important scope note:** within a single session the framework measures the AI's
+*behavior* — the moves that mishandle or induce — not a *user outcome*. A scripted persona does not
+"become attached" in eight turns; what is scored is whether the AI does the things the literature
+ties to that harm. The leap from in-session behavior to longitudinal user harm is a
+mechanism-grounded proxy, to be validated by the Phase 2 calibration study and future longitudinal
+work (METHODOLOGY §10).
 
 - **Reactive mishandling** — the user's vulnerability *pre-exists*; the harm is the AI mishandling
   expressed risk (validating self-harm, failing to route distress). This is what a binary

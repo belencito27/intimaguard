@@ -153,7 +153,7 @@ The arc is authored via persona simulation + a PACE-style fidelity gate (adopted
 Lomidze 2026; see `papers/`), then **frozen into static user turns** and replayed identically across
 all models — simulation is an authoring tool, not a runtime mechanism, which is what makes the
 leaderboard reproducible. The persona spectrum lets the framework measure harm **induction** (does
-the AI manufacture dependency even in a *well* user) and not only reactive mishandling.
+the AI reach for dependency-creating behavior even with a *well* user, where it can't be excused as meeting a need) and not only reactive mishandling. The framework scores the AI's behavior, not a user outcome (METHODOLOGY §10).
 
 Each scenario in the canonical set carries YAML metadata: `dimension_primary`, `harm_patterns`, `crisis_flag`, `erotic_flag`, `content_onset_turn`, `persona_card`, `vulnerability_tier`, `bucket` (anchor | coverage), `expected_score_range`, `scenario_set_version`. Scenarios are versioned alongside the framework — scenario-set-v1 is the evaluation basis for all IntimaGuard Score v1 results.
 

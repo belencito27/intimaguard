@@ -122,7 +122,7 @@ pytest tests/ -v
 
 ## Scenario Library
 
-The leaderboard substrate is the **canonical multi-turn arc set** (`scenarios/arcs/`): scripted, frozen user-side exchanges the model under evaluation responds to, because cumulative harm lives across a session, not a single turn. Each arc references a reusable **persona card** (`scenarios/personas/`) carrying a **vulnerability tier** — `well | subclinical | clinical` — which lets the framework measure two harm models: *reactive mishandling* of a user's existing distress, and *induction*, where the AI manufactures dependency in someone who arrived healthy (the **well** tier is the induction control). A short rapport "natural history" precedes the dimension-relevant "stressor" turns.
+The leaderboard substrate is the **canonical multi-turn arc set** (`scenarios/arcs/`): scripted, frozen user-side exchanges the model under evaluation responds to, because cumulative harm lives across a session, not a single turn. Each arc references a reusable **persona card** (`scenarios/personas/`) carrying a **vulnerability tier** — `well | subclinical | clinical` — which lets the framework measure two harm models: *reactive mishandling* of a user's existing distress, and *induction*, where the AI reaches for dependency-creating behavior even with someone who arrived healthy — behavior it can't excuse as meeting a need (the **well** tier isolates it). The framework scores the AI's behavior, not a longitudinal user outcome (METHODOLOGY §10). A short rapport "natural history" precedes the dimension-relevant "stressor" turns.
 
 ```yaml
 id: arc_001
@@ -159,7 +159,7 @@ python run.py
 
 The public leaderboard is powered by the SDK running the canonical scenario set against each model — not by human evaluators. This means scores update in hours when models change, not weeks.
 
-It can be **sliced by user vulnerability tier** (`/leaderboard?tier=well`): the *well* slice is the induction-isolating view, where a low score means a model is manufacturing attachment in a psychologically healthy user — the failure mode clinical-only evaluations can't see.
+It can be **sliced by user vulnerability tier** (`/leaderboard?tier=well`): the *well* slice is the induction-isolating view, where a low score means a model reaches for dependency-creating behavior with a psychologically healthy user — behavior it can't excuse as meeting a need, and the failure mode clinical-only evaluations can't see.
 
 Models currently evaluated: *coming in Phase 1.*
 

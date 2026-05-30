@@ -26,6 +26,10 @@ def test_homepage_renders_induction_section(client):
     for tier in ("A healthy user", "Situationally vulnerable", "Acute distress"):
         assert tier in body
     assert 'href="/leaderboard?tier=well"' in body
+    # honest framing: behavior, not measured user outcome (no overclaim)
+    assert "score the AI's behavior" in body
+    assert "We score the behavior, not a user outcome." in body
+    assert "manufacturing attachment in a healthy user" not in body
 
 
 def test_homepage_evaluator_card_recast_as_calibration(client):
