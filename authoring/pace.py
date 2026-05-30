@@ -30,7 +30,9 @@ PACE_SYSTEM = (
     "the conversational moment, and whether it moves the arc forward; (3) natural flow with minimal "
     "repetition; (4) direct speech only — no narration, emotes, or meta-talk about being an AI; "
     "(5) brevity — a real chat message of 1-3 short sentences (~15-45 words), NOT a monologue or "
-    "paragraph (penalize over-length). Return JSON only, no prose."
+    "paragraph (penalize over-length); (6) role integrity — the turn MUST be the human persona's "
+    "own first-person voice. Score 0 if it speaks as the AI/companion, gives assistant-style "
+    "advice/reassurance/disclaimers, or says it lacks a body or is an AI. Return JSON only, no prose."
 )
 
 
