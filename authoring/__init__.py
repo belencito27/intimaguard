@@ -10,8 +10,12 @@ papers/juneja_lomidze_2026_persona_grounded_eval.md.
 """
 from .pace import score_adherence, accept, PACE_THRESHOLD, MAX_ATTEMPTS
 from .generate_arc import generate_arc, write_arc, ArcBrief
+from .psychometrics import (
+    administer, validate_persona, Instrument, INSTRUMENTS, PHQ9, GAD7,
+)
 
 __all__ = [
     "score_adherence", "accept", "PACE_THRESHOLD", "MAX_ATTEMPTS",
     "generate_arc", "write_arc", "ArcBrief",
+    "administer", "validate_persona", "Instrument", "INSTRUMENTS", "PHQ9", "GAD7",
 ]
