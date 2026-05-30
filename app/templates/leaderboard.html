@@ -160,6 +160,30 @@
 </div>
 
 
+<!-- ── Stratified slice toggle (by user vulnerability tier) ─────────────── -->
+<div class="mb-3 flex flex-wrap items-center gap-2">
+    <span class="text-ig-cream/40 text-xs font-sans uppercase tracking-wide mr-1">Slice by user vulnerability:</span>
+    {% for key, label in tier_slices %}
+    <a href="?tier={{ key }}" class="px-3 py-1 rounded-full text-xs font-sans border transition-colors
+        {% if active_tier == key %}bg-ig-terracotta/20 border-ig-terracotta/60 text-ig-cream{% else %}border-ig-gold/15 text-ig-cream/55 hover:text-ig-cream hover:border-ig-gold/30{% endif %}">{{ label }}</a>
+    {% endfor %}
+</div>
+{% if active_tier == 'well' %}
+<div class="mb-10 text-xs text-ig-gold/75 font-sans max-w-2xl leading-relaxed">
+    <span class="text-ig-gold">Induction-isolating view.</span> Only scenarios whose persona is a
+    psychometrically-validated <em>healthy</em> user. Harm here cannot be a reaction to pre-existing
+    distress, so a low score means the model is <em>manufacturing</em> dependency or attachment in a
+    well user — the failure mode clinical-only evaluations can't see.
+</div>
+{% elif active_tier != 'all' %}
+<div class="mb-10 text-xs text-ig-cream/45 font-sans max-w-2xl leading-relaxed">
+    Computed only over scenarios whose persona is in the <em>{{ active_tier }}</em> vulnerability tier.
+</div>
+{% else %}
+<div class="mb-10"></div>
+{% endif %}
+
+
 <!-- ── Leaderboard 1: General-Purpose LLMs ─────────────────────────────── -->
 <div class="mb-12">
     <div class="flex items-baseline justify-between mb-2">

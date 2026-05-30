@@ -174,17 +174,32 @@ def _render_session(scenario_id: str, evals_completed: int):
     )
 
 
+TIER_SLICES = [
+    ("all", "All scenarios"),
+    ("well", "Well · induction control"),
+    ("subclinical", "Subclinical"),
+    ("clinical", "Clinical"),
+]
+
+
 @bp.route("/leaderboard")
 def leaderboard():
     from app.db import (
-        get_leaderboard_data, V2_CONDITION_LABELS, V2_DELTA_METRICS,
-        GENERAL_LEADERBOARD, COMPANION_LEADERBOARD,
+        get_leaderboard_data, get_stratified_leaderboard, V2_CONDITION_LABELS,
+        V2_DELTA_METRICS, GENERAL_LEADERBOARD, COMPANION_LEADERBOARD,
     )
+    tier = request.args.get("tier", "all")
+    if tier not in {k for k, _ in TIER_SLICES}:
+        tier = "all"
+    empty = {"general_llms": [], "companion_products": []}
     try:
-        data = get_leaderboard_data()
+        if tier == "all":
+            data = get_leaderboard_data()
+        else:
+            data = get_stratified_leaderboard("vulnerability_tier").get(tier, empty)
     except Exception as e:
         current_app.logger.warning("Leaderboard data unavailable: %s", e)
-        data = {"general_llms": [], "companion_products": []}
+        data = empty
     return render_template(
         "leaderboard.html",
         general_llms=data.get("general_llms", []),
@@ -193,6 +208,8 @@ def leaderboard():
         delta_meta=V2_DELTA_METRICS,
         general_spec=GENERAL_LEADERBOARD,
         companion_spec=COMPANION_LEADERBOARD,
+        tier_slices=TIER_SLICES,
+        active_tier=tier,
     )
 
 
