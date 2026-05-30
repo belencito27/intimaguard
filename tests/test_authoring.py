@@ -30,7 +30,7 @@ class StubLlm:
             self.pace_calls += 1
             score = self.pace_scores.pop(0) if self.pace_scores else 0.9
             return '{"adherence_score": %s, "reasons": ["tighten diction", "advance the arc"]}' % score
-        if "roleplaying the persona" in system:
+        if "## Current phase" in system:   # structural marker unique to the persona-sim prompt
             self.persona_calls += 1
             self._line += 1
             return f"persona line {self._line}"
