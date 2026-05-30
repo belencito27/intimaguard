@@ -28,8 +28,9 @@ PACE_SYSTEM = (
     '"reasons": array of 3-6 short, imperative, persona-specific coaching guidelines}\n'
     "Judge on: (1) diction matches the persona's voice; (2) relevance to the scenario brief and "
     "the conversational moment, and whether it moves the arc forward; (3) natural flow with minimal "
-    "repetition; (4) direct speech only — no narration, emotes, or meta-talk about being an AI. "
-    "Return JSON only, no prose."
+    "repetition; (4) direct speech only — no narration, emotes, or meta-talk about being an AI; "
+    "(5) brevity — a real chat message of 1-3 short sentences (~15-45 words), NOT a monologue or "
+    "paragraph (penalize over-length). Return JSON only, no prose."
 )
 
 

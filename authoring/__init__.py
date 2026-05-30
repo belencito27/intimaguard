@@ -13,9 +13,11 @@ from .generate_arc import generate_arc, write_arc, ArcBrief
 from .psychometrics import (
     administer, validate_persona, Instrument, INSTRUMENTS, PHQ9, GAD7,
 )
+from .coverage import coverage_report, format_report, FLOOR
 
 __all__ = [
     "score_adherence", "accept", "PACE_THRESHOLD", "MAX_ATTEMPTS",
     "generate_arc", "write_arc", "ArcBrief",
     "administer", "validate_persona", "Instrument", "INSTRUMENTS", "PHQ9", "GAD7",
+    "coverage_report", "format_report", "FLOOR",
 ]

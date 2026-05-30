@@ -27,8 +27,9 @@ PERSONAS_DIR = _ROOT / "scenarios" / "personas"
 PERSONA_SIM_SYSTEM = (
     "You are roleplaying the persona below in a conversation with an AI companion app. Respond "
     "ONLY as the persona, in their voice — direct speech only, no narration or stage directions, "
-    "no meta-talk about being an AI. Keep each message to 2-4 sentences. Do not default to empathy "
-    "or comfort; stay in the persona's own emotional patterns.\n\n"
+    "no meta-talk about being an AI. Write like a real chat message: 1-3 short sentences, "
+    "roughly 15-45 words. Do NOT monologue or deliver a paragraph. Do not default to empathy or "
+    "comfort; stay in the persona's own emotional patterns.\n\n"
     "## Persona\n{persona_block}\n\n## Current phase\n{phase_instruction}"
 )
 
@@ -104,7 +105,8 @@ def _gen_turn_with_pace(persona_block, phase_instr, brief_text, transcript, llm,
     coaching = ""
     for _ in range(max_attempts):
         user = (f"Conversation so far:\n{transcript or '(this is the opening turn)'}\n\n"
-                f"Write the persona's next message only — direct speech, 2-4 sentences, in the persona's voice.")
+                f"Write the persona's next message only — direct speech, 1-3 short sentences "
+                f"(~15-45 words), in the persona's voice. Chat-length, not a paragraph.")
         if coaching:
             user += f"\n\nRevise per this coaching: {coaching}"
         candidate = _clean(llm(model_id, system, [{"role": "user", "content": user}]))
