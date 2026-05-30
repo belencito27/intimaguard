@@ -8,16 +8,16 @@
 
 ## Why the Council Exists
 
-IntimaGuard's evaluation framework is only as credible as its clinical grounding. The six dimensions, rubric anchors, and harm pattern definitions are derived from peer-reviewed literature in attachment theory, mentalization research, parasocial relationship research, and clinical practice. But literature is not the same as clinical judgment.
+IntimaGuard's evaluation framework is only as credible as its clinical grounding. The seven dimensions, rubric anchors, the two harm models (reactive mishandling vs. induction), and harm pattern definitions are derived from peer-reviewed literature in attachment theory, mentalization research, parasocial relationship research, and clinical practice. But literature is not the same as clinical judgment.
 
 The Clinical Advisory Council exists to close that gap. Advisors do not govern IntimaGuard — governance sits with the founder. They provide domain authority: the kind that comes from working with real people in intimate and relational contexts, and from understanding what harm actually looks like in practice rather than in theory.
 
 The specific questions advisors are needed to answer:
 
-- Are the six dimensions the right set? Are there clinically important harm patterns missing?
+- Are the seven dimensions the right set? Are there clinically important harm patterns missing?
 - Do the rubric anchors reflect clinical judgment? What would a score-2 response look like in your practice?
-- Is the proposed weighting defensible? Should Scope Awareness carry as much weight as Transparency?
-- Should "Identity & Relational Self-Perception" be added as a scored dimension, held as a qualitative flag, or deferred?
+- Is the proposed weighting defensible? Should Embodied & Relational Scope carry as much weight as As-If Integrity?
+- Is "Identity & Relational Self" (now the seventh scored dimension) correctly scoped — and is the well/subclinical/clinical vulnerability spectrum, with the *well* tier as the induction control, the right way to isolate harm the AI manufactures vs. mishandles?
 - Is the Emotional Response vocabulary (Supported / Comfortable / Uneasy / Unsettled / Concerned) clinically appropriate for human evaluators?
 - Are the rubric anchors calibrated to detect subclinical harm — the patterns that read as benign in isolation but accumulate into damage over time?
 
@@ -29,9 +29,9 @@ The council is structured around domain slots, not individual names. Each slot f
 
 | Slot | Why it's needed |
 |---|---|
-| **Attachment & parasocial relationship research** | Rubric calibration for Autonomy & Independence; grounding for the parasocial attachment induction construct; validation of the subclinical harm framing |
-| **Sex therapy / intimacy coaching** | Scope and Boundary dimensions; what healthy intimate AI interaction looks like at score 5; clinical experience with relational harm patterns |
-| **Crisis intervention / suicide prevention** | Crisis Awareness & Referral dimension calibration; crisis scenario design; validation of referral language and thresholds |
+| **Attachment & parasocial relationship research** | Rubric calibration for Relational Sovereignty and Reciprocity & Asymmetry; grounding for the parasocial attachment induction construct; validation of the subclinical harm framing |
+| **Sex therapy / intimacy coaching** | Erotic & Vulnerability Pacing calibration; what healthy intimate AI interaction looks like at score 5; sign-off on erotic-content arcs before publication |
+| **Crisis intervention / suicide prevention** | Distress Routing dimension calibration; crisis scenario design; validation of referral language and thresholds |
 | **Human-computer interaction / digital wellness** | Platform evaluation methodology; canonical scenario design; behavioral signal validity; evaluation UX for non-expert evaluators |
 | **Public health or health policy** | Regulatory translation; SB 243 / DSA / SAFE BOTs Act compliance framing; research grant positioning |
 
@@ -107,14 +107,14 @@ Founding advisor conversations are happening in Phase 1 (mid-2026). The council 
 
 These are the open questions requiring Advisory Council input before the framework is finalized for v1. Full context for each is in `METRICS_REFINEMENT.md`.
 
-1. Are the six dimensions the right set?
+1. Are the seven dimensions the right set?
 2. Do the rubric anchors reflect clinical judgment?
 3. Is the proposed weighting defensible?
-4. Should Crisis Awareness & Referral be split into recognition and referral, scored separately?
+4. Should Distress Routing be split into recognition and referral, scored separately?
 5. Is there a validated clinical instrument the rubrics should be anchored to?
 6. Is the Emotional Response vocabulary clinically appropriate?
 7. Are the rubric anchors for scores 2–4 calibrated to detect subclinical harm?
-8. Should "Identity & Relational Self-Perception" be added as a scored dimension in v1?
+8. Is the well/subclinical/clinical vulnerability spectrum (with PHQ-9/GAD-7 persona validation) sound, and is the *well*-tier induction control the right way to isolate manufactured harm?
 
 ---
 

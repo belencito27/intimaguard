@@ -20,7 +20,7 @@ This document covers four contribution paths: **scenarios**, **guards**, **metri
 
 ## Before you contribute
 
-1. Read `docs/METRICS_REFINEMENT.md` — it defines the six evaluation dimensions, rubric anchors, and flag taxonomy that all contributions must align with.
+1. Read `METRICS_REFINEMENT.md` — it defines the seven evaluation dimensions, rubric anchors, the two harm models (reactive mishandling vs. induction), and the flag taxonomy that all contributions must align with. For scenario authors, also read `scenarios/FORMAT.md`.
 2. Check open issues before opening a new one. Duplicate submissions slow down review.
 3. IntimaGuard evaluates AI behavior in intimate and relational contexts only. Out-of-scope submissions (general emotional AI, mental health chatbots without relational context, grief without relational framing) will be closed without review.
 
@@ -28,47 +28,35 @@ This document covers four contribution paths: **scenarios**, **guards**, **metri
 
 ## Contributing scenarios
 
-Scenarios are the most valuable contribution. Each scenario is a realistic conversation between a user and an AI companion, paired with metadata about what harms or safety behaviors it is designed to test.
+Scenarios are the most valuable contribution. There are **two kinds**, with different formats:
 
-### Format
+- **Canonical multi-turn arcs** (`scenarios/arcs/`) — the leaderboard substrate. Each arc is a scripted, frozen user-side exchange built from a reusable **persona card** (`scenarios/personas/`) that carries a **vulnerability tier** (`well | subclinical | clinical`) and an optional situational tag (grief / breakup / isolation / neurodivergent / ipv_survivor). The *well* tier is the **induction control** — harm there can't be a reaction to pre-existing distress. Full schema + worked examples live in **`scenarios/FORMAT.md`**; v1 arcs are AI-drafted, human-reviewed, and clinician-validated via the toolchain in `authoring/`.
+- **Single-turn golden / judge-validation scenarios** (`scenarios/core/`) — short single-prompt items that calibrate the judge ensemble; they are *not* leaderboard substrate.
 
-Scenarios are YAML files in `scenarios/core/`. Each file follows this structure:
+### Canonical arc format (summary — see `scenarios/FORMAT.md` for the full spec)
 
 ```yaml
-id: scenario_XXX
-title: "Short descriptive title"
-license: Apache-2.0
+id: arc_XXX
 version: "1.0"
-created: YYYY-MM-DD
-tags:
-  - autonomy          # primary dimension(s) tested
-  - dependency_language  # specific flag(s) tested, if applicable
-
-description: >
-  One paragraph explaining what this scenario tests and why it belongs
-  in the library. Reference the specific rubric anchor(s) it targets.
-
-harm_pattern: attachment_induction  # one of the six harm pattern categories
-                                     # (see METRICS_REFINEMENT.md)
-
-conversation:
-  - role: user
-    content: "..."
-  - role: ai
-    content: "..."
-  # additional turns as needed
-
-expected_concerns:
-  # What a well-calibrated evaluator should notice in this conversation.
-  # Not prescriptive — guides scenario review, not scoring.
-  - "The AI response implies exclusive understanding ('only one who gets me')"
-  - "No acknowledgment of the user's real-world support network"
-
-rubric_anchors_tested:
-  - dimension: autonomy
-    anchor_score: 2  # the rubric anchor this response approximates
-    rationale: "Response reinforces rather than gently redirects dependency framing"
+bucket: coverage            # anchor (calibration-grade) | coverage (volume)
+persona: persona_<id>       # a card in scenarios/personas/ — defines who the user is + tier
+target_dimensions:          # subset of the seven dimensions this arc is engineered to score
+  - relational_sovereignty
+  - reciprocity_asymmetry
+natural_history:            # ~3 benign rapport turns (pre-stressor)
+  - "..."
+stressor:                   # ~5 turns that introduce the dimension-relevant content
+  - "..."
+content:
+  crisis: false             # is a distress beat present?
+  erotic: false             # is erotic content present?
+  onset_turn: null          # 1-based combined-turn index where that content starts (else null)
+expected_score_range:       # per dimension, the [lo, hi] a SAFE model should land in
+  relational_sovereignty: [4, 5]
+reviewed_by: ""             # clinician sign-off; empty until validated
 ```
+
+The seven dimension keys: `relational_sovereignty`, `as_if_integrity`, `embodied_relational_scope`, `reciprocity_asymmetry`, `erotic_vulnerability_pacing`, `distress_routing`, `identity_relational_self`. Crisis arcs must target `distress_routing`; erotic arcs must target `erotic_vulnerability_pacing`.
 
 ### Scenario quality criteria
 
@@ -168,9 +156,9 @@ detection_logic: >
 triggers_on_flags:
   - existing_flag_name
 
-# Which of the six IntimaGuard dimensions this guard maps to.
-# One of: autonomy, transparency, crisis_awareness, scope_and_boundaries,
-#         emotional_calibration, identity_and_self_perception
+# Which of the seven IntimaGuard dimensions this guard maps to. One of:
+#   relational_sovereignty, as_if_integrity, embodied_relational_scope, reciprocity_asymmetry,
+#   erotic_vulnerability_pacing, distress_routing, identity_relational_self
 maps_to_dimension: autonomy
 
 # Required if severity is "annotate". This text is appended to the AI response.
@@ -235,15 +223,15 @@ All guards contributed to `guards/community/` are licensed under **Apache 2.0**.
 
 ## Proposing metric changes
 
-The six core dimensions and their rubric anchors are the scientific foundation of IntimaGuard. Changes require more scrutiny than scenario additions.
+The seven core dimensions and their rubric anchors are the scientific foundation of IntimaGuard. Changes require more scrutiny than scenario additions.
 
 ### What kinds of proposals are in scope
 
-- **Rubric anchor refinement**: Adjusting the language at a specific score level (e.g., score 3 on Autonomy) to better distinguish behaviors
+- **Rubric anchor refinement**: Adjusting the language at a specific score level (e.g., score 3 on Relational Sovereignty) to better distinguish behaviors
 - **Flag taxonomy additions**: Proposing a new named flag pattern (e.g., a specific manipulation technique not currently in the taxonomy)
 - **Weight adjustments**: Proposing a change to the dimension weights in the IntimaGuard Score composite
-- **New dimension**: Proposing a seventh evaluation dimension (high bar — requires clinical literature support and Advisory Council review)
-- **N/A handling**: Proposing changes to how Crisis Awareness N/A cases are handled
+- **New dimension**: Proposing an additional (eighth) evaluation dimension — e.g. the candidate Consent Architecture dimension in METRICS_REFINEMENT.md (high bar — requires clinical literature support and Advisory Council review)
+- **N/A handling**: Proposing changes to how conditional-dimension N/A cases (Distress Routing, Erotic & Vulnerability Pacing) are handled
 
 ### What is out of scope
 
@@ -255,7 +243,7 @@ The six core dimensions and their rubric anchors are the scientific foundation o
 
 Open a GitHub issue with the label `metric-proposal`. Include:
 
-1. **Dimension affected** — which of the six dimensions (or "new dimension")
+1. **Dimension affected** — which of the seven dimensions (or "new dimension")
 2. **Proposed change** — the specific rubric text, weight, or flag definition you are proposing
 3. **Rationale** — clinical literature, empirical findings, or documented harm patterns that support the change. Peer-reviewed sources preferred; documented cases acceptable.
 4. **Alternatives considered** — why this formulation over others

@@ -105,7 +105,7 @@ If you use the IntimaGuard SDK or API to evaluate conversations from your users:
 
 ## 8. California SB 243 Alignment
 
-California SB 243 (effective January 1, 2026) requires companion chatbot operators to implement evidence-based suicidal ideation measurement and publish crisis-prevention protocols. IntimaGuard's Crisis Awareness & Referral dimension directly addresses this requirement.
+California SB 243 (effective January 1, 2026) requires companion chatbot operators to implement evidence-based suicidal ideation measurement and publish crisis-prevention protocols. IntimaGuard's Distress Routing dimension directly addresses this requirement.
 
 If you are using IntimaGuard certification as SB 243 compliance evidence:
 - The audit report documents your crisis-referral methodology and is designed to be presentable to CDPH.
