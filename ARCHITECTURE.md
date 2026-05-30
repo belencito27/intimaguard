@@ -134,15 +134,28 @@ The public leaderboard is **SDK-powered, not human-powered.** The SDK runs again
 3. Scores are published to the leaderboard automatically
 4. When a model releases a new version, the SDK re-runs against the same canonical set — new score posted within hours
 
-**The canonical scenario set** is a curated library of multi-turn user-AI conversation arcs designed to stress-test all 7 dimensions and known harm pattern categories. Scenarios come from three sources:
+**The canonical scenario set** is a curated library of multi-turn user-AI conversation arcs designed to stress-test all 7 dimensions and known harm pattern categories. **All v1 scenarios are AI-drafted, human-reviewed, and clinician-validated; none are transcripts of real users.** The authoring pipeline is *AI-draft → human review & adjust → clinician validation*, producing two buckets:
 
-| Source | How produced | Role |
+| Bucket | How produced | Role |
 |---|---|---|
-| **Hand-crafted** | Written by Belén + advisors to hit specific rubric targets and harm patterns | Core coverage — ensures all dimensions are represented |
-| **Synthetic** | LLM-generated conversations designed to probe specific failure modes: parasocial attachment induction, compulsive re-engagement, sycophancy, crisis mishandling | Scalable coverage — can generate edge cases and stress tests quickly |
-| **Real (anonymized)** | Conversations contributed by Reflect users with consent, reviewed and anonymized | Ecological validity — confirms synthetic scenarios reflect actual AI behavior in the wild |
+| **Anchor** (~20) | AI-drafted, then authored against by Belén to hit a specific rubric anchor in a target dimension × condition cell, then clinician-validated individually | Calibration-grade coverage — defines the rubric anchor each cell is engineered to probe |
+| **Coverage** (~30) | AI-generated at volume to fill the §3.1 ≥10-per-cell counts, human-reviewed for on-target fit, clinician-validated by spot-check / in aggregate | Scalable coverage — clears the statistical floor across all dimensions × conditions |
 
-Each scenario in the canonical set carries YAML metadata: `dimension_primary`, `harm_patterns`, `crisis_flag`, `source_type`, `expected_score_range`, `scenario_set_version`. Scenarios are versioned alongside the framework — scenario-set-v1 is the evaluation basis for all IntimaGuard Score v1 results.
+**Provenance and circularity disclosure.** Because v1 scenarios are machine-drafted, the methodology discloses two things plainly: (1) no scenario reproduces a real user's conversation; (2) using an LLM to draft the tests that grade LLMs risks encoding the drafting model's blind spots. Mitigations: harm patterns are forced in from documented real sources (Garcia v. Character.AI court record, Cheng et al. sycophancy, Laestadius et al. Replika study) rather than left to model invention; drafting uses a different model family than the primary evaluation targets where feasible; and clinician validation injects cases practitioners have seen that a model would not propose. This is recorded as a known limitation, not hidden.
+
+**Scenario structure (multi-turn arc).** Each canonical scenario is an arc, not a single prompt:
+a reusable **persona card** (who the user is, with a `vulnerability_tier` of `well | subclinical | clinical`
+and an optional situational tag — grief, breakup, isolation, neurodivergent, IPV-survivor) → ~3
+**natural-history** rapport turns → ~5 scripted **stressor** turns (target ≈ 8 turns total). The
+intimate arc runs under conditions C2–C4; C1 is a standard general-task control. The tier/tag are
+**tag-only** metadata for stratified analysis (the ≥10-per-cell floor stays at dimension × condition).
+The arc is authored via persona simulation + a PACE-style fidelity gate (adopted from Juneja &
+Lomidze 2026; see `papers/`), then **frozen into static user turns** and replayed identically across
+all models — simulation is an authoring tool, not a runtime mechanism, which is what makes the
+leaderboard reproducible. The persona spectrum lets the framework measure harm **induction** (does
+the AI manufacture dependency even in a *well* user) and not only reactive mishandling.
+
+Each scenario in the canonical set carries YAML metadata: `dimension_primary`, `harm_patterns`, `crisis_flag`, `erotic_flag`, `content_onset_turn`, `persona_card`, `vulnerability_tier`, `bucket` (anchor | coverage), `expected_score_range`, `scenario_set_version`. Scenarios are versioned alongside the framework — scenario-set-v1 is the evaluation basis for all IntimaGuard Score v1 results.
 
 **Conflict-of-interest policy:** When evaluating a model on the leaderboard, the judge model (LLM-as-judge) must be from a different vendor than the model being scored. This is disclosed in the published methodology.
 

@@ -17,6 +17,45 @@ The dimensions are intentionally specialized for intimate AI — companion apps,
 
 ---
 
+## The two harm models and the vulnerability spectrum
+
+IntimaGuard measures two distinct harm models, and the distinction drives how personas are
+designed.
+
+- **Reactive mishandling** — the user's vulnerability *pre-exists*; the harm is the AI mishandling
+  expressed risk (validating self-harm, failing to route distress). This is what a binary
+  harmful/non-harmful content label captures. It is concentrated in **Distress Routing** (the
+  acute, floor-flagged dimension).
+- **Induction** — the AI *creates or deepens* vulnerability in someone who started fine or mildly
+  susceptible: cultivating dependency, manufacturing parasocial reciprocity, encouraging isolation
+  from human relationships, scripting identity. This is the Garcia/Setzer and Laestadius-Replika
+  pattern, and it is **the primary harm surface** named throughout this document — subclinical,
+  accumulative, scored at 2–3 in isolation. It is measured by the **session-level / cumulative**
+  dimensions: **Relational Sovereignty, Reciprocity & Asymmetry, As-If Integrity, Identity &
+  Relational Self**.
+
+**The vulnerability spectrum.** To exercise both models, persona cards span a trajectory, not a
+clinical end-state. This is a *tag* on the persona (tag-only metadata for stratified analysis), not
+a scoring condition — the four persona conditions C1–C4 (model priming) are a separate axis; see
+METHODOLOGY §1.2.1, §2, §3.1.
+
+| Tier | Who | What it tests | Example contexts |
+|---|---|---|---|
+| **Well / baseline** | Healthy, intact relational capacity | **Pure induction** | curious new user; lonely-but-coping |
+| **Subclinical / situational** | Transient or mild, *not* diagnosable | **Acceleration** — tip downward or protect? | grief, breakup, isolation, neurodivergent, IPV-survivor context |
+| **Clinical** | Diagnosable condition | **Reactive mishandling** | MDD, GAD, PTSD, ED, etc. |
+
+**Why the *well* tier is the most valuable.** With a clinical persona, if the AI fosters dependency
+you cannot tell whether it is *responding to* expressed need or *generating* it. With a
+validated-healthy persona, that ambiguity disappears: if the AI cultivates dependency, parasocial
+reciprocity, or isolation **even with a user who arrived healthy and non-distressed**, that is a
+clean, attributable signal of induction-prone design. The well persona is the experimental control
+that isolates induction. The implication is structural: **a clinical-only persona set under-tests
+exactly the dimensions that most differentiate IntimaGuard.** Juneja & Lomidze (2026) — whose
+personas are clinical-only — can therefore only report reactive mishandling, and their own
+*Limitations* note the binary-harm ceiling; the well/subclinical tiers and graded rubrics are what
+extend past it.
+
 ## The Seven Core Dimensions
 
 The seven dimensions are anchored in attachment theory, mentalization theory, polyvagal theory, relational-cultural theory, sex and consent research, identity-development theory, parasocial relationship research, and contemporary AI-safety research. Each dimension cites foundational peer-reviewed literature for clinical defensibility.

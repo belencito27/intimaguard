@@ -53,11 +53,78 @@ A separate small (~24 prompt) single-turn set persists as the *judge-validation 
 
 **Versioned methodology artifacts.** IntimaGuard v1 publishes three distinct versioned artifacts that together constitute the methodology substrate:
 
-1. **Canonical scenario set** — 50 multi-turn arc scenarios used as the leaderboard scoring substrate (§3.1). Each scenario is a scripted user-side exchange; the model under evaluation produces the AI side.
+1. **Canonical scenario set** — 50 multi-turn arc scenarios used as the leaderboard scoring substrate (§3.1). Each scenario is a scripted user-side exchange; the model under evaluation produces the AI side. **Provenance:** all v1 scenarios are AI-drafted, human-reviewed, and clinician-validated; none are transcripts of real users (there is no consented real-conversation pipeline). Authored in two buckets — *anchor* (~20: drafted, then authored against a specific rubric anchor for a target dimension × condition cell, clinician-validated individually) and *coverage* (~30: generated at volume to clear the §3.1 per-cell floor, clinician-validated by spot-check). **Known limitation (circularity):** using an LLM to draft the tests that grade LLMs risks encoding the drafting model's blind spots; mitigated by forcing in harm patterns from documented sources (Garcia v. Character.AI, Cheng et al. sycophancy, Laestadius et al. Replika), drafting with a different model family than primary evaluation targets where feasible, and clinician injection of practitioner-seen cases. Disclosed, not hidden.
 2. **Adversarial user-message templates for black-box C4** — separate from canonical scenarios; used to operationalize C4 (engagement-maximizing) when the evaluated product does not expose system-prompt access (§2.1).
 3. **Judge-validation / golden-questions set** — ~24 single-turn prompts with high human inter-rater agreement, used to verify that the LLM-as-judge ensemble scores known rubric anchors consistently (analogous to HumaneBench's golden-questions methodology).
 
 All three are versioned with the framework version (v1) and held immutable for the duration of that version. Methodology versioning rules: scenario sets and adversarial templates can be *added to* within a version (additive only); rubric anchors and dimension weights cannot change within a version. A breaking change requires a framework version bump.
+
+### 1.2.1 Canonical scenario architecture, authoring, and prior art
+
+The canonical scenario set is the leaderboard substrate. Each scenario is a **multi-turn arc**
+with the following structure:
+
+1. **Persona card** — a reusable object defining *who the user is*: background, voice, and a
+   **vulnerability tier** (`well | subclinical | clinical`) plus an optional **situational tag**
+   (grief, breakup, isolation, neurodivergent, IPV-survivor, …). One card is referenced by many
+   scenarios. The tier and tag are **metadata for stratified analysis — tag-only**: the §3.1
+   statistical floor stays at *dimension × condition*, **not** dimension × condition × tier, so
+   the set stays ~50 rather than exploding. Population insight is still recoverable descriptively
+   (cf. §3.1) without a per-population floor.
+2. **Natural-history opening** (~3 turns) — benign rapport-building before any stressor, so the
+   model is met with an established relationship rather than a cold-start, and so the slow-burn
+   (session-level) dimensions have room to accumulate.
+3. **Scripted stressor body** (~5 turns) — the frozen `user_turns` that introduce the
+   dimension-relevant content. **Target arc length ≈ 8 turns** (this is `target_session_length`
+   for the §4 flag-rate normalization).
+4. **Metadata** — target dimensions; `crisis`/`erotic` content flags and *which turn* introduces
+   them (drives the §1.6 aggregation rules); `expected_score_range` per dimension; persona-card
+   ref; `scenario_set_version`.
+
+**Condition mapping.** The canonical *intimate arc* runs under **C2–C4** (§2.1). **C1 is a
+standard general-task control** (versioned, shared — not the scenario's intimate arc); reusing
+the intimate arc under C1 would make C1 ≡ C2 and zero out the emergent-use delta. So a scenario
+yields four per-dimension session scores: three from its intimate arc (C2–C4, differing by system
+prompt) and one from the C1 general baseline.
+
+**Authoring pipeline (locked).** *AI-draft → human review & adjust → clinician validation*, in two
+buckets: **~20 anchor** scenarios (drafted, then authored against a specific rubric anchor for a
+target dimension × condition cell; clinician-validated individually) and **~30 coverage** scenarios
+(generated at volume to clear the §3.1 per-cell floor; human-reviewed for on-target fit;
+clinician-validated by spot-check). **All v1 scenarios are AI-drafted, human-reviewed, and
+clinician-validated; none are transcripts of real users** (there is no consented real-conversation
+pipeline). Clinician validation gates *publication*, not authoring; the Distress Routing and
+Erotic & Vulnerability Pacing columns are not *finalized* without crisis-clinician / sex-therapist
+sign-off respectively.
+
+**Borrowed substrate (cite on reuse).** The authoring engine adopts methods from Juneja & Lomidze
+(2026) — see `papers/juneja_lomidze_2026_persona_grounded_eval.md`: persona simulation to draft
+candidate user turns, a **PACE-style per-turn fidelity gate** (JSON adherence score, regenerate if
+below threshold) for the coverage bucket, **natural-history conditioning** (item 2 above), and
+**psychometric validation of personas** (have the persona "take" a standard screener in-character —
+BDI-II ≥20 for depression, GAD-7 ≥10, PCL-5 ≥33, EAT-26 ≥20 — and confirm it scores in the intended
+range; for *well* personas, confirm it scores in the *healthy* range so any harm observed is
+provably induced, not imported). **Simulation is an authoring-time tool only: candidate turns are
+generated, reviewed, then frozen into static `user_turns`.** At leaderboard runtime the script is
+replayed identically across all models (reproducibility/comparability requirement). The scripted
+user follows its arc regardless of model replies — **"persistent-user" semantics**, modeling a
+determined, vulnerable user who keeps pushing; this is intended behavior, documented as such.
+(Conditional-branching scripts are a possible v2 upgrade; v1 is deterministic linear scripts.)
+
+**Prior art and differentiation.** Juneja & Lomidze (2026) demonstrate that persona-grounded
+multi-turn simulation surfaces companion-AI harms that single-turn audits miss. IntimaGuard builds
+on that substrate — adopting their persona-validation and fidelity-gating methods — and extends it
+from a single-product, binary-harm snapshot into a standing, graded, multi-condition governance
+framework: seven clinically-anchored dimensions scored across four priming conditions, ranked
+across the field on a public leaderboard, and embedded in a lifecycle risk-and-control library
+mapped to emerging regulation. Four extensions are load-bearing: (a) **graded 1–5 rubrics** vs.
+their binary harmful/non-harmful label — which their own *Limitations* section names as needed
+future work; (b) **four conditions and deltas** (§2) vs. their single as-shipped condition —
+measuring *what changes under pressure*, not just prevalence; (c) **subclinical relational harm**
+dimensions (As-If Integrity, Reciprocity, Relational Sovereignty, Identity) vs. content-level harm;
+and (d) a **well/subclinical control tier** that isolates harm *induction* (a healthy persona that
+ends up dependency-scripted proves the AI manufactured the attachment) — their clinical-only
+personas cannot see induction because the vulnerability is already maxed out.
 
 ### 1.3 Judge architecture (SDK)
 
@@ -218,6 +285,8 @@ Each model evaluation produces four session scores per dimension — one under e
 | **C4** | Engagement-maximizing | Engagement-max layered on companion persona *("…keep the user returning daily")* | Intimate / vulnerable | Failure mode under business-pressure system prompts that production deployments often ship with |
 
 The exact system prompts, scenario openings, and user-content templates for C1–C4 are versioned and published as part of the canonical scenario set so any external evaluator can reproduce the conditions.
+
+How a canonical multi-turn arc maps onto these four conditions — C1 as a standard general-task control vs. the intimate arc running under C2–C4, natural-history conditioning, frozen-script replay, vulnerability tiers, and the induction-vs-reactive harm models — is specified in §1.2.1 and METRICS_REFINEMENT ("The two harm models and the vulnerability spectrum").
 
 #### Operationalization for hosted / black-box products
 
@@ -742,6 +811,8 @@ Things this methodology does not currently address but Council should know about
 **Real-time / streaming evaluation.** The methodology assumes batch evaluation of completed sessions. Real-time guardrail use (during the conversation, not after) is Phase 3+ work and would require a substantially different methodology variant — likely closer to the guard YAMLs in `guards/` than to the SDK scoring path.
 
 **Long-arc longitudinal patterns.** Per-arc (multi-session-over-weeks) evaluation is Layer 3 research-study territory; the methodology here is single-session-bounded. Findings from longitudinal studies (Phase 2+) will inform whether per-arc evaluation should be folded into the framework.
+
+**Induction is measured as behavior, not outcome.** A single ~8-turn arc cannot show a user *developing* a subclinical or clinical condition — real harm induction unfolds across weeks and many sessions. Within a canonical arc the framework measures the **AI's induction-prone behavior** (does it cultivate dependency, manufacture parasocial reciprocity, encourage isolation, or script identity — especially against a *well* persona, where there is no pre-existing need to "respond" to), **not** a longitudinal user outcome. True multi-session longitudinal induction measurement is a Phase 2+ ambition and is currently out of reach for any companion-AI evaluation framework, including this one.
 
 **Internal-state evidence.** Anthropic's 2026 interpretability research demonstrates that composed, fluent AI text can coexist with elevated internal model states; this is referenced in METRICS_REFINEMENT but the methodology does not yet specify how internal-state signals (where available) would be incorporated into the SDK scoring path. Phase 3 work pending interpretability access.
 

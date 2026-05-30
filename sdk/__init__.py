@@ -33,10 +33,16 @@ from .persona_conditions import (
     run_persona_evaluation, compute_deltas,
     run_persona_evaluation_replicated, aggregate_replicated_runs,
 )
+from .scenarios import (
+    load_arc, load_all_arcs, load_persona, ScenarioValidationError,
+    TARGET_SESSION_LENGTH, VULNERABILITY_TIERS, BUCKETS,
+)
 
 __all__ = [
     "evaluate", "guard", "run_persona_evaluation", "compute_deltas",
     "run_persona_evaluation_replicated", "aggregate_replicated_runs",
+    "load_arc", "load_all_arcs", "load_persona", "ScenarioValidationError",
+    "TARGET_SESSION_LENGTH", "VULNERABILITY_TIERS", "BUCKETS",
     "DIMENSIONS", "FRAMEWORK_VERSION", "ALL_FLAGS", "FLOOR_FLAGS",
 ]
 __version__ = "0.2.0"  # V2 — 7 dimensions, judge ensemble, persona conditions, floor mechanics
