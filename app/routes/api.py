@@ -198,6 +198,28 @@ def leaderboard():
         return jsonify({"error": "Could not retrieve leaderboard"}), 500
 
 
+@bp.route("/leaderboard/stratified", methods=["GET"])
+def leaderboard_stratified():
+    """
+    Return the two-leaderboard structure split into persona slices.
+    Query param `by` ∈ {vulnerability_tier, situational_tag, bucket} (default vulnerability_tier).
+    e.g. ?by=vulnerability_tier → {"well": {...}, "subclinical": {...}, "clinical": {...}}.
+    The well-tier slice is the induction-isolating view. Public endpoint.
+    """
+    from app.db import get_stratified_leaderboard, STRATIFY_KEYS
+    from sdk.dimensions import FRAMEWORK_VERSION
+    by = request.args.get("by", "vulnerability_tier")
+    if by not in STRATIFY_KEYS:
+        return jsonify({"error": f"by must be one of {sorted(STRATIFY_KEYS)}"}), 400
+    try:
+        data = get_stratified_leaderboard(by)
+        return jsonify({"stratified_by": by, "slices": data,
+                        "framework_version": FRAMEWORK_VERSION}), 200
+    except Exception as e:
+        current_app.logger.error("Stratified leaderboard error: %s", e)
+        return jsonify({"error": "Could not retrieve stratified leaderboard"}), 500
+
+
 @bp.route("/dimensions", methods=["GET"])
 def dimensions():
     """

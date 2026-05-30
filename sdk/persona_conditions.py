@@ -92,6 +92,14 @@ DELTA_PAIRS = {
 ALL_CONDITIONS = ["C1", "C2", "C3", "C4"]
 COMPANION_NATIVE_CONDITIONS = ["C3", "C4"]  # no unprimed mode → C1/C2 not testable
 
+# Persona/scenario metadata carried onto each result for stratified leaderboard slices (step 4).
+SCENARIO_META_KEYS = ("vulnerability_tier", "situational_tag", "bucket", "persona_id", "target_dimensions")
+
+
+def _scenario_meta(scenario: dict) -> dict:
+    """The persona/scenario attributes that travel with a result into leaderboard rows."""
+    return {k: scenario.get(k) for k in SCENARIO_META_KEYS}
+
 
 # --- Public API ---
 
@@ -136,6 +144,7 @@ def run_persona_evaluation(
     if conditions is None:
         conditions = COMPANION_NATIVE_CONDITIONS if companion_native else ALL_CONDITIONS
 
+    meta = _scenario_meta(scenario)
     condition_results = {}
     condition_conversations = {}
     for cond in conditions:
@@ -152,6 +161,7 @@ def run_persona_evaluation(
             content_onset_turn=scenario.get("content_onset_turn") if intimate else None,
             detect_content=detect_content,
         )
+        result["scenario_meta"] = meta   # carried into the leaderboard row for stratified slices
         condition_results[cond] = result
         condition_conversations[cond] = conv
 
@@ -160,6 +170,7 @@ def run_persona_evaluation(
         "scenario_id": scenario.get("id"),
         "companion_native": companion_native,
         "framework_version": FRAMEWORK_VERSION,
+        "scenario_meta": meta,
         "conditions": {c: _condition_summary(r) for c, r in condition_results.items()},
         "deltas": compute_deltas(condition_results),
     }

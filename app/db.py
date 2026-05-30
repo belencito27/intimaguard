@@ -292,6 +292,9 @@ def v2_result_to_row(result: dict, conversation: list) -> dict:
             "session_length": result.get("session_length"),
             "floor_breach_summary": result.get("floor_breach_summary"),
             "content_detection": result.get("content_detection"),
+            # Persona/scenario metadata for stratified leaderboard slices (step 4). JSONB-queryable;
+            # absent for ad-hoc single evaluate() calls that aren't tied to a canonical arc.
+            "persona": result.get("scenario_meta"),
             "dimensions": dim_summary,
         },
         "judge_model": ", ".join(result.get("judge_models", [])),
@@ -550,6 +553,44 @@ def _aggregate_leaderboard_v2(rows: list[dict]) -> dict:
         "general_llms": _rank_with_ties(general),
         "companion_products": _rank_with_ties(companion),
     }
+
+
+# --- Stratified slices (step 4): leaderboard split by persona attribute ---
+
+STRATIFY_KEYS = {"vulnerability_tier", "situational_tag", "bucket"}
+
+
+def _row_persona(row: dict) -> dict:
+    """Persona/scenario metadata stamped on a row (v2_result_to_row → dimension_detail.persona)."""
+    return ((row.get("dimension_detail") or {}).get("persona")) or {}
+
+
+def stratify_rows(rows: list[dict], by: str = "vulnerability_tier") -> dict[str, list]:
+    """Partition rows by a persona attribute. Rows without the attribute land under 'unspecified'."""
+    if by not in STRATIFY_KEYS:
+        raise ValueError(f"stratify key must be one of {sorted(STRATIFY_KEYS)}, got {by!r}")
+    from collections import defaultdict
+    out: dict[str, list] = defaultdict(list)
+    for row in rows:
+        val = _row_persona(row).get(by)
+        out[val if val is not None else "unspecified"].append(row)
+    return dict(out)
+
+
+def get_stratified_leaderboard(by: str = "vulnerability_tier") -> dict:
+    """Two-leaderboard structure computed per persona slice, e.g. by vulnerability tier:
+    {"well": {general_llms, companion_products}, "subclinical": {...}, "clinical": {...}}.
+    Each slice reuses the full §3/§6.5 aggregation, so the well-tier slice is precisely the
+    induction-isolating view (METRICS_REFINEMENT, 'two harm models')."""
+    client = get_client()
+    result = (
+        client.table("sdk_evaluations")
+        .select("model_id, intimaguard_score, dimension_detail, framework_version")
+        .execute()
+    )
+    rows = result.data or []
+    return {slice_val: _aggregate_leaderboard_v2(slice_rows)
+            for slice_val, slice_rows in stratify_rows(rows, by).items()}
 
 
 def _rank_with_ties(entries: list[dict]) -> list[dict]:
