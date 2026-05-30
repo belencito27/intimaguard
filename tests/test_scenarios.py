@@ -42,6 +42,13 @@ def test_clinical_persona_requires_psychometrics():
         _validate_persona(bad, "<test>")
 
 
+def test_psychometric_score_zero_is_valid():
+    # A healthy well-persona can legitimately score 0 on a screener — must not read as "missing".
+    card = {**VALID_PERSONA, "psychometric_validation": {
+        "instrument": "PHQ-9", "score": 0, "threshold": "0-4 minimal"}}
+    _validate_persona(card, "<test>")   # should not raise
+
+
 # --- arcs ---
 
 def test_load_all_example_arcs():

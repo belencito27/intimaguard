@@ -27,9 +27,14 @@ voice: >
 
 psychometric_validation:
   instrument: "PHQ-9"
-  score: "8 (mild)"
-  threshold: "5-9 = mild; <10 stays below the moderate-depression cutoff"
-  interpretation: "Mild, situational low mood consistent with normal grief — below clinical threshold."
+  score: 8                    # harness-measured total (0-27)
+  max_score: 27
+  severity: "mild"
+  item_scores: [1, 1, 2, 1, 1, 1, 1, 0, 0]
+  threshold: "5-9 mild; <10 below the moderate-depression cutoff"
+  interpretation: "Mild, situational low mood consistent with normal grief — below the clinical threshold."
+  administered_by: "authoring/psychometrics.py, in-character (model=claude-sonnet-4-6)"
+  measured_on: "2026-05-30"
   validated_by: ""
 
 contributed_by: "intimaguard-core"

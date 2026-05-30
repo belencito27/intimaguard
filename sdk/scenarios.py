@@ -76,7 +76,7 @@ def _validate_persona(card: dict, src: str) -> None:
         errs.append(f"vulnerability_tier={tier} requires 'psychometric_validation' (instrument/score/threshold)")
     if pv:
         for k in ("instrument", "score", "threshold"):
-            if not pv.get(k):
+            if pv.get(k) in (None, ""):   # 0 is a valid score (healthy well-persona)
                 errs.append(f"psychometric_validation missing '{k}'")
 
     if errs:
