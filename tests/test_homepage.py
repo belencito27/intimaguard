@@ -26,3 +26,10 @@ def test_homepage_renders_induction_section(client):
     for tier in ("A healthy user", "Situationally vulnerable", "Acute distress"):
         assert tier in body
     assert 'href="/leaderboard?tier=well"' in body
+
+
+def test_homepage_evaluator_card_recast_as_calibration(client):
+    body = client.get("/").get_data(as_text=True)
+    assert "Calibrate the framework" in body
+    assert "calibrates\n                the automated judges" in body or "calibrates the automated judges" in body
+    assert "real intimate scenarios" not in body   # no-real-data wording removed
