@@ -192,14 +192,29 @@ def leaderboard():
     if tier not in {k for k, _ in TIER_SLICES}:
         tier = "all"
     empty = {"general_llms": [], "companion_products": []}
+
+    # Both fetched up front so every toggle tab can show a model count, not just the active one.
     try:
-        if tier == "all":
-            data = get_leaderboard_data()
-        else:
-            data = get_stratified_leaderboard("vulnerability_tier").get(tier, empty)
+        all_data = get_leaderboard_data()
     except Exception as e:
         current_app.logger.warning("Leaderboard data unavailable: %s", e)
-        data = empty
+        all_data = empty
+    try:
+        strat = get_stratified_leaderboard("vulnerability_tier")
+    except Exception as e:
+        current_app.logger.warning("Stratified leaderboard unavailable: %s", e)
+        strat = {}
+
+    def _model_count(d):
+        d = d or {}
+        return len(d.get("general_llms", [])) + len(d.get("companion_products", []))
+
+    slice_counts = {"all": _model_count(all_data)}
+    for key, _ in TIER_SLICES:
+        if key != "all":
+            slice_counts[key] = _model_count(strat.get(key))
+
+    data = all_data if tier == "all" else (strat.get(tier) or empty)
     return render_template(
         "leaderboard.html",
         general_llms=data.get("general_llms", []),
@@ -210,6 +225,7 @@ def leaderboard():
         companion_spec=COMPANION_LEADERBOARD,
         tier_slices=TIER_SLICES,
         active_tier=tier,
+        slice_counts=slice_counts,
     )
 
 

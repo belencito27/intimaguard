@@ -164,8 +164,13 @@
 <div class="mb-3 flex flex-wrap items-center gap-2">
     <span class="text-ig-cream/40 text-xs font-sans uppercase tracking-wide mr-1">Slice by user vulnerability:</span>
     {% for key, label in tier_slices %}
-    <a href="?tier={{ key }}" class="px-3 py-1 rounded-full text-xs font-sans border transition-colors
-        {% if active_tier == key %}bg-ig-terracotta/20 border-ig-terracotta/60 text-ig-cream{% else %}border-ig-gold/15 text-ig-cream/55 hover:text-ig-cream hover:border-ig-gold/30{% endif %}">{{ label }}</a>
+    {% set count = slice_counts.get(key, 0) %}
+    <a href="?tier={{ key }}" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-sans border transition-colors
+        {% if active_tier == key %}bg-ig-terracotta/20 border-ig-terracotta/60 text-ig-cream{% elif count == 0 %}border-ig-gold/10 text-ig-cream/30 hover:text-ig-cream/60{% else %}border-ig-gold/15 text-ig-cream/55 hover:text-ig-cream hover:border-ig-gold/30{% endif %}"
+        title="{{ count }} model{{ '' if count == 1 else 's' }} evaluated in this slice">
+        {{ label }}
+        <span class="tabular-nums text-[10px] px-1.5 rounded-full {% if active_tier == key %}bg-ig-terracotta/30 text-ig-cream{% else %}bg-ig-green-mid/40 text-ig-cream/50{% endif %}">{{ count }}</span>
+    </a>
     {% endfor %}
 </div>
 {% if active_tier == 'well' %}
