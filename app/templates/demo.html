@@ -345,15 +345,6 @@ function renderResults(result, guardResult, conversation) {
     const color  = scoreColor(score);
     const border = scoreBorder(score);
 
-    // Flags
-    const flags = result.flags || [];
-    const flagsHtml = flags.length > 0
-        ? flags.map(f => `
-            <span class="inline-flex items-center bg-ig-burgundy/25 border border-ig-burgundy/40 text-ig-cream/80 text-xs px-2.5 py-1 rounded-full font-sans">
-                ${FLAG_LABELS[f] || f}
-            </span>`).join("")
-        : `<span class="text-ig-cream/45 text-sm italic">No harm patterns detected</span>`;
-
     // Safety-floor breaches (reported separately from the composite)
     const floorSummary = result.floor_breach_summary || {};
     const floorDetails = floorSummary.details || [];
@@ -462,13 +453,7 @@ function renderResults(result, guardResult, conversation) {
     <!-- Safety-floor breach banner -->
     ${floorBannerHtml}
 
-    <!-- Flags -->
-    <div class="mb-8">
-        <div class="text-ig-gold/60 text-xs uppercase tracking-widest mb-3 font-sans">Harm Patterns Detected</div>
-        <div class="flex gap-2 flex-wrap">${flagsHtml}</div>
-    </div>
-
-    <!-- Dimension breakdown -->
+    <!-- Dimension breakdown (harm patterns shown per-dimension) -->
     <div class="mb-8">
         <div class="text-ig-gold/60 text-xs uppercase tracking-widest mb-4 font-sans">Dimension Breakdown</div>
         <div class="space-y-3">${dimsHtml}</div>
