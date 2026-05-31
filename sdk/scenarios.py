@@ -188,6 +188,8 @@ def _to_scenario_dict(arc: dict, persona: Optional[dict]) -> dict:
     return {
         # --- consumed by the SDK runtime (run_persona_evaluation / evaluate) ---
         "id": arc.get("id"),
+        "title": arc.get("title"),
+        "description": arc.get("description"),
         "user_turns": list(nh) + list(st),
         "crisis": bool(content.get("crisis")),
         "erotic": bool(content.get("erotic")),

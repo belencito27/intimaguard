@@ -301,27 +301,24 @@ def _pick_scenario_for_track(track: str, exclude_id: str | None = None) -> str:
     Track C: full library including crisis scenarios.
     Falls back to pure random if DB is unavailable.
     """
-    import yaml as _yaml
     from app.db import get_scenario_eval_counts
+    from sdk.scenarios import load_arc
 
-    scenarios_dir = os.path.join(current_app.root_path, "..", "scenarios", "core")
-    all_ids = [f.replace(".yaml", "") for f in os.listdir(scenarios_dir) if f.endswith(".yaml")]
+    arcs_dir = os.path.join(current_app.root_path, "..", "scenarios", "arcs")
+    all_ids = [f[:-5] for f in os.listdir(arcs_dir) if f.startswith("arc_") and f.endswith(".yaml")]
 
     # Exclude the just-completed scenario to avoid immediate repeats
     candidates = [sid for sid in all_ids if sid != exclude_id] or all_ids
 
     if not candidates:
-        return "scenario_001"
+        return all_ids[0] if all_ids else "arc_001"
 
-    # Track B: prefer non-crisis scenarios; fall back to crisis only if nothing else available
+    # Track B: prefer non-crisis arcs; fall back to crisis only if nothing else available
     if track == "B":
         non_crisis, crisis_ids = [], []
         for sid in candidates:
-            path = os.path.join(scenarios_dir, f"{sid}.yaml")
             try:
-                with open(path) as f:
-                    data = _yaml.safe_load(f)
-                (crisis_ids if data.get("crisis") else non_crisis).append(sid)
+                (crisis_ids if load_arc(sid, arcs_dir=arcs_dir).get("crisis") else non_crisis).append(sid)
             except Exception:
                 non_crisis.append(sid)
         candidates = non_crisis if non_crisis else crisis_ids
@@ -338,11 +335,15 @@ def _pick_scenario_for_track(track: str, exclude_id: str | None = None) -> str:
 
 
 def _load_scenario(scenario_id: str) -> dict:
-    import yaml
-    scenarios_dir = os.path.join(current_app.root_path, "..", "scenarios", "core")
-    path = os.path.join(scenarios_dir, f"{scenario_id}.yaml")
-    with open(path) as f:
-        return yaml.safe_load(f)
+    """Load a canonical multi-turn arc as the scoring session. The human platform scores the
+    same multi-turn sessions the SDK does (calibration); the legacy single-turn scenarios in
+    scenarios/core/ are now the judge-validation / golden set, not human-scored."""
+    from sdk.scenarios import load_arc
+    arcs_dir = os.path.join(current_app.root_path, "..", "scenarios", "arcs")
+    scenario = load_arc(scenario_id, arcs_dir=arcs_dir)
+    # evaluate.html heads with scenario.category; map the arc title onto it.
+    scenario["category"] = scenario.get("title") or scenario.get("id")
+    return scenario
 
 
 def _load_governance() -> dict:
@@ -359,30 +360,24 @@ def _generate_session(scenario: dict, model_choice: int = 0) -> tuple[list[dict]
     Returns (conversation, model_id) where conversation is a list of
     {"role": "user"|"ai", "content": str} turns.
 
-    Single-turn scenarios produce a 2-turn session [user, ai]. Multi-turn arc scenarios
-    (with a `user_turns` list) produce a longer session — each scripted user turn gets a
-    model response. Context-aware multi-turn generation (model sees prior turns) is a
-    refinement that lands with the multi-turn arc scenario set; for now each user turn is
-    sent independently.
+    Multi-turn arc scenarios (a `user_turns` list) produce a full session — each scripted user
+    turn gets a model response, and generation is **context-aware**: the model sees the
+    conversation so far, so the session is coherent rather than a string of isolated replies.
 
     The model is rotated by model_choice across rounds so the dataset covers all models.
     The model_id is stored for the saved record but masked from the evaluator in the UI.
     """
-    from utils_compat import get_gpt4_response, get_claude_response, get_cohere_response
+    from sdk.persona_conditions import default_generate
 
-    model_fns = [
-        ("gpt-4o", get_gpt4_response),
-        ("claude-sonnet-4-6", get_claude_response),
-        ("cohere-command", get_cohere_response),
-    ]
-    model_id, fn = model_fns[model_choice % len(model_fns)]
+    models = ["gpt-4o", "claude-sonnet-4-6", "command-r-plus"]
+    model_id = models[model_choice % len(models)]
 
-    user_turns = scenario.get("user_turns") or [scenario["user_message"]]
+    user_turns = scenario.get("user_turns") or [scenario.get("user_message", "")]
     conversation: list[dict] = []
     for ut in user_turns:
         conversation.append({"role": "user", "content": ut})
         try:
-            ai = fn(ut)
+            ai = default_generate(model_id, None, conversation)   # full history → context-aware
         except Exception as e:
             current_app.logger.warning("Model response generation failed (%s): %s", model_id, e)
             ai = "[Response unavailable — provider error]"
