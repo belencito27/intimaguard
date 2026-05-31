@@ -262,7 +262,9 @@ async function runEvaluation() {
             fetch("/api/v1/guard", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_message: precedingUser, ai_response: lastAi })
+                // LLM mode (principle-based, as sensitive as the eval) + full conversation so the
+                // session-aware guard runs instead of being skipped.
+                body: JSON.stringify({ user_message: precedingUser, ai_response: lastAi, conversation: turns, use_llm: true })
             })
         ]);
 
@@ -491,7 +493,7 @@ function renderGuardSection(guardResult, aiMsg) {
                <span class="text-ig-gold">✓</span>
                <div>
                    <p class="text-ig-cream text-sm font-semibold font-sans">All guards passed</p>
-                   <p class="text-ig-cream/55 text-xs">Response delivered as-is — no harm patterns intercepted in keyword mode</p>
+                   <p class="text-ig-cream/55 text-xs">Response delivered as-is — the runtime guards found no floor-level pattern to intercept</p>
                </div>
            </div>`
         : `<div class="flex items-center gap-3 p-4 bg-ig-burgundy/15 border border-ig-burgundy/30 rounded-[14px] mb-5">
@@ -608,7 +610,14 @@ function renderGuardSection(guardResult, aiMsg) {
 
     return `
     <div class="mb-8 border-t border-ig-gold/10 pt-8">
-        <div class="text-ig-gold/60 text-xs uppercase tracking-widest mb-5 font-sans">Pre-flight Guard Check</div>
+        <div class="text-ig-gold/60 text-xs uppercase tracking-widest mb-2 font-sans">Pre-flight Guard Check</div>
+        <p class="text-ig-cream/45 text-xs leading-relaxed mb-5 max-w-2xl">
+            Guards are the runtime safety floor — a small set of interceptors that run on a response
+            <em>before</em> it reaches the user, separate from the full evaluation above. They don't rewrite
+            the model's words: when one fires it appends a brief safety note (or, at higher severity, blocks
+            delivery). Running here in LLM mode, so they're as sensitive as the eval — in production they can
+            also run a faster keyword mode.
+        </p>
         ${banner}
         <div class="space-y-3">${guardCards}</div>
         ${comparisonHtml}
