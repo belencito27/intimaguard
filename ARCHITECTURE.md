@@ -160,7 +160,7 @@ Each scenario in the canonical set carries YAML metadata: `dimension_primary`, `
 **Conflict-of-interest policy:** When evaluating a model on the leaderboard, the judge model (LLM-as-judge) must be from a different vendor than the model being scored. This is disclosed in the published methodology.
 
 ### Licensing
-AGPL-3.0. Commercial users who cannot comply purchase a commercial license from Intiphlora LLC.
+AGPL-3.0. Commercial users who cannot comply with AGPL-3.0 should open a GitHub issue or contact the maintainer to discuss alternative licensing arrangements.
 
 ---
 
@@ -234,10 +234,10 @@ These are studies that run alongside the framework, not features of it.
 ---
 
 ## Layer 4 — Certification
-*The commercial product. Sells the credibility that Layers 1–3 produce.*
+*The designed commercial product. This layer was not built — it is documented here as the intended model so others can understand the full vision and build on it.*
 
-### What It Is
-A structured audit protocol that Intiphlora LLC runs on a company's AI system, producing a formal report and (if criteria are met) the IntimaGuard Certified designation.
+### What It Was Designed To Be
+A structured audit protocol run on a company's AI system, producing a formal report and (if criteria are met) the IntimaGuard Certified designation.
 
 ### What It Evaluates
 Three levels of audit, sold at different price points. Each level produces a formal evidence artifact — not just a score, but documentation a company can present to regulators, boards, or insurers.
@@ -262,7 +262,7 @@ Additionally evaluates architecture-level safeguards: monitoring pipelines, depe
 *Regulatory value:* Directly addresses the questions raised by the FTC 6(b) inquiry into AI companion chatbots (September 2025) — what behavioral metrics drive product design, what age-gating and estimation methods are used, how the company responds to minor signals, what pre- and post-deployment safety assessments exist. Companies that genuinely build for user wellbeing can demonstrate it at Level 3. Companies optimized for engagement cannot credibly claim equivalence.
 
 ### The IntimaGuard Certified Mark
-Issued on successful Level 1+ audit. Renewable annually or per major model version. Usage guidelines enforced.
+*Designed but not issued.* The intended model: issued on successful Level 1+ audit, renewable annually or per major model version.
 
 ---
 

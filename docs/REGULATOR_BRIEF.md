@@ -125,7 +125,7 @@ The full methodology is open and auditable:
 - **RISK_CONTROL_LIBRARY.md** — lifecycle risk and control framework across 8 NIST AI RMF stages
 - **PLAN.md** — phased roadmap, milestones, external regulatory deadlines
 
-License: Apache 2.0 for scenarios and rubrics (`scenarios/`, METRICS_REFINEMENT.md); AGPL-3.0 for SDK and evaluation engine (`sdk/`, `app/`). Commercial licensing for AGPL non-compliance available from Intiphlora LLC.
+License: Apache 2.0 for scenarios and rubrics (`scenarios/`, METRICS_REFINEMENT.md); AGPL-3.0 for SDK and evaluation engine (`sdk/`, `app/`). Commercial licensing inquiries: info@intiphlora.com.
 
 ---
 
@@ -133,4 +133,4 @@ License: Apache 2.0 for scenarios and rubrics (`scenarios/`, METRICS_REFINEMENT.
 
 Belén Sánchez Hidalgo · founder, Intiphlora Institute · `info@intiphlora.com` · `github.com/intiphlora/intimaguard`
 
-For regulatory inquiry, audit engagement, or policy consultation: please indicate jurisdiction, regulatory framework, and timeline in initial contact.
+Note: active development is paused. For research collaboration or methodology questions, contact info@intiphlora.com.

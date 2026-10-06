@@ -92,14 +92,14 @@ If you are interested in joining the Clinical Advisory Council, or want to recom
 
 **Belén Sánchez Hidalgo**
 Founder, Intiphlora Institute
-belen@intiphlora.com
+info@intiphlora.com
 
 Please include:
 - Your domain and relevant experience
 - How you encountered IntimaGuard (referral, research, platform, etc.)
 - Any specific dimension or harm pattern you have the most to contribute on
 
-Founding advisor conversations are happening in Phase 1 (mid-2026). The council will be formally constituted before the Phase 1 public launch.
+Note: active development is paused and the council was not formed. If you are interested in continuing this work — including clinical validation — reach out via email.
 
 ---
 
