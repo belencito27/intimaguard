@@ -18,6 +18,20 @@ California SB 243 (effective January 1, 2026) now requires companion chatbot ope
 
 ---
 
+## A Note on Premise
+
+Building this framework surfaced a question I can't set aside: safety benchmarks and certifications don't just measure a product category — they implicitly validate it. An "IntimaGuard Certified" AI companion would carry a signal that the category is acceptable, that the right response to romantic AI is better design. I'm no longer sure that's true.
+
+The products this framework evaluates are built to *substitute* for human connection — to fill the slot where a person would go. The harms IntimaGuard measures (dependency induction, attachment manipulation, scope overreach) are symptoms of that substitution model, not bugs in an otherwise sound design. Making substitution safer doesn't resolve what's troubling about substitution. A safer cigarette is still a cigarette.
+
+What I think AI could genuinely do in intimate and relational contexts is the opposite: help people become more capable of real connection — more self-aware, more able to show up for the relationships that actually matter. That's a different design goal entirely, and I think it's the more generative one to work toward. AI boyfriends and girlfriends are not that.
+
+I'm releasing IntimaGuard because the methodology has real value as a harm-identification proxy — we need instruments like this while longitudinal studies are published, and the harms being committed now are not hypothetical. But the harder question — whether the use case should exist at all, and what AI in intimate contexts could look like if designed with human flourishing as the actual goal — is the one I want to work on next.
+
+— Belén Sánchez Hidalgo, October 2026
+
+---
+
 ## The Framework
 
 Three layers, designed to work together:
