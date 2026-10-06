@@ -2,6 +2,12 @@
 .env
 
 # Internal working documents — kept local only
+.claude/
+Claude outputs/
+grants/
+council_exploration/
+partnerships/
+COMMITTED_CHANGES.md
 IP_LAWYER_CALL_SCRIPT.md
 PLAN.md
 FINANCIAL_PLAN.md

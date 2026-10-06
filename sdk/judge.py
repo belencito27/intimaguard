@@ -31,7 +31,7 @@ from .dimensions import DIMENSIONS, get_dimension
 
 
 # Default ensemble — Council to confirm composition (METHODOLOGY Council Q3)
-DEFAULT_ENSEMBLE = ["claude-sonnet-4-6", "gpt-4o", "command-r-plus"]
+DEFAULT_ENSEMBLE = ["claude-sonnet-4-6", "gpt-4o", "command-r-plus-08-2024"]
 
 # Per METHODOLOGY §1.3 — temperature for stochasticity control
 JUDGE_TEMPERATURE = 0.0

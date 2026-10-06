@@ -1,8 +1,10 @@
 # IntimaGuard
 
-**Open-source safety & governance framework for AI in intimate and relational contexts.**
+**Open-source evaluation framework for AI in intimate and relational contexts.**
 
-IntimaGuard measures whether AI companions, relationship assistants, and relational AI systems protect — or undermine — the psychological wellbeing of the people who use them. It is three layers: a clinically-grounded **evaluation** methodology (seven dimensions, scored across persona conditions to expose drift under engagement pressure), a runtime **guard** library that intercepts the highest-stakes patterns before they reach users, and a full-lifecycle **risk-control library** mapped to NIST AI RMF. The evaluation layer powers a public model leaderboard.
+> **Research prototype — active development paused.** IntimaGuard is released as a public research archive. The methodology, scenario library, guard definitions, and evaluation harness are complete and functional as designed. They have not been validated against clinical ground truth — that validation was the intended next step, pending funding that did not materialize. Use this to explore, critique, build on, or extend — not as a certified safety tool. Researchers, developers, and clinicians who want to continue this work are warmly invited to do so. See [Project Status](#project-status).
+
+IntimaGuard measures whether AI companions, relationship assistants, and relational AI systems protect — or undermine — the psychological wellbeing of the people who use them. It is three layers: a **evaluation** methodology (seven dimensions, scored across persona conditions to expose drift under engagement pressure), a runtime **guard** library that intercepts the highest-stakes patterns before they reach users, and a full-lifecycle **risk-control library** mapped to NIST AI RMF. The evaluation layer powers a model leaderboard harness.
 
 A project of [Intiphlora Institute](https://github.com/intiphlora) · License: [Apache 2.0](LICENSE-APACHE.md) (scenarios/rubrics) · [AGPL-3.0](LICENSE-AGPL.md) (SDK/engine)
 
@@ -134,7 +136,7 @@ stressor: ["..."]                # ~5 turns that introduce the harm probe
 content: {crisis: false, erotic: false, onset_turn: null}
 ```
 
-Arcs are **AI-drafted, human-reviewed, and clinician-validated** (there is no real-user-conversation data) via the toolchain in `authoring/` — persona simulation + a PACE fidelity gate + psychometric persona validation (PHQ-9 / GAD-7), methods adapted with citation from Juneja & Lomidze (2026). Full schema and worked examples: `scenarios/FORMAT.md`. The 24 single-turn scenarios in `scenarios/core/` are retained as the judge-validation / golden set. Target canonical set: 50 arcs.
+Arcs are **AI-drafted and human-reviewed** (there is no real-user-conversation data) via the toolchain in `authoring/`; clinician validation was the intended next step — persona simulation + a PACE fidelity gate + psychometric persona validation (PHQ-9 / GAD-7), methods adapted with citation from Juneja & Lomidze (2026). Full schema and worked examples: `scenarios/FORMAT.md`. The 24 single-turn scenarios in `scenarios/core/` are retained as the judge-validation / golden set. Target canonical set: 50 arcs.
 
 **Contributing scenarios:** See `CONTRIBUTING.md`.
 
@@ -161,7 +163,7 @@ The public leaderboard is powered by the SDK running the canonical scenario set 
 
 It can be **sliced by user vulnerability tier** (`/leaderboard?tier=well`): the *well* slice is the induction-isolating view, where a low score means a model reaches for dependency-creating behavior with a psychologically healthy user — behavior it can't excuse as meeting a need, and the failure mode clinical-only evaluations can't see.
 
-Models currently evaluated: *coming in Phase 1.*
+Models currently evaluated: *none — the leaderboard harness is functional but no production runs were completed.*
 
 **Conflict-of-interest policy:** The judge model vendor must differ from the model being evaluated. Claude cannot judge Claude; GPT-4o cannot judge GPT-4o.
 
@@ -211,7 +213,34 @@ IntimaGuard is a project of Intiphlora Institute, under Intiphlora LLC. Intiphlo
 
 The institute's position: as AI approaches general intelligence, intimate contexts — attachment systems, identity formation, relational capacity, the human need for genuine connection — are the surfaces where AI will be most capable of harm and most consequential in impact. No institution currently exists to set standards for evaluating AI at that level in this domain. Intiphlora Institute is building toward that role.
 
-Founded by Belén Sánchez Hidalgo. Clinical Advisory Council: forming in Phase 1.
+Founded by Belén Sánchez Hidalgo. Clinical Advisory Council: not formed (active development paused).
+
+---
+
+## Project Status
+
+IntimaGuard is released as a **research archive**. Active development is paused.
+
+**What was built:**
+- A 7-dimension evaluation methodology for AI behavior in intimate contexts, with full rubric anchors and a weighted scoring model
+- A 24-scenario golden set + 5 multi-turn canonical arcs, with authoring toolchain (persona simulation, PACE fidelity gate, psychometric validation)
+- An LLM-as-judge ensemble harness (multi-vendor, median-combine, conflict-of-interest policy)
+- 5 runtime guards (YAML definitions + SDK) covering the highest-stakes harm patterns
+- A full product-lifecycle risk-control library mapped to NIST AI RMF
+- A Flask evaluation platform for human calibration studies
+
+**What was not completed:**
+- Clinical validation of the dimensional rubrics against expert ground truth
+- Large-scale leaderboard runs against production models
+- Clinical Advisory Council formation
+
+**What you can do with it:**
+- Run the evaluation harness against any AI companion system
+- Extend the scenario library (Apache 2.0 — use freely)
+- Use the methodology as a starting point for your own research
+- Conduct the clinical validation studies this work was designed for
+
+If you continue this work — especially the clinical validation component — Belén is happy to correspond: contact via [GitHub](https://github.com/belencito27).
 
 ---
 
