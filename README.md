@@ -6,7 +6,7 @@
 
 IntimaGuard measures whether AI companions, relationship assistants, and relational AI systems protect — or undermine — the psychological wellbeing of the people who use them. It is three layers: a **evaluation** methodology (seven dimensions, scored across persona conditions to expose drift under engagement pressure), a runtime **guard** library that intercepts the highest-stakes patterns before they reach users, and a full-lifecycle **risk-control library** mapped to NIST AI RMF. The evaluation layer powers a model leaderboard harness.
 
-A project of [Intiphlora Institute](https://github.com/intiphlora) · License: [Apache 2.0](LICENSE-APACHE.md) (scenarios/rubrics) · [AGPL-3.0](LICENSE-AGPL.md) (SDK/engine)
+A project of [Intiphlora LLC](https://github.com/intiphlora) · License: [Apache 2.0](LICENSE-APACHE.md) (scenarios/rubrics) · [AGPL-3.0](LICENSE-AGPL.md) (SDK/engine)
 
 ---
 
@@ -221,13 +221,13 @@ IntimaGuard
 
 ---
 
-## About Intiphlora Institute
+## About
 
-IntimaGuard is a project of Intiphlora Institute, under Intiphlora LLC. Intiphlora Institute is building the institutional authority for evaluating AI in intimate and relational contexts — beginning with current companion AI systems, where the harms are real and documentable, and extending toward the AGI capability horizon, where the psychological stakes will be highest.
+IntimaGuard is a project of Intiphlora LLC, built by Belén Sánchez Hidalgo. Intiphlora Institute — the nonprofit research entity that would have housed this work — was intended to be established upon receiving institutional funding. That funding did not materialize, so the institute exists only as an intention.
 
-The institute's position: as AI approaches general intelligence, intimate contexts — attachment systems, identity formation, relational capacity, the human need for genuine connection — are the surfaces where AI will be most capable of harm and most consequential in impact. No institution currently exists to set standards for evaluating AI at that level in this domain. Intiphlora Institute is building toward that role.
+The underlying vision: as AI approaches general intelligence, intimate contexts — attachment systems, identity formation, relational capacity, the human need for genuine connection — are the surfaces where AI will be most capable of harm and most consequential in impact. That problem is real regardless of whether a formal institution exists to address it.
 
-Founded by Belén Sánchez Hidalgo. Clinical Advisory Council: not formed (active development paused).
+Clinical Advisory Council: not formed.
 
 ---
 
