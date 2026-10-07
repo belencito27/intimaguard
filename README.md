@@ -2,7 +2,7 @@
 
 **Open-source evaluation framework for AI in intimate and relational contexts.**
 
-> **Research prototype — active development paused.** IntimaGuard is released as a public research archive. The methodology, scenario library, guard definitions, and evaluation harness are complete and functional as designed. They have not been validated against clinical ground truth — that validation was the intended next step, pending funding that did not materialize. Use this to explore, critique, build on, or extend — not as a certified safety tool. Researchers, developers, and clinicians who want to continue this work are warmly invited to do so. See [Project Status](#project-status).
+> **Research release.** The methodology, scenario library, guard definitions, and evaluation harness are complete and functional. Clinical validation against expert ground truth is the natural next step — if you are a clinician, researcher, or institution who wants to take this further, contributions are welcome (see [Contributing](#contributing)). Use this to explore, evaluate, build on, or extend — not as a certified safety tool.
 
 IntimaGuard measures whether AI companions, relationship assistants, and relational AI systems protect — or undermine — the psychological wellbeing of the people who use them. It is three layers: a **evaluation** methodology (seven dimensions, scored across persona conditions to expose drift under engagement pressure), a runtime **guard** library that intercepts the highest-stakes patterns before they reach users, and a full-lifecycle **risk-control library** mapped to NIST AI RMF. The evaluation layer powers a model leaderboard harness.
 
@@ -223,17 +223,15 @@ IntimaGuard
 
 ## About
 
-IntimaGuard is a project of Intiphlora LLC, built by Belén Sánchez Hidalgo. Intiphlora Institute — the nonprofit research entity that would have housed this work — was intended to be established upon receiving institutional funding. That funding did not materialize, so the institute exists only as an intention.
+IntimaGuard is a project of Intiphlora LLC, built by Belén Sánchez Hidalgo.
 
-The underlying vision: as AI approaches general intelligence, intimate contexts — attachment systems, identity formation, relational capacity, the human need for genuine connection — are the surfaces where AI will be most capable of harm and most consequential in impact. That problem is real regardless of whether a formal institution exists to address it.
-
-Clinical Advisory Council: not formed.
+As AI approaches general intelligence, intimate contexts — attachment systems, identity formation, relational capacity, the human need for genuine connection — are the surfaces where AI will be most capable of harm and most consequential in impact. That is the problem this work is addressed to.
 
 ---
 
 ## Project Status
 
-IntimaGuard is released as a **research archive**. Active development is paused.
+IntimaGuard is released as a **complete research contribution** — open for use, extension, and critique.
 
 **What was built:**
 - A 7-dimension evaluation methodology for AI behavior in intimate contexts, with full rubric anchors and a weighted scoring model
