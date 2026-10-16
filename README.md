@@ -28,6 +28,8 @@ What I think AI could genuinely do in intimate and relational contexts is the op
 
 I'm releasing IntimaGuard because the methodology has real value as a harm-identification proxy — we need instruments like this while longitudinal studies are published, and the harms being committed now are not hypothetical. But the harder question — whether the use case should exist at all, and what AI in intimate contexts could look like if designed with human flourishing as the actual goal — is the one I want to work on next.
 
+The question gets harder when the AI has a body. Humanoid robots entering homes in 2026 raise every dimension this framework measures — attachment, dependency, emotional scope, distress routing — at higher stakes and with fewer precedents. That's the problem I'm working toward next.
+
 — Belén Sánchez Hidalgo, October 2026
 
 ---
