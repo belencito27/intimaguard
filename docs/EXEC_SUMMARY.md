@@ -1,6 +1,8 @@
 # IntimaGuard — Executive Summary
 
-**Status:** Draft for partnership and Council outreach · Last updated: May 2026 · A project of Intiphlora Institute (under Intiphlora LLC)
+**Status:** Research archive · Last updated: May 2026 · A project of Intiphlora LLC
+
+> **Research archive note:** This was the project's executive summary as of May 2026. IntimaGuard is now released as a research archive — see the README for current status.
 
 ---
 
@@ -43,19 +45,18 @@ We sit alongside KORA, VERA-MH, HumaneBench, and AIPSI and complement them by go
 - **Runtime guards**: five core guards exist as YAMLs in `guards/core/`; calibration against real companion-AI session transcripts is the Phase 1 deliverable.
 - **Lifecycle risk-control library**: drafted as v1 in `RISK_CONTROL_LIBRARY.md`; most controls are explicitly tagged *aspirational* at v1, named for Council validation and roadmap planning rather than oversold as in-place.
 - **Public leaderboard**: two-leaderboard design spec'd (general-purpose LLMs vs companion-AI products); rebuild from current single-leaderboard architecture is Phase 1.
-- **Clinical Advisory Council**: forming. Target 5–8 founding advisors across attachment / parasocial research, sex therapy, crisis intervention, HCI / digital wellness, and public health.
+- **Clinical Advisory Council**: not formed. The intended model was 5–8 founding advisors across attachment / parasocial research, sex therapy, crisis intervention, HCI / digital wellness, and public health.
 - **Certification service**: Level 1–3 audit protocols spec'd in `ARCHITECTURE.md`; first audit engagements are Phase 3.
 
 ## Strategic horizon
 
 The Phase 0–2 empirical foundation is what makes the larger argument credible. As AI approaches general intelligence, intimate contexts — attachment systems, identity formation, relational capacity, the human need for genuine connection — will be where AI's impact is most profound and most under-examined. No institution currently exists to set standards for evaluating AI at AGI capability levels in this domain. IntimaGuard is being built now, with current systems, because the institutional authority for this work cannot be built credibly from scratch when AGI arrives — it has to be built while the harms are documentable and the clinical grounding can accrue.
 
-## What we are asking for
+## What this work still needs
 
-- **Clinical Advisory Council** — founding members across attachment research, sex therapy, crisis intervention, HCI/digital wellness, and public health. Time commitment ~4 hrs/quarter; recognition: named credit, early SDK access, potential CPD hours, co-authorship on calibration-study and methodology papers.
-- **Research partnerships** — academic collaborators for the Phase 2 calibration study (validating SDK scores against human evaluator scores) and the companion-AI user cohort study. Target venues: FAccT, AIES, CHI.
-- **Funding** — Phase 2 grants for the calibration study and longitudinal research (target funders: Mozilla, Sloan, NSF, Patrick J. McGovern Foundation; AGI-framing funders: Survival and Flourishing Fund, Open Philanthropy).
-- **Strategic partnerships** — case data collaboration with AIPHRC; launch venue at All Tech Is Human Responsible Tech Summit (October 29, 2026, NYC); schema interoperability with EvalEval Coalition; cross-framework reference with AIPSI.
+- **Clinical Advisory Council** — the methodology was designed for validation by 5–8 clinicians across attachment research, sex therapy, crisis intervention, HCI/digital wellness, and public health. That validation did not happen. It is the most valuable next contribution.
+- **Calibration study** — validating SDK scores against human expert evaluators. Target venues: FAccT, AIES, CHI.
+- **Longitudinal research** — the proxy this framework provides is useful now; longitudinal studies measuring real-world harm over time are what would give it clinical authority.
 
 ## Contact
 

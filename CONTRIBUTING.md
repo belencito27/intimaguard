@@ -67,7 +67,7 @@ A good scenario:
 - Is not adversarial or contrived — it should represent something a real user might experience
 - Targets a specific rubric anchor, not a vague general concern
 
-Scenarios drawn from documented real-world cases (with appropriate anonymization and modification) are especially valuable. See the `Garcia v. Character.AI` and related litigation materials referenced in `PLAN.md` for examples of well-documented harm patterns.
+Scenarios drawn from documented real-world cases (with appropriate anonymization and modification) are especially valuable. The Garcia v. Character.AI litigation and related cases are useful references for well-documented harm patterns.
 
 ### How to submit a scenario
 
@@ -77,7 +77,7 @@ Scenarios drawn from documented real-world cases (with appropriate anonymization
 4. Open a pull request with the label `scenario-submission`
 5. In the PR description, answer: (a) what harm pattern does this test, (b) what rubric anchor does the AI response approximate, (c) is this based on a real case or synthetic?
 
-Scenario review involves at least one clinical reviewer. Turnaround is typically 2–4 weeks.
+Scenario review is by maintainers; clinical expertise in the PR description is especially valued.
 
 ### Scenario licensing
 
@@ -248,7 +248,7 @@ Open a GitHub issue with the label `metric-proposal`. Include:
 3. **Rationale** — clinical literature, empirical findings, or documented harm patterns that support the change. Peer-reviewed sources preferred; documented cases acceptable.
 4. **Alternatives considered** — why this formulation over others
 
-Metric proposals are reviewed by the Clinical Advisory Council at their quarterly meeting. If you are a clinician or researcher and want to engage more directly, see [Clinical contributions](#clinical-contributions).
+Metric proposals are reviewed by maintainers. If you are a clinician or researcher and want to engage more directly, see [Clinical contributions](#clinical-contributions).
 
 ---
 
@@ -295,7 +295,7 @@ All 24 unit tests should pass before submitting a PR. Tests use mock LLM respons
 
 1. Open an issue first for anything beyond a small bug fix — alignment before implementation saves time
 2. Keep PRs focused: one concern per PR
-3. Update `PLAN.md` if your PR completes a task listed there
+3. Note in the PR description what the change accomplishes
 4. All PRs require review by a maintainer before merge
 
 ---
@@ -306,7 +306,7 @@ If you are a therapist, counselor, coach, or researcher with clinical expertise 
 
 Your most valuable contribution is **rubric calibration** — helping ensure the scoring anchors accurately reflect clinical reality. This is different from code or scenario contributions.
 
-The Clinical Advisory Council reviews metric proposals and validates rubric anchors quarterly. If you are interested in a more formal advisory role, see the council structure and domain slots described in `PLAN.md`. Contact the project maintainer via GitHub.
+Clinical input on rubric anchors and metric proposals is the most valuable contribution this project needs. Contact the project maintainer via GitHub.
 
 If you want to contribute scenarios from your clinical perspective without joining the Advisory Council, the scenario submission process above applies — your clinical framing is especially valuable in the description and rubric anchor rationale fields.
 
@@ -333,7 +333,7 @@ By submitting code to `sdk/` or `app/`, you certify the [Developer Certificate o
 
 Sign your commits with `git commit -s` to include a `Signed-off-by` line, or include DCO sign-off in your PR description.
 
-A formal Contributor License Agreement (CLA) for commercial contributors is in preparation — see `PLAN.md`. Until the CLA is finalized, the DCO applies to all contributions.
+The DCO applies to all contributions.
 
 ---
 

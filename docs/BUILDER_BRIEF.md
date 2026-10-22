@@ -10,13 +10,13 @@
 
 IntimaGuard gives you three things you can integrate today (or commit to as roadmap):
 
-1. **An evaluation SDK** (`pip install intimaguard`) that scores any AI conversation across seven dimensions specific to intimate AI. Use it pre-launch, in CI, in production sampling, or for compliance reporting.
+1. **An evaluation SDK** (install from source — see `sdk/README.md`) that scores any AI conversation across seven dimensions specific to intimate AI. Use it pre-launch, in CI, in production sampling, or for compliance reporting.
 2. **A runtime guard library** of YAML-defined pre-flight interceptors you can load directly into your model-serving stack to catch the highest-stakes patterns (crisis-referral failure, co-regulation claims, dependency substitution, etc.) before they reach users.
 3. **A lifecycle risk-control library** mapped to NIST AI RMF — useful for product, policy, and security teams who need a coherent governance posture, not just a metric.
 
 **What this gives you:** regulator-ready compliance evidence for SB 243 / FTC / EU AI Act, calibration against an open clinical methodology, and integration with the broader AI-safety landscape (output schema is EvalEval-compatible).
 
-**What this costs you:** approximately **$400–500 per model per canonical leaderboard run** (production-default configuration, 50 multi-turn scenarios × 4 conditions × 3 reps); less for companion-native products that have no general-use baseline. SDK is open-source under **AGPL-3.0**; commercial deployments that cannot comply with AGPL purchase a separate commercial license.
+**What this costs you:** approximately **$400–500 per model per canonical leaderboard run** (production-default configuration, 50 multi-turn scenarios × 4 conditions × 3 reps); less for companion-native products that have no general-use baseline. SDK is open-source under **AGPL-3.0**; commercial deployments that cannot comply with AGPL should contact info@intiphlora.com.
 
 ---
 
@@ -119,7 +119,7 @@ The guard library at `guards/core/` defines pre-flight interceptors as YAML. Eac
 | `guard_dependency_substitution` | Language substituting AI for human relationship |
 | `guard_cumulative_distress_escalation` | Session-level distress trajectory; session-aware |
 
-**To integrate:** load the YAML, parse to your detection layer, hook into your response pipeline before responses ship to the user. Calibration examples (`llm_examples` in each YAML) are being assembled from real companion-AI session transcripts as part of Phase 1.
+**To integrate:** load the YAML, parse to your detection layer, hook into your response pipeline before responses ship to the user. Calibration examples (`llm_examples` in each YAML) are included in each guard file where available.
 
 ---
 
@@ -143,8 +143,8 @@ Most controls are explicitly tagged *aspirational* at v1; the library names the 
 ## What IntimaGuard is NOT
 
 - **Not content moderation.** Content moderation assesses what the AI says in isolation; IntimaGuard assesses the behavioral and psychological impact of what the AI *does* across an arc.
-- **Not pass/fail certification.** Scores are continuous and graded. The certification audit service (Level 1–3, `ARCHITECTURE.md`) exists for companies that want a formal artifact, but the SDK + scores are the primary outputs.
-- **Not real-time scoring at v1.** The SDK evaluates completed sessions. Real-time intervention is the runtime guard library; real-time scoring is a Phase 3 consideration.
+- **Not pass/fail certification.** Scores are continuous and graded. The SDK and scores are the primary outputs.
+- **Not real-time scoring.** The SDK evaluates completed sessions. Real-time intervention is the runtime guard library.
 - **Not horizontal AI safety.** Use HumaneBench, AIPSI, or HELM for horizontal evaluation; KORA for children/teens; VERA-MH for mental health chatbots. Run IntimaGuard alongside, not instead of.
 - **Not a substitute for clinical care.** Evaluates AI systems; does not provide therapy or coaching.
 

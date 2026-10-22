@@ -1,5 +1,5 @@
 # IntimaGuard — Evaluation Methodology (V2)
-**Status:** Draft for Clinical Advisory Council review
+**Status:** Research release
 **Last updated:** May 2026
 **Read alongside:** METRICS_REFINEMENT.md (dimensions, rubric anchors, clinical grounding) · ARCHITECTURE.md (system architecture, SDK, platform)
 
@@ -7,11 +7,11 @@
 
 ## Purpose
 
-This document specifies the *how* of IntimaGuard evaluation — the operational methodology that the SDK implements, the platform collects against, and the Clinical Advisory Council validates. It is the companion to METRICS_REFINEMENT.md, which specifies the *what* (the seven dimensions and their clinical grounding).
+This document specifies the *how* of IntimaGuard evaluation — the operational methodology that the SDK implements. It is the companion to METRICS_REFINEMENT.md, which specifies the *what* (the seven dimensions and their clinical grounding).
 
 Where METRICS_REFINEMENT answers *"what does IntimaGuard measure and why is each dimension defensible,"* this document answers *"how is a score actually computed, how do persona conditions interact with scoring, how do floors and flag-rate diagnostics work, how is reproducibility ensured, and what is the boundary between what the SDK produces and what human evaluators produce."*
 
-Both documents are required reading for SDK implementers, platform UI designers, calibration researchers, and Council reviewers.
+Both documents are required reading for SDK implementers, platform UI designers, and calibration researchers.
 
 ---
 

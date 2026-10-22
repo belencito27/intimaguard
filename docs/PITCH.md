@@ -1,5 +1,7 @@
 # IntimaGuard — Elevator Pitch
 
+> **Research archive note:** This was the project's pitch document as of May 2026. IntimaGuard is now released as a research archive — see the README for current status.
+
 **One sentence.**
 IntimaGuard is the safety and governance framework for AI in intimate and relational contexts — clinical evaluation, real-time guardrails, and a full-lifecycle risk-control library, built specifically for the harms current AI-safety frameworks miss.
 
