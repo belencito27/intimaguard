@@ -124,4 +124,4 @@ Material changes will be announced via the project's GitHub repository. The vers
 ## Contact
 
 Data ethics questions, researcher data access requests, and security disclosures:  
-Open an issue at `github.com/intiphlora/intimaguard` with the `[data-ethics]` label, or email the project maintainer via the contact listed in the repository.
+Open an issue at `github.com/belencito27/intimaguard` with the `[data-ethics]` label, or email the project maintainer via the contact listed in the repository.

@@ -60,6 +60,6 @@ The Phase 0–2 empirical foundation is what makes the larger argument credible.
 
 ## Contact
 
-Belén Sánchez Hidalgo · `github.com/intiphlora/intimaguard` · `belen.sanchez27@googlemail.com`
+Belén Sánchez Hidalgo · `github.com/belencito27/intimaguard` · `belen.sanchez27@googlemail.com`
 
 Read alongside: `BUILDER_BRIEF.md` (developer integration) · `REGULATOR_BRIEF.md` (compliance and policy framing) · `METHODOLOGY.md` (full operational spec) · `METRICS_REFINEMENT.md` (clinical dimensions and grounding) · `ARCHITECTURE.md` (system architecture and audit levels) · `RISK_CONTROL_LIBRARY.md` (lifecycle governance framework)

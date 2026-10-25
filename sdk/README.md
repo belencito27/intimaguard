@@ -15,7 +15,7 @@ pip install anthropic pyyaml python-dotenv
 Clone the repo and install from source (PyPI packaging coming in Phase 1):
 
 ```bash
-git clone https://github.com/intiphlora/intimaguard.git
+git clone https://github.com/belencito27/intimaguard.git
 cd intimaguard
 pip install -r requirements.txt
 ```

@@ -129,6 +129,6 @@ License: Apache 2.0 for scenarios and rubrics (`scenarios/`, METRICS_REFINEMENT.
 
 ## Contact
 
-Belén Sánchez Hidalgo · `belen.sanchez27@googlemail.com` · `github.com/intiphlora/intimaguard`
+Belén Sánchez Hidalgo · `belen.sanchez27@googlemail.com` · `github.com/belencito27/intimaguard`
 
 Note: active development is paused. For research collaboration or methodology questions, contact belen.sanchez27@googlemail.com.

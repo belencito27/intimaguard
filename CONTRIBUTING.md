@@ -260,7 +260,7 @@ The evaluation engine (`sdk/`) and web platform (`app/`) are licensed under **AG
 
 ```bash
 # Clone the repo
-git clone https://github.com/intiphlora/intimaguard.git
+git clone https://github.com/belencito27/intimaguard.git
 cd intimaguard/V2
 
 # Create a virtual environment

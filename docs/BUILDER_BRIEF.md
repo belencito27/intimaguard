@@ -160,6 +160,6 @@ Scenario submissions (Apache 2.0 license), metric proposals, code contributions,
 
 ## Contact
 
-`github.com/intiphlora/intimaguard` · `belen.sanchez27@googlemail.com`
+`github.com/belencito27/intimaguard` · `belen.sanchez27@googlemail.com`
 
 Read alongside: `METHODOLOGY.md` (full operational spec) · `METRICS_REFINEMENT.md` (clinical dimensions and grounding) · `ARCHITECTURE.md` (system architecture, audit levels, dashboard structure) · `RISK_CONTROL_LIBRARY.md` (lifecycle governance) · `sdk/README.md` (SDK reference) · `CONTRIBUTING.md`
