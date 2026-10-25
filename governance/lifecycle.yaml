@@ -7,7 +7,7 @@
 # Renders at /governance, presented as "the standard intimate-AI products should meet."
 
 version: v1
-status: "Draft for Clinical Advisory Council review"
+status: "Research release"
 source_doc: RISK_CONTROL_LIBRARY.md
 framework: "NIST AI RMF"
 intro: >

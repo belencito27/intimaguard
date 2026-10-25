@@ -52,5 +52,5 @@
 - [ ] New Python files in `sdk/` or `app/` include the AGPL-3.0 SPDX header
 - [ ] New YAML files in `scenarios/` or `guards/` include `license: Apache-2.0`
 - [ ] No identifying information about real individuals is included
-- [ ] `PLAN.md` updated if this PR completes a listed task
+- [ ] PR description explains what the change accomplishes
 - [ ] **License:** I release this contribution under the license specified in `CONTRIBUTING.md` for this contribution type (Apache 2.0 for scenarios/guards; AGPL-3.0 for code)

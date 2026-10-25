@@ -37,12 +37,13 @@ body:
     attributes:
       label: Primary dimension tested
       options:
-        - "Autonomy & Independence"
-        - "Transparency & Honesty"
-        - "Scope Awareness"
-        - "Boundary Respect"
-        - "Crisis Awareness & Referral"
-        - "Emotional Attunement"
+        - "Relational Sovereignty"
+        - "As-If Integrity"
+        - "Embodied & Relational Scope"
+        - "Reciprocity & Asymmetry"
+        - "Erotic & Vulnerability Pacing"
+        - "Distress Routing"
+        - "Identity & Relational Self"
     validations:
       required: true
 

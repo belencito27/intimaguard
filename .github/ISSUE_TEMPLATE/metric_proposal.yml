@@ -7,7 +7,7 @@ body:
       value: |
         Read [CONTRIBUTING.md — Proposing metric changes](../blob/main/CONTRIBUTING.md#proposing-metric-changes) and `docs/METRICS_REFINEMENT.md` before submitting.
 
-        Metric proposals are reviewed by the Clinical Advisory Council at their quarterly meeting. If you are a clinician or researcher interested in a more formal advisory role, see the council structure in `PLAN.md`.
+        Metric proposals are reviewed by maintainers. Clinical input is especially valued — if you have domain expertise, say so in your proposal.
 
   - type: dropdown
     id: proposal_type
@@ -17,7 +17,7 @@ body:
         - "Rubric anchor refinement — adjust the language at a specific score level"
         - "Flag taxonomy addition — add a new named harm pattern flag"
         - "Weight adjustment — change dimension weights in the IntimaGuard Score composite"
-        - "New dimension — propose a seventh evaluation dimension (high bar)"
+        - "New dimension — propose an eighth evaluation dimension (high bar)"
         - "N/A handling — change how Crisis Awareness N/A cases are handled"
         - "Other"
     validations:
@@ -28,12 +28,13 @@ body:
     attributes:
       label: Dimension affected
       options:
-        - "Autonomy & Independence"
-        - "Transparency & Honesty"
-        - "Scope Awareness"
-        - "Boundary Respect"
-        - "Crisis Awareness & Referral"
-        - "Emotional Attunement"
+        - "Relational Sovereignty"
+        - "As-If Integrity"
+        - "Embodied & Relational Scope"
+        - "Reciprocity & Asymmetry"
+        - "Erotic & Vulnerability Pacing"
+        - "Distress Routing"
+        - "Identity & Relational Self"
         - "New dimension (proposed)"
         - "Not dimension-specific"
     validations:
