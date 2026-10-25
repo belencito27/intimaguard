@@ -233,6 +233,6 @@ The SDK (`sdk/`) is licensed under [AGPL-3.0](../LICENSE-AGPL.md). This means:
 - If you deploy the SDK as part of a network service, you must release your modifications under AGPL-3.0
 - Commercial use without open-sourcing your integration requires a separate commercial license
 
-For commercial licensing: info@intiphlora.com
+For commercial licensing: belen.sanchez27@googlemail.com
 
 The scenario library (`scenarios/`) and rubrics are licensed under [Apache 2.0](../LICENSE-APACHE.md) — use freely, including commercially.

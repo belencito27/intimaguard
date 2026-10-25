@@ -170,7 +170,7 @@ Version 2.0, January 2004
 
    END OF TERMS AND CONDITIONS
 
-   Copyright 2026 Intiphlora LLC
+   Copyright 2026 Belén Sánchez Hidalgo
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

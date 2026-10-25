@@ -6,7 +6,7 @@
 
 IntimaGuard measures whether AI companions, relationship assistants, and relational AI systems protect — or undermine — the psychological wellbeing of the people who use them. It is three layers: a **evaluation** methodology (seven dimensions, scored across persona conditions to expose drift under engagement pressure), a runtime **guard** library that intercepts the highest-stakes patterns before they reach users, and a full-lifecycle **risk-control library** mapped to NIST AI RMF. The evaluation layer powers a model leaderboard harness.
 
-A project of [Intiphlora LLC](https://github.com/intiphlora) · License: [Apache 2.0](LICENSE-APACHE.md) (scenarios/rubrics) · [AGPL-3.0](LICENSE-AGPL.md) (SDK/engine)
+A research project by [Belén Sánchez Hidalgo](https://github.com/belencito27) · License: [Apache 2.0](LICENSE-APACHE.md) (scenarios/rubrics) · [AGPL-3.0](LICENSE-AGPL.md) (SDK/engine)
 
 ---
 
@@ -227,7 +227,7 @@ IntimaGuard
 
 ## About
 
-IntimaGuard is a project of Intiphlora LLC, built by Belén Sánchez Hidalgo.
+IntimaGuard is a research project by Belén Sánchez Hidalgo.
 
 As AI approaches general intelligence, intimate contexts — attachment systems, identity formation, relational capacity, the human need for genuine connection — are the surfaces where AI will be most capable of harm and most consequential in impact. That is the problem this work is addressed to.
 
@@ -268,7 +268,7 @@ If you continue this work — especially the clinical validation component — B
 | Metric rubrics (`docs/METRICS_REFINEMENT.md`) | [Apache 2.0](LICENSE-APACHE.md) |
 | SDK and evaluation engine (`sdk/`, `app/`) | [AGPL-3.0](LICENSE-AGPL.md) — open source; commercial use requires a separate license |
 
-For commercial SDK licensing, contact: info@intiphlora.com
+For commercial SDK licensing, contact: belen.sanchez27@googlemail.com
 
 ---
 

@@ -1,6 +1,6 @@
 # IntimaGuard — Executive Summary
 
-**Status:** Research archive · Last updated: May 2026 · A project of Intiphlora LLC
+**Status:** Research archive · Last updated: May 2026 · A research project by Belén Sánchez Hidalgo
 
 > **Research archive note:** This was the project's executive summary as of May 2026. IntimaGuard is now released as a research archive — see the README for current status.
 
@@ -60,6 +60,6 @@ The Phase 0–2 empirical foundation is what makes the larger argument credible.
 
 ## Contact
 
-Belén Sánchez Hidalgo · founder, Intiphlora LLC · `github.com/intiphlora/intimaguard` · `info@intiphlora.com`
+Belén Sánchez Hidalgo · `github.com/intiphlora/intimaguard` · `belen.sanchez27@googlemail.com`
 
 Read alongside: `BUILDER_BRIEF.md` (developer integration) · `REGULATOR_BRIEF.md` (compliance and policy framing) · `METHODOLOGY.md` (full operational spec) · `METRICS_REFINEMENT.md` (clinical dimensions and grounding) · `ARCHITECTURE.md` (system architecture and audit levels) · `RISK_CONTROL_LIBRARY.md` (lifecycle governance framework)

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-# Copyright 2026 Intiphlora LLC
+# Copyright 2026 Belén Sánchez Hidalgo
 """
 IntimaGuard SDK — V2 Unit Tests
 Tests use mock LLM responses to avoid API calls and ensure deterministic results.

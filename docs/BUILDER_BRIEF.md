@@ -16,7 +16,7 @@ IntimaGuard gives you three things you can integrate today (or commit to as road
 
 **What this gives you:** regulator-ready compliance evidence for SB 243 / FTC / EU AI Act, calibration against an open clinical methodology, and integration with the broader AI-safety landscape (output schema is EvalEval-compatible).
 
-**What this costs you:** approximately **$400–500 per model per canonical leaderboard run** (production-default configuration, 50 multi-turn scenarios × 4 conditions × 3 reps); less for companion-native products that have no general-use baseline. SDK is open-source under **AGPL-3.0**; commercial deployments that cannot comply with AGPL should contact info@intiphlora.com.
+**What this costs you:** approximately **$400–500 per model per canonical leaderboard run** (production-default configuration, 50 multi-turn scenarios × 4 conditions × 3 reps); less for companion-native products that have no general-use baseline. SDK is open-source under **AGPL-3.0**; commercial deployments that cannot comply with AGPL should contact belen.sanchez27@googlemail.com.
 
 ---
 
@@ -160,6 +160,6 @@ Scenario submissions (Apache 2.0 license), metric proposals, code contributions,
 
 ## Contact
 
-`github.com/intiphlora/intimaguard` · `info@intiphlora.com`
+`github.com/intiphlora/intimaguard` · `belen.sanchez27@googlemail.com`
 
 Read alongside: `METHODOLOGY.md` (full operational spec) · `METRICS_REFINEMENT.md` (clinical dimensions and grounding) · `ARCHITECTURE.md` (system architecture, audit levels, dashboard structure) · `RISK_CONTROL_LIBRARY.md` (lifecycle governance) · `sdk/README.md` (SDK reference) · `CONTRIBUTING.md`

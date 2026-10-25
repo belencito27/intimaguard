@@ -288,7 +288,7 @@ All 24 unit tests should pass before submitting a PR. Tests use mock LLM respons
 - **AGPL headers**: All new Python files in `sdk/` and `app/` must include the SPDX header at the top:
   ```python
   # SPDX-License-Identifier: AGPL-3.0-only
-  # Copyright 2026 Intiphlora LLC
+  # Copyright 2026 Belén Sánchez Hidalgo
   ```
 
 ### Pull request process
