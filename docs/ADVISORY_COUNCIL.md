@@ -91,7 +91,7 @@ We are actively seeking advisors who reflect the diversity of the populations mo
 If you are interested in joining the Clinical Advisory Council, or want to recommend someone, contact:
 
 **Belén Sánchez Hidalgo**
-Founder, Intiphlora Institute
+Founder, Intiphlora LLC
 info@intiphlora.com
 
 Please include:
@@ -118,4 +118,4 @@ These are the open questions requiring Advisory Council input before the framewo
 
 ---
 
-*IntimaGuard is a project of Intiphlora Institute, under Intiphlora LLC. The Clinical Advisory Council is an advisory body; governance of IntimaGuard rests with the founder.*
+*IntimaGuard is a project of Intiphlora LLC. The Clinical Advisory Council is an advisory body; governance of IntimaGuard rests with the founder.*

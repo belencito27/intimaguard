@@ -1,5 +1,7 @@
 # IntimaGuard — Data Ethics & Privacy Policy
 
+> **Research archive note:** This document describes the data ethics and privacy policy designed for the IntimaGuard evaluation platform. The platform was never publicly launched, and no evaluation data was collected under this policy. It is published as a record of the intended data governance design — useful if this work is continued or adapted.
+
 **Version:** 0.1 (Phase 0)  
 **Scope:** Platform evaluation data collected via intimaguard.dev (and any staging environments)  
 **Last updated:** April 2026
