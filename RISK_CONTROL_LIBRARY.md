@@ -1,5 +1,5 @@
 # IntimaGuard — Lifecycle Risk & Control Library
-**Status**: Draft for Clinical Advisory Council review
+**Status**: Research release
 **Last updated**: May 2026
 **Read alongside**: METRICS_REFINEMENT.md, ARCHITECTURE.md, guards/core/*.yaml
 

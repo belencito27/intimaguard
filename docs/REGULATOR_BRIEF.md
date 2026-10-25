@@ -2,7 +2,7 @@
 
 **For compliance teams at companion-chatbot operators, regulators, standards bodies, and policy researchers.**
 
-**Status:** Draft · Last updated: May 2026 · A project of Intiphlora Institute
+**Status:** Research archive · Last updated: May 2026 · A project of Intiphlora LLC
 
 ---
 
@@ -111,7 +111,7 @@ Suggested sequence for operators preparing for SB 243 reporting or FTC inquiry:
 
 ## Independence and conflict disclosure
 
-IntimaGuard is built by Intiphlora Institute (a project of Intiphlora LLC), with no commercial relationship to any AI lab, companion-AI product, or evaluated model vendor. Unlike VERA-MH (built by Spring Health, which has its own AI products), IntimaGuard has no internal commercial conflict between the framework and any system being evaluated. The framework is open-source, the methodology is publicly auditable, and per-evaluation methodology disclosures (including judge ensemble used and cost) are part of every audit output.
+IntimaGuard is built by Intiphlora LLC, with no commercial relationship to any AI lab, companion-AI product, or evaluated model vendor. Unlike VERA-MH (built by Spring Health, which has its own AI products), IntimaGuard has no internal commercial conflict between the framework and any system being evaluated. The framework is open-source, the methodology is publicly auditable, and per-evaluation methodology disclosures (including judge ensemble used and cost) are part of every audit output.
 
 ---
 
@@ -123,14 +123,12 @@ The full methodology is open and auditable:
 - **METRICS_REFINEMENT.md** — the seven dimensions and their clinical grounding (each dimension cites foundational peer-reviewed literature)
 - **ARCHITECTURE.md** — system architecture, leaderboard pipeline, audit-level detail, modality roadmap
 - **RISK_CONTROL_LIBRARY.md** — lifecycle risk and control framework across 8 NIST AI RMF stages
-- **PLAN.md** — phased roadmap, milestones, external regulatory deadlines
-
 License: Apache 2.0 for scenarios and rubrics (`scenarios/`, METRICS_REFINEMENT.md); AGPL-3.0 for SDK and evaluation engine (`sdk/`, `app/`). Commercial licensing inquiries: info@intiphlora.com.
 
 ---
 
 ## Contact
 
-Belén Sánchez Hidalgo · founder, Intiphlora Institute · `info@intiphlora.com` · `github.com/intiphlora/intimaguard`
+Belén Sánchez Hidalgo · founder, Intiphlora LLC · `info@intiphlora.com` · `github.com/intiphlora/intimaguard`
 
 Note: active development is paused. For research collaboration or methodology questions, contact info@intiphlora.com.

@@ -60,6 +60,6 @@ The Phase 0–2 empirical foundation is what makes the larger argument credible.
 
 ## Contact
 
-Belén Sánchez Hidalgo · founder, Intiphlora Institute · `github.com/intiphlora/intimaguard` · `info@intiphlora.com`
+Belén Sánchez Hidalgo · founder, Intiphlora LLC · `github.com/intiphlora/intimaguard` · `info@intiphlora.com`
 
-Read alongside: `PITCH.md` (verbal/written pitch material) · `BUILDER_BRIEF.md` (developer integration) · `REGULATOR_BRIEF.md` (compliance and policy framing) · `METHODOLOGY.md` (full operational spec) · `METRICS_REFINEMENT.md` (clinical dimensions and grounding) · `ARCHITECTURE.md` (system architecture and audit levels) · `RISK_CONTROL_LIBRARY.md` (lifecycle governance framework) · `PLAN.md` (roadmap and milestones)
+Read alongside: `BUILDER_BRIEF.md` (developer integration) · `REGULATOR_BRIEF.md` (compliance and policy framing) · `METHODOLOGY.md` (full operational spec) · `METRICS_REFINEMENT.md` (clinical dimensions and grounding) · `ARCHITECTURE.md` (system architecture and audit levels) · `RISK_CONTROL_LIBRARY.md` (lifecycle governance framework)

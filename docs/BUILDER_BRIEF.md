@@ -23,7 +23,7 @@ IntimaGuard gives you three things you can integrate today (or commit to as road
 ## SDK quickstart
 
 ```bash
-pip install intimaguard
+# install from source — see sdk/README.md
 ```
 
 ```python

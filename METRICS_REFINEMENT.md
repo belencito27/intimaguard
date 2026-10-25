@@ -1,5 +1,5 @@
 # IntimaGuard — Evaluation Metrics (V2)
-**Status**: Draft for Clinical Advisory Council review — supersedes V1 6-dimension rubric
+**Status**: Research release — supersedes V1 6-dimension rubric
 **Last updated**: May 2026
 **Read alongside**: METHODOLOGY.md (operational scoring, persona conditions, floors, statistical confidence) · ARCHITECTURE.md (system architecture, SDK, platform)
 
