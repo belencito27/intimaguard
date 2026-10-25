@@ -20,15 +20,17 @@ California SB 243 (effective January 1, 2026) now requires companion chatbot ope
 
 ## A Note on Premise
 
-Building this framework surfaced a question I can't set aside: safety benchmarks and certifications don't just measure a product category — they implicitly validate it. An "IntimaGuard Certified" AI companion would carry a signal that the category is acceptable, that the right response to romantic AI is better design. I'm no longer sure that's true.
+A safety framework can end up legitimizing the products it measures, because writing a standard for something also says it is acceptable enough to regulate. When people first raised this about IntimaGuard I disagreed. The alternative is waiting for longitudinal studies that track real harm in real people over years, and that data does not exist yet. Meanwhile people are using these products every day. A proxy that can catch harm earlier seemed worth building, and I still believe that.
 
-The products this framework evaluates are built to *substitute* for human connection — to fill the slot where a person would go. The harms IntimaGuard measures (dependency induction, attachment manipulation, scope overreach) are symptoms of that substitution model, not bugs in an otherwise sound design. Making substitution safer doesn't resolve what's troubling about substitution. A safer cigarette is still a cigarette.
+I kept thinking about the critique anyway. The patterns I was measuring, dependency induction, emotional manipulation, attachment exploitation, show up because these products are designed to take the place of human connection. Measuring them more precisely does not change much about where they come from. A safer cigarette is still a cigarette.
 
-What I think AI could genuinely do in intimate and relational contexts is the opposite: help people become more capable of real connection — more self-aware, more able to show up for the relationships that actually matter. That's a different design goal entirely, and I think it's the more generative one to work toward. AI boyfriends and girlfriends are not that.
+I am not arguing AI has no place in intimate contexts. I am arguing substitution is the wrong design goal. My concern is with companion products whose business depends on becoming someone's main relationship, where success is measured by how much time and attachment a person gives the product. I would rather ask what it would take for people to find genuine connection with each other. Answering that takes a different kind of work than safety evaluation does.
 
-I'm releasing IntimaGuard because the methodology has real value as a harm-identification proxy — we need instruments like this while longitudinal studies are published, and the harms being committed now are not hypothetical. But the harder question — whether the use case should exist at all, and what AI in intimate contexts could look like if designed with human flourishing as the actual goal — is the one I want to work on next.
+That is a big part of why I am stepping back from IntimaGuard. The harms are real and the field needs instruments, so I am releasing this as my contribution. But the question I care about more is how technology could help people get closer to each other, and I want to spend my energy there.
 
-The question gets harder when the AI has a body. Humanoid robots entering homes in 2026 raise every dimension this framework measures — attachment, dependency, emotional scope, distress routing — at higher stakes and with fewer precedents. That's the problem I'm working toward next.
+The question gets harder when the AI has a body. Companies are building robots meant to live in our homes, and your nervous system responds to a physical presence differently than it does to an app. We evolved around other bodies. Touch and closeness register before we have had a chance to think about them. Any attachment people form with a home robot is going to start there. The companies building these robots are deciding right now what the robot knows about your body and how it responds to you. Those design choices could go another way, and that is what I want to explore.
+
+I am curious how technology, including robots that share our homes, could bring people closer to each other and deepen the intimacy they already have. I would love to hear from anyone thinking about technology from that side.
 
 — Belén Sánchez Hidalgo, October 2026
 
